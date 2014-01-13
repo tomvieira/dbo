@@ -1,0 +1,323 @@
+// Setting the correct charset
+@charset "UTF-8";
+// This includes all of the foundation global elements that are needed to work with any of the other files.
+@import "foundation/variables";
+@import "peixe-laranja";
+@import "project";
+
+/* ------------------------------------------------------------------------------------------------------------------------- */
+/* STYLES DBO BACK END ----------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------------- */
+
+body { overflow-y: scroll; }
+
+/* acertando a cor do header */
+#main-header .nome-sistema { background-color: $primary-color; }
+
+/* modal */
+body.dbo.modal { padding: 1em; overflow-y: auto;
+	#main-header { display: none; }
+	#main-footer { display: none; }
+	#super-admin-bar { display: none; }
+	.wrapper-dbo-auto-admin .wrapper-module-id,
+	.wrapper-dbo-auto-admin .wrapper-module-button-new { display: none; }
+	&.no-fixos {
+		.wrapper-dbo-auto-admin .wrapper-module-fixos { display: none; }
+	}
+}
+
+/* super-admin-bar */
+#super-admin-bar { width: 100%; 
+	.wrapper-controls { position: relative; 
+		.wrapper-buttons { padding: 5px 10px; background: #FFF; position: absolute; z-index: 9000; -webkit-border-radius: 0px 5px 5px 0px; -moz-border-radius: 0px 5px 5px 0px; border-radius: 0px 5px 5px 0px; top: 5px; left: 0px; box-shadow: 0px 1px 3px rgba(1,1,1,.3); 
+			a { margin-left: 5px; 
+				&:first-child { margin-left: 0; }
+				&:hover { opacity: 0.8; }
+			}		
+		}	
+	}
+}
+
+/* big buttons do cockpit */
+#cockpit-big-buttons { margin-bottom: 1em;
+	a { border: 1px solid darken(#fff, 15%); display: block; position: relative; padding-top: 100%; color: darken(#fff, 45%); background-color: darken(#fff, 3%); -webkit-transition: all .15s ease; -moz-transition: all .15s ease; transition: all .15s ease;
+		span.icon { position: absolute; display: block; width: 40%; height: 40%; top: 25%; left: 30%; background-size: cover; background-repeat: no-repeat; opacity: .6; }
+		div.name { position: absolute; width: 100%; bottom: 0; text-align: center; left: 0; padding: 0.2em; font-size: emCalc(14); }
+		&:hover { border: 1px solid $primary-color; box-shadow: 0px 1px 3px lighten($primary-color, 30%); background-color: darken(#fff, 5%); color: darken($primary-color, 10%); 
+			span.icon { opacity: .7; }
+		}
+		.notifications { position: absolute; top: -0.4em; right: -0.4em; background-color: $primary-color; color: #fff; -webkit-border-radius: 100px; -moz-border-radius: 100px; border-radius: 100px; min-height: 2em; min-width: 2em; line-height: 2em; text-align: center; }
+	}
+}
+
+/* estilos para os icones da sidebar */
+#cockpit-side-nav { 
+	li { position: relative;
+		i { display: inline-block; width: 1em; height: 1em; margin-right: .8em; background-size: cover; position: relative; bottom: emCalc(-2); opacity: .5; }
+	}
+	.notifications { position: absolute; top: 0; right: 0; min-height: 1.5em; min-width: 1.5em; -webkit-border-radius: 100px; -moz-border-radius: 100px; border-radius: 100px; background-color: $primary-color; color: #fff; text-align: center; }
+}
+
+/* erros dos forms */
+.validation-error {
+	label { color: $alert-color; }
+	input, textarea, select { border: 1px solid $alert-color !important; background-color: lighten($alert-color, 55%) !important; }
+	.form-height-fix * { color: $alert-color; }
+}
+
+/* correção necessária para o fadeIn - fadeOut na listagem dos cadastros */
+.anchor-get-list { display: block; }
+
+/* estilos para as tabelas */
+table { width: 100%; border-spacing: 0; }
+table {
+	th { border-bottom: 1px solid #ddd; 
+		background-image: -webkit-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,.09) 86%, rgba(0,0,0,.06) 100%);
+		background-image: -moz-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,.09) 86%, rgba(0,0,0,.06) 100%);
+		background-image: -o-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,.09) 86%, rgba(0,0,0,.06) 100%);
+		background-image: linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,.09) 86%, rgba(0,0,0,.06) 100%);
+		a { color: #444; }
+	}
+	td.view-handle { cursor: pointer; }
+	&.list {
+		tr.active { outline: 2px solid $primary-color;
+			td {
+				background-color: lighten($primary-color, 25%);
+			}
+			&:hover { 
+				td { background: lighten($primary-color, 20%); }
+			}
+		}
+	}
+}
+table tbody td { border-bottom: 1px dotted #ccc; }
+table tbody tr:not(.active):hover td { background: #eee; }
+
+/* estilo para as tabelas responsivas */
+table.responsive {
+	thead { display: none; }
+	tbody { 
+		tr { display: block; border-top: 4px solid #ccc;
+			td { display: block; padding-left: 40%; position: relative; min-height: emCalc(39);
+				&:before { content: attr(data-title); position: absolute; font-weight: bold; top: emCalc(10); left: emCalc(10); }
+			}
+		}
+	}
+}
+
+/* icones ao lado das ordenações na listagem dos cadastros */
+.dbo-link-order { background: url(../dbo/core/images/link-order-by.png) right 2px no-repeat; padding-right: 15px; }
+.dbo-link-order-asc { background-image: url(../dbo/core/images/link-order-by-asc.png); }
+.dbo-link-order-desc { background-image: url(../dbo/core/images/link-order-by-desc.png); }
+
+/* layout para os input-images */
+.thumb-lista { padding: 3px; border: 1px solid #CCC; -webkit-box-shadow: 0px 1px 3px #DDD; margin-bottom: 1em; display: block; }
+table.list .thumb-lista { margin-bottom: 0px !important; }
+
+/* ajustes de layout nas views dos cadastros */
+.viewset {
+	fieldset { margin-top: 0; }
+	.row { 
+		.field { font-weight: bold; margin-bottom: 1em; }
+	}
+}
+
+/* layout da tela de permissões */
+.wrapper-permissions { 
+	.header, .item { cursor: pointer; 
+		&:hover { text-decoration: underline; }
+	}
+	.item.off { opacity: .4; }
+	.item { display: block;
+		input { margin-bottom: 0; }
+	}
+}
+
+/* tela com o hard browser check, para IE menor que 9 */
+#login-browser-warning {
+	h6 { color: $alert-color; text-transform: uppercase; }
+	p, ul { font-size: emCalc(14); }
+	ul { 
+		li { display: block; float: left; width: 50%; text-align: center; list-style: none; margin-bottom: 1em;
+			img { width: 120px; display: block; margin: 0 auto; }
+		}
+	}
+	.internet-explorer {
+		color: darken(#4AAEEC, 10%);
+		img { width: 16px; height: 16px; }
+	}
+}
+
+/* corrigindo estilos do tinymce */
+.mce-tinymce { margin-bottom: 1em !important; }
+
+/* estilos para o cabecalho padrao */
+
+.top-bar {
+	.dropdown { box-shadow: 0px 1px 3px rgba(1,1,1,.2); }
+	h1 a { text-indent: -10000px; background: url(../images/logo-unesp-header-color.png) 0 center no-repeat; min-width: 100px !important; height: 45px; position: relative; }
+}
+
+#main-header {
+	h1, h2 { margin: 0; padding: 0; font-weight: normal; font-size: emCalc(16); line-height: emCalc(35); }
+	h2 { font-size: emCalc(23); color: #fff; font-weight: bold; }
+	.nome-sistema { text-shadow: 0px 1px 0px rgba(1,1,1,.2); background-color: $header-color; color: #fff; line-height: emCalc(50);
+		box-shadow: inset 0px 1px 3px rgba(1,1,1,.2);
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(1,1,1,0)), to(rgba(1,1,1,.05)));
+		background-image: -webkit-linear-gradient(rgba(1,1,1,0), rgba(1,1,1,.05));
+		background-image: -moz-linear-gradient(rgba(1,1,1,0), rgba(1,1,1,.05));
+		background-image: -o-linear-gradient(rgba(1,1,1,0), rgba(1,1,1,.05));
+		background-image: linear-gradient(rgba(1,1,1,0), rgba(1,1,1,.05));
+		i { width: 40px; height: 40px; background: url(../images/icon-central-shadow.png) 0 0 no-repeat; background-size: auto; display: inline-block; vertical-align: middle; position: relative; top: -2px; }
+		h2 { text-align: center; }
+	}
+	.logo { display: inline-block; background: url(../images/logo-unesp-header-color.png); width: 100px; height: 35px; text-indent: 10000px; overflow: hidden; }
+	.first-row { height: emCalc(39); line-height: emCalc(39);
+		ul.bread-crumb { margin: 0; padding: 0; font-size: emCalc(14); }
+	}
+}
+
+.main-tabs {
+	ul.left, ul.right { 
+		a { border-bottom: 1px solid #ddd; }
+	}
+}
+
+.bread-crumb { margin: 0 auto; margin-bottom: 1em; font-size: 14px; line-height: 39px; padding: 0 10px; 
+	li { display: inline-block; position: relative; padding-left: 30px; 
+		&:before { content: url(../images/bread-bullet.png); width: 7px; height: 7px; position: absolute; left: 10px; top: 0px; }
+		&:last-child a:not(.label) { color: #333; text-decoration: none; }
+		a { color: $neutral-link-color; text-decoration: underline; 
+			&:hover { color: darken($neutral-link-color, 30%); }
+		}
+		a.label { color: #333; text-decoration: none;
+			&+a { display: block; margin-top: emCalc(-15); }
+		}
+	}
+}
+
+#ui-datepicker-div { z-index: 50 !important; }
+
+/* icones do menu */
+.top-bar li i { display: none; } 
+
+/* ----------------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------- */
+/* - PARA TELAS MAIORES QUE 768 ------------------------------------------------------------------------------ */
+/* ----------------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------- */
+
+@media #{$small} {
+	.wrapper-dbo-auto-admin {
+		.filter-button { position: absolute; right: $column-gutter; top: 5px; }
+		.large-no-wrap { white-space: nowrap; }
+	}
+	.viewset {
+		.row { border-bottom: 1px solid #ddd;
+			&:first-child label { margin-top: 0; }
+			&:last-child { border-bottom: 0; margin-top: 1em; }
+			label { font-size: emCalc(13); color: #999; margin-top: 1em; }
+			.columns { border-right: 1px solid #ddd;
+				&:last-child { border-right: 0; }
+			}
+		}
+	}
+	.wrapper-permissions { 
+		.item { display: inline-block; margin-right: 2em; }
+	}
+
+	.bread-crumb { 
+		li { 
+			&:first-child { display: inline-block; padding: 0; }
+			&:first-child:before { display: none; }
+		}
+	}
+
+	/* acertando posição dos campos de formulário dentro das top-bars */
+	.top-bar {
+		input, .button { top: emCalc(6px) }
+	}
+
+	table.responsive {
+		thead { display: table-header-group; }
+		tbody { 
+			tr { display: table-row; border-top: 4px solid #ccc;
+				td { display: table-cell; padding-left: emCalc(10); position: relative; min-height: auto;
+					&:before { content: ''; position: absolute; font-weight: bold; top: 0; left: 0; display: none; }
+				}
+			}
+		}
+	}
+
+
+	#main-header { margin-bottom: emCalc(30);
+		.nome-sistema h2 { text-align: left; }		
+		/*.main-tabs { height: emCalc(45);
+			ul { padding: 0; }
+			li { margin: emCalc(12) 0 0 0; width: auto; padding: 0;
+				a { -webkit-border-radius: 5px 5px 0 0; -moz-border-radius: 5px 5px 0 0; border-radius: 5px 5px 0 0; border: 1px solid #ddd; border-bottom: 1px solid #fff; margin-right: 4px; border-bottom: 1px solid #ddd; font-size: emCalc(16); }
+			}
+			li.active a { border-bottom: 1px solid #fff; }
+		}*/
+	}
+
+	.main-tabs { border-bottom: 1px solid #ddd; height: emCalc(39);
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(0,0,0,0)), color-stop(0.92, rgba(255,255,255,.09)), to(rgba(0,0,0,.06)));
+		background-image: -webkit-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,.09) 92%, rgba(0,0,0,.06) 100%);
+		background-image: -moz-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,.09) 92%, rgba(0,0,0,.06) 100%);
+		background-image: -o-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,.09) 92%, rgba(0,0,0,.06) 100%);
+		background-image: linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,.09) 92%, rgba(0,0,0,.06) 100%);
+		.top-bar { height: emCalc(39);
+			ul.left, ul.right {
+				a { border-bottom: 0px; }
+			}
+			ul.dropdown { background: #fff; 
+				li.divider { border-bottom: 1px solid #eee; }
+			}
+			section > ul { background: rgba(255,255,255,0); 
+				> li > a { font-size: emCalc(14); line-height: emCalc(35); margin-top: emCalc(8); }
+			}
+			section > ul.left { background: rgba(255,255,255,0); padding-left: $column-gutter/2;
+				> li { margin-right: 3px; }
+				> li > a { -webkit-border-radius: 5px 5px 0 0; -moz-border-radius: 5px 5px 0 0; border-radius: 5px 5px 0 0; border: 1px solid #ddd; background: rgba(1,1,1,.05); color: #999;
+					&:hover { color: #222; }
+				}
+				> li.active > a { background: #fff; border-bottom: 1px solid #fff; color: #222; }
+			}
+			section > ul.right { height: emCalc(37); padding-right: $column-gutter/2;
+				> li { margin-right: 3px; }
+				> li.divider { position: relative;
+					&:after { content: '\2022'; position: absolute; top: emCalc(10); left: emCalc(-3); }
+				}
+				> li > a { color: $neutral-link-color; padding: 0 emCalc(10); text-decoration: underline;
+					&:hover { color: darken($neutral-link-color, 30%); }
+					&:not([href]) { color: #222; cursor: default; text-decoration: none; }
+					&:not([href]):hover { text-decoration: none; }
+				}
+			}
+		}
+	}
+
+	/* this nasty bug is for fixing firefox margin-top */
+	@-moz-document url-prefix() {
+		.main-tabs .top-bar section > ul > li > a { margin-top: emCalc(7); }
+	}
+
+	/* imagens nos formularios */
+	.thumb-lista { max-width: 50%; }
+
+	/* icones do menu */
+	.top-bar li i { display: inline-block; width: 16px; height: 16px; background-repeat: no-repeat; background-position: center center; opacity: .8; position: relative; top: 3px; } 
+
+}
+
+@media #{$large} {
+	.wrapper-permissions { 
+		.row.full { padding-left: emCalc(150); }
+	}
+}
+
+/* experimental */
+.grey-state { @include desature-on; opacity: .7; -webkit-transition: all .15s ease; -moz-transition: all .15s ease; transition: all .15s ease;
+	&:hover { @include desature-off; opacity: 1; }
+}
