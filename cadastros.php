@@ -27,7 +27,7 @@
 
 <script>
 	$(document).ready(function(){
-		activeMainNav('sistema');
+		activeMainNav('cadastros');
 	}) //doc.ready
 </script>
 

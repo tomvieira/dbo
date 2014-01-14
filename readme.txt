@@ -3,10 +3,18 @@ Developed by José Eduardo Biasioli
 http://www.peixelaranja.com.br
 
 -----------------------------------------------------------------------------------------
-- Version 0.9.5 -------------------------------------------------------------------------
+- Version 0.9.6 -------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 Changelog
+
+- Version 0.9.6 -------------------------------------------------------------------------
+
+Improvements
+- Versioned to github at https://github.com/damiansb/dbo.git
+- Lots of uselesse files removed
+- The script now accepts more custom-<files>.php
+- new dboData() function shows date names in pt-BR
 
 - Version 0.9.5 -------------------------------------------------------------------------
 
