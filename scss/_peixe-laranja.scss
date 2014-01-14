@@ -34,3 +34,11 @@
     -o-transform: $foo;
     transform: $foo;
 }
+
+@mixin border-radius($foo) {
+    -webkit-border-radius: $foo;
+    -moz-border-radius: $foo;
+    -ms-border-radius: $foo;
+    -o-border-radius: $foo;
+    border-radius: $foo;
+}
