@@ -224,7 +224,7 @@ body.wordpress {
 		}
 		.wrapper-module-button-new { display: inline-block; width: auto; float: none; padding-top: 24px; 
 			.button { font-weight: 600; font-size: 13px; border: 0; background-color: #e0e0e0; color: $wordpress-main-color; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; -webkit-transition: none; -moz-transition: none; transition: none; box-shadow: none;
-				&:hover { background: $wordpress-button-hover-color; color: #fff; }
+				&:hover { background-color: $wordpress-button-hover-color; color: #fff; }
 			}
 		}
 	}
