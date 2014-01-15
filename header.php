@@ -72,7 +72,7 @@
 	</style>
 
 </head>
-<body class="dbo <?= (($_GET['dbo_modal'])?('modal'):((($_GET['dbo_modal_no_fixos'])?('modal no-fixos'):('')))) ?>">
+<body class="dbo <?= $_GET['body_class'] ?> <?= (($_GET['dbo_modal'])?('modal'):((($_GET['dbo_modal_no_fixos'])?('modal no-fixos'):('')))) ?>">
 
 	<?= browserWarning(); ?>
 

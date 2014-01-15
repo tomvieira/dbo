@@ -201,6 +201,55 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 /* icones do menu */
 .top-bar li i { display: none; } 
 
+/* estilos para integração com wordpress */
+
+body.wordpress { 
+		
+	background: #F1F1F1; 
+
+	$wordpress-main-color: #0074A2;
+	$wordpress-button-hover-color: #363b3f;
+
+	a { color: $wordpress-main-color; }
+
+	.button { color: $wordpress-main-color; background-color: #e0e0e0; border: none; outline: none; @include transition(none); box-shadow: none;
+		&:hover { background-color: $wordpress-button-hover-color; color: #fff; }
+	}
+
+	ul.pagination li.current a { background-color: $wordpress-main-color; }
+
+	.wrapper-dbo-auto-admin .row { max-width: 100%; 
+		.wrapper-module-id { display: inline-block; width: auto;
+			h2 a { font-size: 23px; color: #222; font-weight: 400; }
+		}
+		.wrapper-module-button-new { display: inline-block; width: auto; float: none; padding-top: 24px; 
+			.button { font-weight: 600; font-size: 13px; border: 0; background-color: #e0e0e0; color: $wordpress-main-color; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; -webkit-transition: none; -moz-transition: none; transition: none; box-shadow: none;
+				&:hover { background: $wordpress-button-hover-color; color: #fff; }
+			}
+		}
+	}
+
+	#main-header { display: none; }
+	table { background: #fff; border: 1px solid #e5e5e5;
+		thead {
+			th { font-weight: normal; color: #222; 
+				a { color: #333; }
+			}
+		}
+		tbody {
+			tr:nth-child(odd) { background: #F9F9F9 }
+			td { border-bottom: 0; background: transparent; }
+		}
+	}
+	.processing-time, .dbo-queries-number { display: none; }
+	#super-admin-bar { display: none; }
+
+	.wrapper-message { line-height: 28px; font-size: 16px; z-index: 10000; opacity: 0.7; pointer-events: none; 
+		.success { font-size: 16px; font-weight: bold; text-shadow: none; border-bottom: 0; font-weight: 100; }
+		.error { font-size: 16px; font-weight: bold; padding: 0 20px; text-shadow: none; border-bottom: 0; font-weight: 100; }
+	}
+}
+
 /* ----------------------------------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------------- */
 /* - PARA TELAS MAIORES QUE 768 ------------------------------------------------------------------------------ */

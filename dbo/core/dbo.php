@@ -1639,7 +1639,7 @@ class Dbo extends Obj
 							// PK =========================================================================================
 							if($valor->tipo == 'pk')
 							{
-								if($list_function) { $return .= $list_function($obj); }
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
 									$return .= htmlspecialchars($val);
 								}
@@ -1647,7 +1647,7 @@ class Dbo extends Obj
 							// TEXT =======================================================================================
 							if($valor->tipo == 'text')
 							{
-								if($list_function) { $return .= $list_function($obj); }
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
 									$return .= htmlspecialchars($val);
 								}
@@ -1668,7 +1668,7 @@ class Dbo extends Obj
 							// CAMPO DE DATA ==============================================================================
 							elseif ($valor->tipo == 'date')
 							{
-								if($list_function) { $return .= $list_function($obj); }
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
 									$val = explode("-", $val);
 									$val = implode("/", array_reverse($val));
@@ -1678,7 +1678,7 @@ class Dbo extends Obj
 							// CAMPO DE DATA E HORA ==============================================================================
 							elseif ($valor->tipo == 'datetime')
 							{
-								if($list_function) { $return .= $list_function($obj); }
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
 									if(strlen(trim($val)))
 									{
@@ -1692,7 +1692,7 @@ class Dbo extends Obj
 								$jobj = new Dbo($join->modulo);
 								$jobj->id = $val;
 								$jobj->load();
-								if($list_function) { $return .= $list_function($obj); }
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
 									$return .= $jobj->{$join->valor};
 								}
@@ -1719,7 +1719,7 @@ class Dbo extends Obj
 							elseif ($valor->tipo == 'image') {
 								if($val)
 								{
-									if($list_function) { $return .= $list_function($obj); }
+									if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 									else {
 										$return .= "<img src='".DBO_IMAGE_HTML_PATH."/".$val."' class='thumb-lista' />";
 									}
@@ -1737,7 +1737,7 @@ class Dbo extends Obj
 								}
 								if($val !== false)
 								{
-									if($list_function) { $return .= $list_function($obj); }
+									if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 									else {
 										$return .= $val;
 									}
