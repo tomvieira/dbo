@@ -1927,20 +1927,22 @@ class Dbo extends Obj
 									// RADIO =====================================================================================
 									elseif ($valor->tipo == 'radio')
 									{
-										$return .= "<div class='form-height-fix'>";
+										$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 										foreach($valor->valores as $chave2 => $valor2)
 										{
-											$return .= "<span style='padding-right: 20px;'><input type='radio' style='margin-right: .5em;' name='".$valor->coluna."' value='".$chave2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>".$valor2."</span>\n";
+											$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 										}
-										$return .= "</div><!-- form-height-fix -->";
+										$return .= "</span>";
 									}
 									// CHECKBOX ==================================================================================
 									elseif ($valor->tipo == 'checkbox')
 									{
+										$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 										foreach($valor->valores as $chave2 => $valor2)
 										{
-											$return .= "<input type='checkbox' name='".$valor->coluna."[]' value='".$chave2."' style='margin-right: .5em;'><span style='padding-right: 20px;' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>".$valor2."</span><br />\n";
+											$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 										}
+										$return .= "</span>";
 									}
 									// SELECT ====================================================================================
 									elseif ($valor->tipo == 'select')
@@ -2034,11 +2036,11 @@ class Dbo extends Obj
 												}
 												elseif($join->tipo == 'radio') //se o join for do tipo select
 												{
-													$return .= "<div class='form-height-fix'>";
+													$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
 													do {
-														$return .= "<input type='radio' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>".$obj->{$join->valor}." &nbsp;&nbsp; ";
+														$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."'>".$obj->{$join->valor}."</label></span>\n";
 													}while($obj->fetch());
-													$return .= "</div><!-- form-height-fix -->";
+													$return .= "</span>";
 												}
 											}
 										}
@@ -2067,9 +2069,11 @@ class Dbo extends Obj
 										}
 										elseif($join->tipo == 'checkbox') //se o join for do tipo select
 										{
+											$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 											do {
-												$return .= "<input type='checkbox' name='".$valor->coluna."[]' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."> ".$obj->{$join->valor}." <br> ";
+												$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."[]' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."'>".$obj->{$join->valor}."</label></spam>";
 											}while($obj->fetch());
+											$return .= "</span>";
 										}
 									}
 									// IMAGE ============================================================================
@@ -2258,21 +2262,23 @@ class Dbo extends Obj
 								// RADIO =====================================================================================
 								elseif ($valor->tipo == 'radio')
 								{
-									$return .= "<div class='form-height-fix'>";
+									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "\t\t\t<span style='padding-right: 20px;'><input type='radio' style='margin-right: .5em;' name='".$valor->coluna."' value='".$chave2."' ".(($modulo->{$valor->coluna} == $chave2)?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>".$valor2."</span>\n";
+										$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' ".(($modulo->{$valor->coluna} == $chave2)?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
-									$return .= "</div>";
+									$return .= "</span>";
 								}
 								// CHECKBOX ==================================================================================
 								elseif ($valor->tipo == 'checkbox')
 								{
+									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 									$database_checkbox_values = explode("\n", $modulo->{$valor->coluna});
 									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<input style='margin-right: .5em;' type='checkbox' name='".$valor->coluna."[]' value='".$chave2."' ".((in_array($chave2, $database_checkbox_values))?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><span style='padding-right: 20px;'>".$valor2."</span><br />\n";
+										$return .= "<span style='display: block; white-space: nowrap'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."' ".((in_array($chave2, $database_checkbox_values))?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
+									$return .= "</span>";
 								}
 								// SELECT ====================================================================================
 								elseif ($valor->tipo == 'select')
@@ -2390,13 +2396,15 @@ class Dbo extends Obj
 										}
 										elseif($join->tipo == 'radio') //se o join for do tipo select
 										{
+											$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
 											do {
 												if($inativo_atual)
 												{
-													$return .= "\t\t\t<input type='radio' name='".$valor->coluna."' CHECKED value='".$inativo_atual[chave]."'><span class='flag-inativo'>".(($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor]))." (Inativo)</span> &nbsp;&nbsp; \n";
+													$return .= "\t\t\t<span style='white-space: nowrap'><input id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."' type='radio' name='".$valor->coluna."' CHECKED value='".$inativo_atual[chave]."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."'  class='flag-inativo'>".(($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor]))." (Inativo)</label></span>\n";
 												}
-												$return .= "\t\t\t<input type='radio' name='".$valor->coluna."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" CHECKED "):(''))." value='".$obj->{$join->chave}."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor}))." &nbsp;&nbsp; \n";
+												$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor})))."' name='".$valor->coluna."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" CHECKED "):(''))." value='".$obj->{$join->chave}."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor})))."'>".(($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor}))."</label></span>\n";
 											}while($obj->fetch());
+											$return .= "</span>";
 										}
 									}
 								} //single join
@@ -2457,16 +2465,18 @@ class Dbo extends Obj
 									}
 									elseif($join->tipo == 'checkbox') //se o join for do tipo checkbox
 									{
+										$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 										if($inativo_atual)
 										{
 											foreach($inativo_atual as $key => $inativo_value)
 											{
-												$return .= "\t\t\t<input type='checkbox' name='".$valor->coluna."[]' CHECKED value='".$inativo_value[chave]."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><span class='flag-inativo'>".(($edit_function)?($edit_function($inativo_value[valor])):($inativo_value[valor]))." (Inativo)</span> &nbsp;&nbsp; \n";
+												$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."[]' CHECKED value='".$inativo_value[chave]."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' class='flag-inativo'>".(($edit_function)?($edit_function($inativo_value[valor])):($inativo_value[valor]))." (Inativo)</label></span>\n";
 											}
 										}
 										do {
-											$return .= "\t\t\t<input ".((in_array($obj->{$join->chave}, $cadastrados_array))?('CHECKED'):(''))." type='checkbox' name='".$valor->coluna."[]' value='".$obj->{$join->chave}."'> ".$obj->{$join->valor}." <br>\n ";
+											$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' ".((in_array($obj->{$join->chave}, $cadastrados_array))?('CHECKED'):(''))." type='checkbox' name='".$valor->coluna."[]' value='".$obj->{$join->chave}."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."'>".$obj->{$join->valor}."</label></span>\n ";
 										}while($obj->fetch());
+										$return .= "</span>";
 									}
 								}
 								// IMAGE ============================================================================

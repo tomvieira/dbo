@@ -201,8 +201,10 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 /* icones do menu */
 .top-bar li i { display: none; } 
 
-/* estilos para integração com wordpress */
+/* correção da listagem de radios e checkbox */
+.list-radio-checkbox span span { display: none; }
 
+/* estilos para integração com wordpress */
 body.wordpress { 
 		
 	background: #F1F1F1; 
