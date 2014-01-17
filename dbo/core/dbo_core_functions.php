@@ -85,6 +85,27 @@
 	function loadAllPerfisLogados()
 	{
 		global $_sys;
+
+		/* checando tabem permissoes de grupo, mas só quando o modulo existe. */
+		if(class_exists('grupo') && !sizeof($_sys[sysId()]['modulos']['grupo']))
+		{
+			$grp = new grupo();
+			$perf = new perfil();
+
+			$_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'] = $grp->__module_scheme->campo[pessoa]->join->tabela_ligacao;
+			$_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'] = $perf->__module_scheme->campo[grupo]->join->tabela_ligacao;
+		}
+		if(strlen(trim($_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'])) && strlen(trim($_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'])))
+		{
+			$tem_grupo = true;
+			$tabela_ligacao_grupo = $_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'];
+			$tabela_ligacao_perfil = $_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'];
+		}
+		else
+		{
+			$tem_grupo = false;
+		}
+
 		$sql = "
 			SELECT 
 				perfil.nome AS nome,
@@ -92,10 +113,15 @@
 			FROM
 				perfil,
 				pessoa_perfil
+				".(($tem_grupo)?(", ".$tabela_ligacao_perfil.", ".$tabela_ligacao_grupo.""):(""))."
 			WHERE
-				perfil.id = pessoa_perfil.perfil AND
-				pessoa_perfil.pessoa = '".loggedUser()."'
+				(
+					perfil.id = pessoa_perfil.perfil AND
+					pessoa_perfil.pessoa = '".loggedUser()."'
+				)
+				".(($tem_grupo)?(" OR ( perfil.id = ".$tabela_ligacao_perfil.".perfil AND ".$tabela_ligacao_perfil.".grupo = ".$tabela_ligacao_grupo.".grupo AND ".$tabela_ligacao_grupo.".pessoa = '".loggedUser()."' ) "):(''))."
 		";
+
 		$res = dboQuery($sql);
 		if(mysql_affected_rows())
 		{
