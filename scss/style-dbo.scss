@@ -252,6 +252,14 @@ body.wordpress {
 	}
 }
 
+/* estilos para os select2 */
+.select2-container { @include box-shadow(inset 0 1px 3px rgba(0, 0, 0, 0.15)); }
+.select2-container-multi .select2-choices .select2-search-choice-focus { background: lighten($primary-color, 10%) !important; }
+.select2-results {
+	.select2-highlighted { background: $primary-color; color: #fff; }
+}
+select.select2[multiple] { opacity: 0; } //escondendo os select multipe que sejam select2, para evitar flickering na renderização da página
+
 /* ----------------------------------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------------- */
 /* - PARA TELAS MAIORES QUE 768 ------------------------------------------------------------------------------ */

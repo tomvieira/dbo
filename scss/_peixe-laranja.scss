@@ -42,3 +42,11 @@
     -o-border-radius: $foo;
     border-radius: $foo;
 }
+
+@mixin box-shadow($foo) {
+	-webkit-box-shadow: $foo;
+	-moz-box-shadow: $foo;
+	-ms-box-shadow: $foo;
+	-o-box-shadow: $foo;
+	box-shadow: $foo;
+}

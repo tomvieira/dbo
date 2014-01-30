@@ -17,10 +17,10 @@
 	<meta name="author" content="Peixe Laranja">
 
 	<link rel="shortcut icon" href="images/favicon.ico"><!-- 16x16 -->
-	<link rel="icon" href="images/icon.png" sizes="32x32"><!-- do other sizes if necessary -->
-	<link rel="apple-touch-icon" href="images/apple-touch-icon-iphone.png" /><!-- 57x57 -->
+	<!-- <link rel="icon" href="images/icon.png" sizes="32x32">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon-iphone.png" />
 	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-ipad.png" />
-	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-iphone4.png" />
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-iphone4.png" /> -->
 
 	<!-- Foundation 4.3.0 -->
 	<link rel="stylesheet" href="css/foundation.css" />
@@ -55,6 +55,9 @@
 	<link rel="stylesheet" media="screen" href="css/style-dbo.css">
 	<link rel="stylesheet" media="screen" href="fonts/museo-sans/stylesheet.css">
 	<link rel="stylesheet" media="screen" href="css/style.css">
+
+	<script type="text/javascript" charset="utf-8" src='js/select2/jquery.select2.min.js'></script>
+	<link rel="stylesheet" media="screen" href="js/select2/select2.css">
 
 	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.js'></script>
 	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.scrollfix.js'></script>

@@ -103,12 +103,23 @@ h6.no-margin { margin-top: 0px !important; margin-bottom: 0px !important; }
 /* e uma para margem embaixo */
 .margin-bottom { margin-bottom: 1em !important; }
 
+/* paddings auxiliares */
+.padding-top { padding-top: 1em; }
+.padding-left { padding-left: 1em; }
+.padding-bottom { padding-bottom: 1em; }
+.padding-right { padding-right: 1em; }
+
 /* permitindo radius para outros elementos alem dos padroes do foundation... por que nÃ£o? */
 .radius { -webkit-border-radius: $global-radius; -moz-border-radius: $global-radius; border-radius: $global-radius; }
 .rounded { -webkit-border-radius: $global-rounded; -moz-border-radius: $global-rounded; border-radius: $global-rounded; }
 
 /* corrigindo tamanho do postfix e prefix para forms com tamanho de fonte 16 */
 .postfix.button, .prefix.button { line-height: 2.4375em; }
+
+//um mini-fix para alert-box
+.alert-box { 
+	p:last-child { margin-bottom: 0; } 
+}
 
 /* corrigindo probleminhas de formulario */
 textarea { height: auto; }
