@@ -1,7 +1,7 @@
 // Setting the correct charset
 @charset "UTF-8";
 // This includes all of the foundation global elements that are needed to work with any of the other files.
-@import "foundation/variables";
+@import "foundation/variables", "foundation/components/global", "foundation/components/buttons", "foundation/components/forms";
 @import "peixe-laranja";
 @import "project";
 
@@ -57,6 +57,9 @@ body.dbo.modal { padding: 1em; overflow-y: auto;
 	}
 	.notifications { position: absolute; top: 0; right: 0; min-height: 1.5em; min-width: 1.5em; -webkit-border-radius: 100px; -moz-border-radius: 100px; border-radius: 100px; background-color: $primary-color; color: #fff; text-align: center; }
 }
+
+/* icones do foundation */
+i[class^=fi-].big-icon { font-size: 25px; }
 
 /* erros dos forms */
 .validation-error {
@@ -204,6 +207,39 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 /* correção da listagem de radios e checkbox */
 .list-radio-checkbox span span { display: none; }
 
+/* inputs falsos, uma melhoria do readonly */
+
+.item {
+	&.ok {
+		.select2-container > a.select2-choice { padding-left: 8px !important; border: 1px solid $primary-color !important; background-color: lighten($primary-color, 25%) !important; 
+			> .select2-chosen { overflow: show !important;
+				&:before { font-family: "foundation-icons"; content: "\f126"; color: $primary-color; margin-right: .5em; }
+			}
+		}
+	}
+	&.validation-error {
+		.select2-container > a.select2-choice { border: 1px solid $alert-color !important; background-color: lighten($alert-color, 55%) !important; }
+	}
+}
+
+.fake-input { 
+    @include form-element;
+	line-height: 20px;
+	&:before { font-family: "foundation-icons"; content: "\f16a"; margin-right: .5em; }
+	&.ok { border: 1px solid $primary-color !important; background-color: lighten($primary-color, 25%) !important;
+		&:before { content: "\f126"; color: $primary-color; }
+	}
+	&.validation-error { border: 1px solid $alert-color; background-color: lighten($alert-color, 55%); 
+		&:before { content: "\f217"; color: $alert-color; }
+	}
+}
+
+.bullet-required { color: red; }
+
+.tag-status.has-tip { border-bottom: 0; 
+	&:hover { color: #fff; }
+}
+
 /* estilos para integração com wordpress */
 body.wordpress { 
 		
@@ -253,12 +289,16 @@ body.wordpress {
 }
 
 /* estilos para os select2 */
-.select2-container { @include box-shadow(inset 0 1px 3px rgba(0, 0, 0, 0.15)); }
+.select2-container { @include box-shadow(inset 0 1px 3px rgba(0, 0, 0, 0.15)); margin-bottom: 1em !important; }
 .select2-container-multi .select2-choices .select2-search-choice-focus { background: lighten($primary-color, 10%) !important; }
 .select2-results {
 	.select2-highlighted { background: $primary-color; color: #fff; }
 }
 select.select2[multiple] { opacity: 0; } //escondendo os select multipe que sejam select2, para evitar flickering na renderização da página
+
+.reveal-modal.smart.small { width: 100%; left: 0; margin-left: auto; }
+.reveal-modal.smart.medium { width: 100%; left: 0; margin-left: auto; }
+.reveal-modal.smart.large { width: 100%; left: 0; margin-left: auto; } 
 
 /* ----------------------------------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------------- */
@@ -267,6 +307,11 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 /* ----------------------------------------------------------------------------------------------------------- */
 
 @media #{$small} {
+
+	.reveal-modal.smart.small { width: 700px; left: 50%; margin-left: -350px; }
+	.reveal-modal.smart.medium { width: 96%; left: 50%; margin-left: -48%; }
+	.reveal-modal.smart.large { width: 96%; left: 50%; margin-left: -48%; }
+	
 	.wrapper-dbo-auto-admin {
 		.filter-button { position: absolute; right: $column-gutter; top: 5px; }
 		.large-no-wrap { white-space: nowrap; }
@@ -368,6 +413,15 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 	/* icones do menu */
 	.top-bar li i { display: inline-block; width: 16px; height: 16px; background-repeat: no-repeat; background-position: center center; opacity: .8; position: relative; top: 3px; } 
 
+}
+
+// media query custom
+@media only screen and (min-width: 1000px) {
+	.reveal-modal.smart.medium { width: 950px; left: 50%; margin-left: -475px; }
+}
+
+@media only screen and (min-width: 1250px) {
+	.reveal-modal.smart.large { width: 1200px; left: 50%; margin-left: -600px; }
 }
 
 @media #{$large} {

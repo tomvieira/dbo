@@ -2,21 +2,7 @@
 var message_timer;
 
 function showDboMessage() {
-	if($('div.wrapper-message').html() != ''){
-		message_timer = setTimeout(function(){
-			$('div.wrapper-message').animate({
-				height: '60px',
-				opacity: 1
-			}, 500, function(){
-				message_timer = setTimeout(function(){
-					$('div.wrapper-message').animate({
-						height: '0',
-						opacity: 0
-					}, 500);
-				}, 3000);
-			});
-		}, 300);
-	}
+	showPeixeMessage();
 }
 
 function setMessage(message) {
@@ -31,12 +17,6 @@ $(document).ready(function(){
 	//fade nas mensagens
 
 	showDboMessage();
-
-	$(document).on('click', 'div.wrapper-message', function(){
-		clearTimeout(message_timer);
-		$(this).css('height', '0px');
-		$(this).css('opacity', '0');
-	})
 
 	/* modals */
 	$(document).on('click', '[rel="modal"]', function(e){

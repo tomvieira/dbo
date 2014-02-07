@@ -54,10 +54,12 @@
 	<link rel="stylesheet" media="screen" href="css/common.css">
 	<link rel="stylesheet" media="screen" href="css/style-dbo.css">
 	<link rel="stylesheet" media="screen" href="fonts/museo-sans/stylesheet.css">
+	<link rel="stylesheet" media="screen" href="fonts/foundation-icons/foundation-icons.css">
 	<link rel="stylesheet" media="screen" href="css/style.css">
 
-	<script type="text/javascript" charset="utf-8" src='js/select2/jquery.select2.min.js'></script>
-	<link rel="stylesheet" media="screen" href="js/select2/select2.css">
+	<script src="js/select2/jquery.select2.min.js"></script>
+	<script src="js/select2/jquery.select2.pt-BR.js"></script>
+	<link rel="stylesheet" href="js/select2/select2.css">
 
 	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.js'></script>
 	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.scrollfix.js'></script>

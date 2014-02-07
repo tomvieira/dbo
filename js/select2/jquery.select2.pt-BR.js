@@ -6,7 +6,7 @@
 
     $.extend($.fn.select2.defaults, {
         formatNoMatches: function () { return "Nenhum resultado encontrado"; },
-        formatInputTooShort: function (input, min) { var n = min - input.length; return "Informe " + n + " caractere" + (n == 1? "" : "s"); },
+        formatInputTooShort: function (input, min) { var n = min - input.length; return "Digite " + n + " caractere" + (n == 1? "" : "s"); },
         formatInputTooLong: function (input, max) { var n = input.length - max; return "Apague " + n + " caractere" + (n == 1? "" : "s"); },
         formatSelectionTooBig: function (limit) { return "Só é possível selecionar " + limit + " elemento" + (limit == 1 ? "" : "s"); },
         formatLoadMore: function (pageNumber) { return "Carregando mais resultados..."; },

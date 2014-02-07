@@ -2,6 +2,7 @@
 @charset "UTF-8";
 // This includes all of the foundation global elements that are needed to work with any of the other files.
 @import "foundation/variables";
+@import "peixe-laranja";
 
 /* ---------------------- */
 /* PeixeLaranja Framework */
@@ -61,9 +62,12 @@
 .fright { float: right; }
 
 /* messages */
-.wrapper-message { font-family: "Museo Sans web", inherit; position: fixed; top: 0px; left: 0px; width: 100%; line-height: 59px; overflow: hidden; font-size: 25px; z-index: 10000; height: 0px; opacity: 0.95; text-align: center; }
-.wrapper-message .success { background: #333; color: #FFF; font-size: 19px; font-weight: 100; padding: 0 20px; border-bottom: 1px solid #1A360B; }
-.wrapper-message .error { background: #CC0000; color: #FFF; font-size: 19px; font-weight: 100; padding: 0 20px; border-bottom: 1px solid #870000; }
+.wrapper-message { font-family: "Museo Sans web", Sans-serif; max-height: 100px; position: fixed; top: 0; left: 0px; width: 100%; line-height: 1.2; overflow: hidden; font-size: 19px; z-index: 10000; opacity: 0.95; text-align: center; @include transition(all 1.5s ease);
+	&.closed { max-height: 0; }
+	&.no-transition { @include transition(none !important); }
+}
+.wrapper-message .success { background: #333; color: #FFF; font-weight: 100; padding: 15px 25px; }
+.wrapper-message .error { background: #CC0000; color: #FFF; font-weight: 100; padding: 15px 25px; }
 
 /* ajax helpers */
 .peixe-screen-freezer { position: fixed; z-index: 10000; width: 100%; height: 100%; background: transparent; display: none; }
@@ -91,15 +95,6 @@ fieldset { -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5
 	form:last-child { margin-bottom: 0; }
 }
 
-/* class para remover a margem de itens sob demanda */
-.no-margin { margin-bottom: 0 !important; }
-h1.no-margin,
-h2.no-margin,
-h3.no-margin,
-h4.no-margin,
-h5.no-margin,
-h6.no-margin { margin-top: 0px !important; margin-bottom: 0px !important; }
-
 /* e uma para margem embaixo */
 .margin-bottom { margin-bottom: 1em !important; }
 
@@ -115,6 +110,8 @@ h6.no-margin { margin-top: 0px !important; margin-bottom: 0px !important; }
 
 /* corrigindo tamanho do postfix e prefix para forms com tamanho de fonte 16 */
 .postfix.button, .prefix.button { line-height: 2.4375em; }
+
+.button i[class^=fi-]:not(.single) { margin-right: .3em; }
 
 //um mini-fix para alert-box
 .alert-box { 
@@ -135,12 +132,6 @@ h4 { letter-spacing: -1px; }
 .hide-for-small.inline { display: none !important; }
 .show-for-small.inline { display: inline !important; }
 
-@media #{$small} {
-	.hide-for-small.inline { display: inline !important; }
-	.show-for-small.inline { display: none !important; }
-	.large-no-margin { margin-bottom: 0 !important; }
-}
-
 /* consertando labels dos switches */
 .switch label { margin: 0 !important; }
 
@@ -154,6 +145,7 @@ input[type="radio"] + label {
   vertical-align: baseline;
 }
 
+/* alteração de fonte sob demanda */
 .font-9 { font-size: 9px; }
 .font-10 { font-size: 10px; }
 .font-11 { font-size: 11px; }
@@ -165,3 +157,37 @@ input[type="radio"] + label {
 
 /* consertando as posições das listas */
 ul.inside, ol.inside { list-style-position: inside; }
+
+/* removendo margens em determinadas situações, somente para desktop */
+.small-no-for-small { margin-bottom: 0 !important; }
+
+@media #{$small} {
+
+	.narrow-for-medium-up { width: 1px; }
+	.text-center-for-medium-up { text-align: center; }
+
+	.hide-for-small.inline { display: inline !important; }
+	.show-for-small.inline { display: none !important; }
+
+	/* class para remover a margem de itens sob demanda */
+	.no-margin { margin-bottom: 0 !important; }
+	h1.no-margin,
+	h2.no-margin,
+	h3.no-margin,
+	h4.no-margin,
+	h5.no-margin,
+	h6.no-margin { margin-top: 0px !important; margin-bottom: 0px !important; }
+
+	span.tooltip { pointer-events: none; }
+
+	.nowrap { white-space: nowrap;
+		* { white-space: nowrap; }
+	}
+
+}
+
+//media query especifica para situações small que tem que seguir a abordagem "mobile last"
+
+@media only screen and (max-width: $small-screen) {
+	.text-center-for-small { text-align: center !important; }
+}

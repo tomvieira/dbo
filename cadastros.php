@@ -1,5 +1,12 @@
 <? require('header.php') ?>
 <? require_once('auth.php') ?>
+<?
+	if(!logadoNoPerfil('Desenv') && !hasPermission('painel-cadastros'))
+	{
+		header("Location: index.php");
+		exit();
+	}
+?>
 
 <div class='row'>
 	<div class='large-12 columns'>
@@ -28,6 +35,7 @@
 <script>
 	$(document).ready(function(){
 		activeMainNav('cadastros');
+		activeMainNav('sistema');
 	}) //doc.ready
 </script>
 

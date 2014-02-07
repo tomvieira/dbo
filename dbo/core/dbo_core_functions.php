@@ -25,7 +25,7 @@
 
 	function getMessage()
 	{
-		echo "<div class='wrapper-message' style='height: 0;'>";
+		echo "<div class='wrapper-message closed'>";
 		if(sizeof($_SESSION['mensagem']))
 		{
 			foreach($_SESSION['mensagem'] as $chave => $valor)

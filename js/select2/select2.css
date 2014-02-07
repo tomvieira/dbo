@@ -84,7 +84,7 @@ Version: 3.4.5 Timestamp: Mon Nov  4 08:22:42 PST 2013
     height: 12px;
     position: absolute;
     right: 24px;
-    top: 8px;
+    top: 11px;
 
     font-size: 1px;
     text-decoration: none;
@@ -285,7 +285,7 @@ Version: 3.4.5 Timestamp: Mon Nov  4 08:22:42 PST 2013
 
 /* results */
 .select2-results {
-    max-height: 400px;
+    max-height: 300px;
     padding: 0 0 0 4px;
     margin: 4px 4px 4px 0;
     position: relative;

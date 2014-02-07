@@ -1,22 +1,37 @@
 //função para mostrar e esconder as mensagens de erro/etc.
+
+var peixe_message_timer;
+var wrapper_peixe_message;
+
 function showPeixeMessage() {
-	if($('div.wrapper-message').text() != ''){
-		message_timer = setTimeout(function(){
-			$('div.wrapper-message').animate({
-				height: '60px',
-				opacity: 1
-			}, 500, function(){
-				message_timer = setTimeout(function(){
-					$('div.wrapper-message').animate({
-						height: '0',
-						opacity: 0
-					}, 500, function(){
-						$('div.wrapper-message').html('');
-					});
-				}, 3000);
-			});
+	clearTimeout(peixe_message_timer);
+	wrapper_peixe_message = $('div.wrapper-message');
+	if(wrapper_peixe_message.text() != '') {
+		peixe_message_timer = setTimeout(function(){
+			slidePeixeMessageDown();
+			peixe_message_timer = setTimeout(function(){
+				slidePeixeMessageUp();
+			}, 4500);
 		}, 300);
 	}
+}
+
+function slidePeixeMessageDown() {
+	clearTimeout(peixe_message_timer);
+	wrapper_peixe_message.removeClass('closed');
+}
+
+function slidePeixeMessageUp() {
+	clearTimeout(peixe_message_timer);
+	wrapper_peixe_message.addClass('closed');
+	peixe_message_timer = setTimeout(function(){
+		removePeixeMessage();
+	}, 1500);
+}
+
+function removePeixeMessage() {
+	clearTimeout(peixe_message_timer);
+	wrapper_peixe_message.addClass('no-transition').addClass('closed').html('').removeClass('no-transition');
 }
 
 //funcão para setar a mensagem
@@ -24,7 +39,7 @@ function setPeixeMessage(message) {
 	$('div.wrapper-message').html(message);
 }
 
-function peixeReload(item, html){
+function peixeReload(item, html, callback){
 	content = $(html).find(item).html();
 	if(typeof content === 'undefined'){
 		$(item).fadeOut(function(){
@@ -32,7 +47,7 @@ function peixeReload(item, html){
 		});
 	}
 	else {
-		$(item).fadeHtml(content);
+		$(item).fadeHtml(content, callback);
 	}
 }
 
@@ -71,34 +86,53 @@ function peixeGet(url, args, callback) {
 	$.get(url,args,callback).complete(function(){ hidePeixeLoader() });
 }
 
+function peixeAddRequiredBullets() {
+	//colocando * nos requireds
+	$('form .required').closest('.item').find('label:not(:has(.bullet-required))').append(' <span class="bullet-required">*</span>');
+}
+
+function peixeInit() {
+	peixeAddRequiredBullets();
+}
+
 $(document).ready(function(){
+
+	peixeInit();
 
 	//mostra mensagens
 	showPeixeMessage();
+
+	// tratando mensagens
+	$(document).on('click', 'div.wrapper-message', function(){
+		removePeixeMessage();
+	});
+
+	$(document).on('mouseenter', 'div.wrapper-message', function(){
+		clearTimeout(peixe_message_timer);
+	});
+
+	$(document).on('mouseleave', 'div.wrapper-message', function(){
+		setTimeout(function(){
+			slidePeixeMessageUp();
+		}, 3000);
+	});
 
 	//botao de submit que só funciona com javascript, e impede dupla submissão
 	$(document).on('click', 'form .submitter', function(){
 		$(this).closest('form').submit();
 	})
 
-	//some com a mensagem se clicada
-	$(document).on('click', 'div.wrapper-message', function(){
-		clearTimeout(message_timer);
-		$(this).css('height', '0px');
-		$(this).css('opacity', '0');
-	})
-
 	//tira o destaque de erro dos inputs, quando mudados
-	$(document).on('focus', 'form .error', function(){
+	/*$(document).on('focus', 'form .error', function(){
 		$(this).removeClass('error');
-	})
-
-	//colocando * nos requireds
-	$('form .required').closest('.item').find('label').append(" <span style='color: red'>*</span>");
+	})*/
+	$(document).on('focus', '.item.validation-error input, .item.validation-error select, .item.validation-error textarea', function(){
+		$(this).closest('.item.validation-error').removeClass('validation-error');
+	});
 
 	//colcando ajax loader e screen freezer
 	$('body:not(:has(.peixe-ajax-loader))').prepend('<div class="peixe-ajax-loader">Carregando...</div>');
 	$('body:not(:has(.peixe-screen-freezer))').prepend('<div class="peixe-screen-freezer"></div>');
-	$('body:not(:has(.wrapper-message))').prepend('<div class="wrapper-message"></div>');
+	$('body:not(:has(.wrapper-message))').prepend('<div class="wrapper-message closed"></div>');
 
 }) //doc.ready

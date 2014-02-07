@@ -8,4 +8,11 @@
 
 ?>
 
+<script>
+	$(document).ready(function(){
+		activeMainNav('cadastros');
+		activeMainNav('sistema');
+	}) //doc.ready
+</script>
+
 <? require('footer.php') ?>
