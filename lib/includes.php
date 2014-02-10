@@ -29,6 +29,9 @@ include_once(INCLUDE_PATH.'/../dbo/core/dbo.php');
 //include_once(INCLUDE_PATH.'/../dbo/core/dbo_ui.php');
 @include_once(INCLUDE_PATH.'/../beta.php');
 
+//start the CSRF engine
+CSRFStart();
+
 //includes all the classes that extend DBO
 includeClasses();
 

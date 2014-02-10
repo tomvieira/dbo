@@ -1778,7 +1778,7 @@ class Dbo extends Obj
 					if ($this->__module_scheme->delete === true) {
 						if(!DBO_PERMISSIONS || $dbo_permission_delete)
 						{
-							$return .= (($delete_interaction)?(" <a href=\"javascript:confirmacao('Tem certeza que deseja excluir o item ".$id."?', '".$this->keepUrl(array("dbo_delete=".$id, '!dbo_new&!dbo_update&!dbo_view'))."')\"><span style='display: inline-block; width: 16px; height: 16px; background-image: url(".DBO_URL."/core/images/icon_delete.png)'></a>"):(''));
+							$return .= (($delete_interaction)?(" <a href=\"javascript:confirmacao('Tem certeza que deseja excluir o item ".$id."?', '".$this->keepUrl(array("dbo_delete=".$id."&".CSRFVar(), '!dbo_new&!dbo_update&!dbo_view'))."')\"><span style='display: inline-block; width: 16px; height: 16px; background-image: url(".DBO_URL."/core/images/icon_delete.png)'></a>"):(''));
 						}
 					}
 
@@ -2129,6 +2129,7 @@ class Dbo extends Obj
 			}
 			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Inserir ".$this->__module_scheme->titulo."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
+			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
 
 			echo $return;
@@ -2560,6 +2561,7 @@ class Dbo extends Obj
 
 			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Editar ".$this->__module_scheme->titulo."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
+			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
 
 			echo $return;
@@ -2658,6 +2660,8 @@ class Dbo extends Obj
 				//delete automatico
 				if($_GET['dbo_delete'])
 				{
+					
+					CSRFCheckRequest();
 
 					//checa se o usuário logado pode deletar deste modulo, senão, tchau!
 					if(DBO_PERMISSIONS)
@@ -3777,6 +3781,9 @@ class Dbo extends Obj
 		global $_POST;
 		global $_FILES;
 		global $__dbo_auto_fields;
+
+		//checando CSRF
+		CSRFCheckRequest();
 
 		if($_POST['__dbo_update_flag']) //se for pra dar update...
 		{

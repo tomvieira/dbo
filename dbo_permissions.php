@@ -14,6 +14,8 @@
 
 	if($_POST['flag_update'])
 	{
+		CSRFCheckRequest();
+
 		if(is_array($_POST['permission']))
 		{
 			foreach($_POST['permission'] as $mod => $perm_array)
@@ -219,6 +221,7 @@
 				</div>
 			</div><!-- row -->
 			<input type='hidden' name='flag_update' value='<?= $_GET['perfil'] ?>'>
+			<?= CSRFInput() ?>
 			</form>
 		</div><!-- wrapper-permissions -->
 		<?

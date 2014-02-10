@@ -887,7 +887,7 @@
 
 	function dboescape($var)
 	{
-		return addslashes($var);
+		return mysql_real_escape_string($var);
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1610,6 +1610,91 @@
 		return $var;
 	}
 	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFStart()
+	{
+		if(defined('CSRF_context') && CSRF_context == 'system')
+		{
+			if(!$_SESSION[sysId()]['DBO_CSRF_token'])
+			{
+				$_SESSION[sysId()]['DBO_CSRF_token'] = md5('salcisne@!'.rand(1,999999));
+			}
+		}
+		else
+		{
+			if(!$_SESSION['DBO_CSRF_token'])
+			{
+				$_SESSION['DBO_CSRF_token'] = md5('salcisne@!'.rand(1,999999));
+			}
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFGetToken()
+	{
+		if(defined('CSRF_context') && CSRF_context == 'system')
+		{
+			return $_SESSION[sysId()]['DBO_CSRF_token'];
+		}
+		else
+		{
+			return $_SESSION['DBO_CSRF_token'];
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFCheck()
+	{
+		if(!CSRFGetToken() || CSRFGetToken() != $_REQUEST['DBO_CSRF_token'])
+			return false;
+		return true;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFInput()
+	{
+		return '<input type="hidden" name="DBO_CSRF_token" value="'.CSRFGetToken().'">';
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFVar()
+	{
+		return "DBO_CSRF_token=".CSRFGetToken();
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFCheckJson()
+	{
+		global $json_result; 
+		if(!CSRFCheck())
+		{
+			$json_result['message'] = "<div class='error'>Erro: CSRF - O token fornecido não é compatível com a sessão.</div>";
+			return false;
+		}
+		return true;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function CSRFCheckRequest()
+	{
+		global $json_result; 
+		if(!CSRFCheck())
+		{
+			setMessage("<div class='error'>Erro: CSRF: O token fornecido não é compatível com a sessão.</div>");
+			header("Location: ".$_SERVER['HTTP_REFERER']);
+			exit();
+			return false;
+		}
+		return true;
+	}
+
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function dboInit()

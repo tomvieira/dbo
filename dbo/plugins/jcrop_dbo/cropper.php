@@ -389,7 +389,7 @@ if($_POST['time2crop'])
 
 	?>
 	<script>
-		window.top.closeBox('<?= $coluna ?>', '<?= str_replace("orig_", "", $filename) ?>');
+		window.parent.closeBox('<?= $coluna ?>', '<?= str_replace("orig_", "", $filename) ?>');
 	</script>
 	<?
 	exit();
