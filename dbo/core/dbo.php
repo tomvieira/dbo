@@ -451,8 +451,8 @@ class Dbo extends Obj
 
 	function load ()
 	{
-//		$sql = "SELECT * FROM ".$this->__table." WHERE id = '".((!get_magic_quotes_gpc())?(addslashes($this->id)):($this->id))."'";
-		$sql = "SELECT * FROM ".$this->__table." WHERE id = '".addslashes($this->id)."'";
+//		$sql = "SELECT * FROM ".$this->__table." WHERE id = '".((!get_magic_quotes_gpc())?(dboEscape($this->id)):($this->id))."'";
+		$sql = "SELECT * FROM ".$this->__table." WHERE id = '".dboEscape($this->id)."'";
 
 		if(!$this->__res = dboQuery($sql)) {
 			echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
@@ -580,8 +580,8 @@ class Dbo extends Obj
 
 			if(!in_array($chave, $this->__black_list))
 			{
-				//$this->__chave_array[] = ((!get_magic_quotes_gpc())?(addslashes($chave)):($chave));
-				//$this->__valor_array[] = ((!get_magic_quotes_gpc())?(addslashes($valor)):($valor));
+				//$this->__chave_array[] = ((!get_magic_quotes_gpc())?(dboEscape($chave)):($chave));
+				//$this->__valor_array[] = ((!get_magic_quotes_gpc())?(dboEscape($valor)):($valor));
 
 				/* precisa verificar se é nulo, e setar, caso o campo esteja em branco. */
 				if($this->__module_scheme->campo[$chave]->isnull === true && trim($valor) == '')
@@ -589,8 +589,8 @@ class Dbo extends Obj
 					$valor = $this->null();
 				}
 
-				$this->__chave_array[] = @addslashes($chave);
-				$this->__valor_array[] = @addslashes($valor);
+				$this->__chave_array[] = @dboEscape($chave);
+				$this->__valor_array[] = @dboEscape($valor);
 			}
 		}
 	}
@@ -666,11 +666,11 @@ class Dbo extends Obj
 		//se houver o campo inativo, apenas da o update para 1
 		if($this->hasInativo())
 		{
-			$sql = "UPDATE ".$this->__table." SET inativo = '1' WHERE id = '".addslashes($this->id)."'";
+			$sql = "UPDATE ".$this->__table." SET inativo = '1' WHERE id = '".dboEscape($this->id)."'";
 		}
 		else
 		{
-			$sql = "DELETE FROM ".$this->__table." WHERE id = '".addslashes($this->id)."'";
+			$sql = "DELETE FROM ".$this->__table." WHERE id = '".dboEscape($this->id)."'";
 		}
 		if(dboQuery($sql)) { return $this->id; }
 		echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
@@ -1109,10 +1109,16 @@ class Dbo extends Obj
 		if(!sizeof($_SESSION['dbo_mid'][$this->getMid()][filter])) { $class_hidden = 'hidden'; }
 
 		?>
-			<div class='row'>
-				<div class='large-12 columns'>
-					<fieldset class="wrapper-filter-box <?= $class_hidden ?>">
-						<legend>Filtros</legend>
+			<div class="wrapper-filter-box <?= $class_hidden ?>">
+
+				<div class="row full">
+					<div class="large-12 columns"><hr></div>
+				</div>
+				
+				<div class='row'>
+					<div class='large-12 columns'>
+						
+						<h3>Filtros</h3>
 						<form method='POST' action='<?= $this->keepUrl('!pag') ?>' id='form-dbo-filter' class="no-margin">
 							<div class='row'>
 							<?
@@ -1197,14 +1203,21 @@ class Dbo extends Obj
 					
 							<div class='row'>
 								<div class='item columns large-12 text-right'>
-									<span class='input'><input type='submit' class="button no-margin small radius" value='Filtrar' accesskey='s'> <input type='button' class="button no-margin small radius" value='Limpar' id='dbo-button-limpar-filtros'> <a href='' class='dbo-button-aba no-margin filter-button-close button small secondary radius special-button'>Fechar</a></span>
+									<span class='input'><input type='submit' class="button no-margin small radius" value='Filtrar' accesskey='s'> <input type='button' class="button no-margin small radius" value='Limpar' id='dbo-button-limpar-filtros'> <a href='' class='dbo-button-aba no-margin filter-button-close button small secondary radius special-button'><i class="fi-x"></i> Fechar</a></span>
 								</div><!-- item -->
 							</div><!-- row -->
 					
 							<input type='hidden' name='__dbo_filter_flag' value='1'/>
 						</form>
-					</fieldset>
+					
+
+					</div>
 				</div><!-- col -->
+
+				<div class="row full">
+					<div class="large-12 columns"><hr></div>
+				</div>
+				
 			</div><!-- row -->
 		<?
 	}
@@ -1615,7 +1628,7 @@ class Dbo extends Obj
 					$delete_interaction = true;
 
 					// Imprimindo as linhas
-					$return .= "<tr id='row-".$id."' rel='".$this->keepUrl('dbo_view='.$id)."' ".(($_GET['dbo_view'] == $id)?("class='active'"):('')).">";
+					$return .= "<tr id='row-".$id."' rel='".$this->keepUrl('dbo_view='.$id)."' ".(($_GET['dbo_view'] == $id)?("class='active'"):(''))." ".((!$dbo_permission_view && $dbo_permission_update)?("data-update-url='".$this->keepUrl(array("dbo_update=".$id, '!dbo_new&!dbo_delete&!dbo_view'))."'"):(''))." >";
 					foreach($this->__module_scheme->campo as $chave => $valor)
 					{
 
@@ -1948,7 +1961,7 @@ class Dbo extends Obj
 									elseif ($valor->tipo == 'select')
 									{
 										$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
-										$return .= "<option value='-1'>Selecione...</option>";
+										$return .= "<option value='-1'>...</option>";
 										foreach($valor->valores as $chave2 => $valor2)
 										{
 											$return .= "<option value='".$chave2."'>".$valor2."</option>";
@@ -1994,7 +2007,8 @@ class Dbo extends Obj
 									{
 
 										$join = $valor->join;
-										$obj = new Dbo($join->modulo);
+										$nome_modulo = $join->modulo;
+										$obj = new $nome_modulo();
 
 										//setando restricoes...
 										$rest = '';
@@ -2028,7 +2042,7 @@ class Dbo extends Obj
 												if($join->tipo == 'select') //se o join for do tipo select
 												{
 													$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
-													$return .= "<option value='-1'>Selecione...</option>";
+													$return .= "<option value='-1'>...</option>";
 													do {
 														$return .= "<option value='".$obj->{$join->chave}."'>".$obj->{$join->valor}."</option>";
 													}while($obj->fetch());
@@ -2236,12 +2250,12 @@ class Dbo extends Obj
 								// TEXT ======================================================================================
 								if($valor->tipo == 'text')
 								{
-									$return .= "\t\t\t<input type='text' name='".$valor->coluna."' value='".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
+									$return .= "\t\t\t<input type='text' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
 								}
 								// PASSWORD ==================================================================================
 								if($valor->tipo == 'password')
 								{
-									$return .= "\t\t\t<input type='password' name='".$valor->coluna."' value='".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
+									$return .= "\t\t\t<input type='password' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
 								}
 								// TEXTAREA ==================================================================================
 								if($valor->tipo == 'textarea')
@@ -2285,7 +2299,7 @@ class Dbo extends Obj
 								elseif ($valor->tipo == 'select')
 								{
 									$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
-									$return .= "\t\t\t\t<option value='-1'>Selecione...</option>\n";
+									$return .= "\t\t\t\t<option value='-1'>...</option>\n";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
 										$return .= "\t\t\t\t<option value='".$chave2."' ".(($modulo->{$valor->coluna} == $chave2)?('SELECTED'):('')).">".(($edit_function)?($edit_function($valor2)):($valor2))."</option>\n";
@@ -2384,7 +2398,7 @@ class Dbo extends Obj
 										if($join->tipo == 'select') //se o join for do tipo select
 										{
 											$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
-											$return .= "\t\t\t\t<option value='-1'>Selecione...</option>\n";
+											$return .= "\t\t\t\t<option value='-1'>...</option>\n";
 											//se o atual for inativo, colocar no começo, e em destaque...
 											if($inativo_atual)
 											{
@@ -2769,7 +2783,7 @@ class Dbo extends Obj
 							if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
 							{
 							?>
-								<span class='button-new' rel='<?= $meta->modulo ?>'><a class="button radius secondary small" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'>+ Cadastrar Nov<?= $meta->genero ?></a></span>
+								<span class='button-new' rel='<?= $meta->modulo ?>'><a class="button radius small top-14" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'><i class="fi-plus"></i> Cadastrar Nov<?= $meta->genero ?></a></span>
 							<?
 							}
 						?>
@@ -2926,12 +2940,12 @@ class Dbo extends Obj
 				e.preventDefault();
 				var botao = $(this);
 				botao.hide();
-				$('.wrapper-filter-box').fadeIn();
+				$('.wrapper-filter-box').slideDown();
 			})
 
 			$(document).on('click', '.filter-button-close', function(e){
 				e.preventDefault();
-				$('.wrapper-filter-box').fadeOut('fast', function(){
+				$('.wrapper-filter-box').slideUp(function(){
 					$('.filter-button').show();
 				})
 			})
@@ -2965,6 +2979,16 @@ class Dbo extends Obj
 				);
 				return false;
 			})
+
+			//update quando clicar na linha
+			$(document).on('click', '[data-update-url]', function(){
+				document.location = $(this).data('update-url');
+			});
+
+			//e quebrando a propagação dos links
+			$(document).on('click', '[data-update-url] a', function(e){
+				e.stopPropagation();
+			});
 
 			//paginação com ajax
 			$(document).on('click', '.pagination a', function(e){

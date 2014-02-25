@@ -161,10 +161,19 @@ ul.inside, ol.inside { list-style-position: inside; }
 /* removendo margens em determinadas situações, somente para desktop */
 .small-no-for-small { margin-bottom: 0 !important; }
 
+/* classes para centralizar texto em visualização mobile */
+.text-right-center-for-small,
+.text-left-center-for-small { text-align: center; }
+
+/* small up */
 @media #{$small} {
 
 	.narrow-for-medium-up { width: 1px; }
 	.text-center-for-medium-up { text-align: center; }
+	.text-right-center-for-small { text-align: right; }
+	.text-left-center-for-small { text-align: left; }
+
+	.text-right-left-for-small { text-align: right; }
 
 	.hide-for-small.inline { display: inline !important; }
 	.show-for-small.inline { display: none !important; }
@@ -183,6 +192,28 @@ ul.inside, ol.inside { list-style-position: inside; }
 	.nowrap { white-space: nowrap;
 		* { white-space: nowrap; }
 	}
+
+	//ajudando posicionar certos botões
+	.top-1  { position: relative; top:  1px; }
+	.top-2  { position: relative; top:  2px; }
+	.top-3  { position: relative; top:  3px; }
+	.top-4  { position: relative; top:  4px; }
+	.top-5  { position: relative; top:  5px; }
+	.top-6  { position: relative; top:  6px; }
+	.top-7  { position: relative; top:  7px; }
+	.top-8  { position: relative; top:  8px; }
+	.top-9  { position: relative; top:  9px; }
+	.top-10 { position: relative; top: 10px; }
+	.top-11 { position: relative; top: 11px; }
+	.top-12 { position: relative; top: 12px; }
+	.top-13 { position: relative; top: 13px; }
+	.top-14 { position: relative; top: 14px; }
+	.top-15 { position: relative; top: 15px; }
+	.top-16 { position: relative; top: 16px; }
+	.top-17 { position: relative; top: 17px; }
+	.top-18 { position: relative; top: 18px; }
+	.top-19 { position: relative; top: 19px; }
+	.top-20 { position: relative; top: 20px; }
 
 }
 

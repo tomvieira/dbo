@@ -83,12 +83,15 @@ table {
 	}
 	td.view-handle { cursor: pointer; }
 	&.list {
-		tr.active { outline: 2px solid $primary-color;
-			td {
-				background-color: lighten($primary-color, 25%);
-			}
-			&:hover { 
-				td { background: lighten($primary-color, 20%); }
+		tr {
+			&[data-update-url] { cursor: pointer; }
+			&.active { outline: 2px solid $primary-color;
+				td {
+					background-color: lighten($primary-color, 25%);
+				}
+				&:hover { 
+					td { background: lighten($primary-color, 20%); }
+				}
 			}
 		}
 	}
@@ -312,6 +315,8 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 	.reveal-modal.smart.medium { width: 96%; left: 50%; margin-left: -48%; }
 	.reveal-modal.smart.large { width: 96%; left: 50%; margin-left: -48%; }
 	
+	.row.almost.full { max-width: 1300px; }
+
 	.wrapper-dbo-auto-admin {
 		.filter-button { position: absolute; right: $column-gutter; top: 5px; }
 		.large-no-wrap { white-space: nowrap; }
