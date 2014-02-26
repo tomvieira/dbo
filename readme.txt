@@ -3,10 +3,20 @@ Developed by José Eduardo Biasioli
 http://www.peixelaranja.com.br
 
 -----------------------------------------------------------------------------------------
-- Version 0.9.6 -------------------------------------------------------------------------
+- Version 0.9.7 -------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 Changelog
+
+- Version 0.9.7 -------------------------------------------------------------------------
+
+Improvements
+- DBO now supports any kind of single Primary Key
+- New auto fields "deleted_by", "deleted_on", "deleted_because"
+- New switch for the "inativo" field
+- Auto Admin UI improvements
+- Filters are now available for fields not present in the listing
+- CSRF security added
 
 - Version 0.9.6 -------------------------------------------------------------------------
 

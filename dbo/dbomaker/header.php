@@ -193,9 +193,9 @@ function checkPk ()
 	var campo = $('.wrapper-field select[name=pk]');
 	if(campo.val() == 1)
 	{
-		$('.wrapper-field select[name=type]').closest('.row').hide();
+		//$('.wrapper-field select[name=type]').closest('.row').hide();
 	} else {
-		$('.wrapper-field select[name=type]').closest('.row').show();
+		//$('.wrapper-field select[name=type]').closest('.row').show();
 	}
 }
 

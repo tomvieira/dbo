@@ -15,22 +15,26 @@ Description: Interface para criação de formularios automatizados e facil comun
 */
 
 //caminho do arquivo principal dbo.php
-define (DBO_CORE_PATH, dirname(__FILE__));
+define(DBO_CORE_PATH, dirname(__FILE__));
 
 //incluindo o arquivo de funções especificas do dbo
 require_once(DBO_CORE_PATH.'/dbo_core_functions.php');
 
 //caminho da pasta mãe, contendo a pasta core e definicoes
-define (DBO_PATH, substr(DBO_CORE_PATH, 0, strlen(DBO_CORE_PATH)-5));
+define(DBO_PATH, substr(DBO_CORE_PATH, 0, strlen(DBO_CORE_PATH)-5));
 
 /*$dbo_html_path = str_replace($_SERVER['DOCUMENT_ROOT'], '', DBO_PATH);
 define (DBO_HTML_PATH, (($_SERVER['SERVER_PROTOCOL'] == "HTTP/1.1")?('http://'):('')).$_SERVER['HTTP_HOST']."/".substr($dbo_html_path, 1, strlen($dbo_html_path)));*/
 //define (DBO_HTML_PATH, 'http://empregos.araraquara.com/admin/dbo');
 
-define (DBO_IMAGE_UPLOAD_PATH, DBO_PATH."/upload/images");
-define (DBO_FILE_UPLOAD_PATH, DBO_PATH."/upload/files");
-define (DBO_IMAGE_HTML_PATH, DBO_URL."/upload/images");
-define (DBO_FILE_HTML_PATH, DBO_URL."/upload/files");
+define(DBO_IMAGE_UPLOAD_PATH, DBO_PATH."/upload/images");
+define(DBO_FILE_UPLOAD_PATH, DBO_PATH."/upload/files");
+define(DBO_IMAGE_HTML_PATH, DBO_URL."/upload/images");
+define(DBO_FILE_HTML_PATH, DBO_URL."/upload/files");
+
+/* SALTS */
+
+define(SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE, '0A89SD7UF0ASDFA#@');
 
 /*
 * ===============================================================================================================================================
@@ -77,6 +81,7 @@ class Dbo extends Obj
 	var $__listed_elements = array();
 	var $__custom_query = false;
 	var $__total = false;
+	var $__update_id = false;
 
 	//construtor -------------------------------------------------------------------------------------------------------------------------------
 
@@ -196,8 +201,12 @@ class Dbo extends Obj
 
 	public function __get ($name)
 	{
-
-		if($name[0] == '_' && $name[1] == '_' && $name[2] == '_')
+		
+		if($name == 'id')
+		{
+			return $this->__data[$this->getPK()];
+		}
+		elseif($name[0] == '_' && $name[1] == '_' && $name[2] == '_')
 		{
 			$partes_aux = explode("___", $name);
 
@@ -234,7 +243,14 @@ class Dbo extends Obj
 
     public function __set($name, $attr)
 	{
-        $this->__data[$name] = $attr;
+		if($name == 'id')
+		{
+			$this->__data[$this->getPK()] = $attr;
+		}
+		else
+		{
+			$this->__data[$name] = $attr;
+		}
     }
 	//cria uma nova instancia de si mesmo -----------------------------------------------------------------------------------------------------------
 
@@ -258,6 +274,28 @@ class Dbo extends Obj
 	{
 		if($this->__fixos[$var]) return $this->__fixos[$var];
 		return false;
+	}
+
+	//checa se o campo em questão pertence a este modulo --------------------------------------------------------------------------------------------
+
+	function hasField($field)
+	{
+		if($this->__module_scheme->campo[$field])
+			return true;
+		return false;
+	}
+	
+	//função para setar um array de dados, de forma inteligente, conferindo se o modulo possui tal campo --------------------------------------------
+
+	function smartSet($array)
+	{
+		foreach($array as $key => $value)
+		{
+			if($this->hasField($key))
+			{
+				$this->{$key} = $value;
+			}
+		}
 	}
 
 	//checa se o perfil ativo tem acesso ao campo ---------------------------------------------------------------------------------------------------
@@ -451,8 +489,8 @@ class Dbo extends Obj
 
 	function load ()
 	{
-//		$sql = "SELECT * FROM ".$this->__table." WHERE id = '".((!get_magic_quotes_gpc())?(dboEscape($this->id)):($this->id))."'";
-		$sql = "SELECT * FROM ".$this->__table." WHERE id = '".dboEscape($this->id)."'";
+		//$sql = "SELECT * FROM ".$this->__table." WHERE id = '".((!get_magic_quotes_gpc())?(dboEscape($this->id)):($this->id))."'";
+		$sql = "SELECT * FROM ".$this->__table." WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
 
 		if(!$this->__res = dboQuery($sql)) {
 			echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
@@ -556,6 +594,43 @@ class Dbo extends Obj
 		$this->clearArrays();
 	}
 
+	//retorna a tabela do modulo atual ----------------------------------------------------------------------------------------------------
+
+	function getTable()
+	{
+		return $this->__module_scheme->tabela;
+	}
+	
+	//retorna a tabela do modulo atual ----------------------------------------------------------------------------------------------------
+
+	function getFieldName($field)
+	{
+		return $this->__module_scheme->campo[$field]->titulo;
+	}
+	
+	//pega o campo que é a chave primária do modulo ---------------------------------------------------------------------------------------
+
+	function getPK()
+	{
+		foreach($this->__module_scheme->campo as $key => $obj)
+		{
+			if($obj->pk == 1)
+			{
+				return $key;
+			}
+		}
+	}
+	
+	//pega o tipo de chave primária do módulo ---------------------------------------------------------------------------------------
+
+	function getPKType()
+	{
+		if($this->__module_scheme->campo[$this->getPK()]->type == 'INT NOT NULL auto_increment')
+		{
+			return 'AUTO_INCREMENT';
+		}
+	}
+	
 	//lista os dados carregados no objeto (do while) --------------------------------------------------------------------------------------
 
 	function fetch ()
@@ -608,7 +683,10 @@ class Dbo extends Obj
 
 		if(dboQuery($sql))
 		{
-			$this->id = mysql_insert_id();
+			if($this->getPKType() == 'AUTO_INCREMENT')
+			{
+				$this->id = mysql_insert_id();
+			}
 			return $this->id;
 		}
 		else
@@ -631,7 +709,7 @@ class Dbo extends Obj
 			$aux[] = $valor." = '".$this->__valor_array[$chave]."'";
 		}
 		$sql .= implode(", ", $aux);
-		$sql .= " WHERE id = '".$this->id."' ".$restricoes;
+		$sql .= " WHERE ".$this->getPK()." = '".(($this->__update_id)?($this->__update_id):($this->id))."' ".$restricoes;
 
 		//tratamento de NOW(), etc.
 		$sql = $this->remakeSql($sql);
@@ -649,14 +727,37 @@ class Dbo extends Obj
 
 	function saveOrUpdate()
 	{
-		if($this->id)
+		//se a chave for auto increment trata de uma forma
+		if($this->getPKType() == 'AUTO_INCREMENT')
 		{
-			return $this->update();
+			if($this->id)
+			{
+				return $this->update();
+			}
+			return $this->save();
 		}
 		else
 		{
+			//senão, verifica se a chave primaria já existe no banco
+			$sql = "SELECT ".$this->getPK()." FROM ".$this->getTable()." WHERE ".$this->getPK()." = '".$this->id."'";
+			dboQuery($sql);
+			if(mysql_affected_rows())
+			{
+				return $this->update();
+			}
 			return $this->save();
 		}
+	}
+
+	//funcao para identificar deletion engine
+
+	function hasDeletionEngine()
+	{
+		if($this->hasField('deleted_by') || $this->hasField('deleted_on'))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	//delete basico -----------------------------------------------------------------------------------------------------------------------
@@ -664,13 +765,24 @@ class Dbo extends Obj
 	function delete ()
 	{
 		//se houver o campo inativo, apenas da o update para 1
-		if($this->hasInativo())
+		/*if($this->hasInativo())
 		{
-			$sql = "UPDATE ".$this->__table." SET inativo = '1' WHERE id = '".dboEscape($this->id)."'";
+			$sql = "UPDATE ".$this->__table." SET inativo = '1' WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
+		}*/
+		//se tiver o deletion engine, verificar se possui os campos e preencher.
+		if($this->hasDeletionEngine())
+		{
+			$sql_parts = array();
+
+			if($this->hasField('deleted_by')) { $sql_parts[] = " deleted_by = '".loggedUser()."' "; }
+			if($this->hasField('deleted_on')) { $sql_parts[] = " deleted_on = NOW() "; }
+			if($this->hasField('deleted_because')) { $sql_parts[] = " deleted_because = '".dboescape($_GET['deleted_because'])."' "; }
+
+			$sql = "UPDATE ".$this->__table." SET ".implode(", ", $sql_parts)." WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
 		}
 		else
 		{
-			$sql = "DELETE FROM ".$this->__table." WHERE id = '".dboEscape($this->id)."'";
+			$sql = "DELETE FROM ".$this->__table." WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
 		}
 		if(dboQuery($sql)) { return $this->id; }
 		echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
@@ -912,13 +1024,28 @@ class Dbo extends Obj
 
 	function getSQLInativo ()
 	{
-		if($this->__inativo) 
+		/*if($this->__inativo) 
 		{ 
 			if($this->getModuleRestriction() || $this->getSQLFixos() || $this->getSQLFilters())
 			{
 				$ret = " AND ";
 			}
 			return $ret." inativo = '0' "; 
+		}*/
+		return false;
+	}
+
+	//cria um complemento de SQL com a restricao de deletado, se existir -------------------------------------------------------------------
+
+	function getSQLDeletionEngine ()
+	{
+		if($this->hasDeletionEngine()) 
+		{ 
+			if($this->getModuleRestriction() || $this->getSQLFixos() || $this->getSQLFilters() || $this->getSQLInativo())
+			{
+				$ret = " AND ";
+			}
+			return $ret." deleted_by = 0 "; 
 		}
 		return false;
 	}
@@ -1190,8 +1317,8 @@ class Dbo extends Obj
 										<div class='columns large-3'>
 											<label><?= $campo->titulo ?></label>
 											<div class='input filter-type-data'>
-												<div><span>de</span><input type='text' class='data-inicial datepick' name='<?= $campo->coluna ?>_dbo_inicial' value='<?= $data_inicial ?>'></div>
-												<div><span>até</span><input type='text' class='data-final datepick' name='<?= $campo->coluna ?>_dbo_final' value='<?= $data_final ?>'></div>
+												<div><input type='text' placeholder="de" class='data-inicial datepick' name='<?= $campo->coluna ?>_dbo_inicial' value='<?= $data_inicial ?>'></div>
+												<div><input type='text' placeholder="até" class='data-final datepick' name='<?= $campo->coluna ?>_dbo_final' value='<?= $data_final ?>'></div>
 												<input type='hidden' class='data-montada clear-field' name='<?= $campo->coluna ?>' value='<?= $this->getFilterValue($campo->coluna) ?>'>
 											</div>
 										</div><!-- item -->
@@ -1499,7 +1626,7 @@ class Dbo extends Obj
 	{
 		foreach($data['row'] as $order => $id)
 		{
-			$sql = "UPDATE ".$this->__module_scheme->tabela." SET order_by = ".$order." WHERE id = ".$id;
+			$sql = "UPDATE ".$this->__module_scheme->tabela." SET order_by = ".$order." WHERE ".$this->getPK()." = ".$id;
 			dboQuery($sql);
 		}
 		exit();
@@ -1615,7 +1742,7 @@ class Dbo extends Obj
 			// Fazendo um "SELECT *" na tabela
 			$classe = ($this->__class);
 			$obj = $this->newSelf();
-			$sql_list = $this->getModuleRestriction().$this->getSQLfixos().$this->getSQLFilters().$this->getSQLInativo().$this->getSQLOrder().$this->getSQLipp();
+			$sql_list = $this->getModuleRestriction().$this->getSQLfixos().$this->getSQLFilters().$this->getSQLInativo().$this->getSQLDeletionEngine().$this->getSQLOrder().$this->getSQLipp();
 			$obj->loadAll($sql_list);
 			$modulo = $obj;
 			if($obj->size())
@@ -1629,6 +1756,7 @@ class Dbo extends Obj
 
 					// Imprimindo as linhas
 					$return .= "<tr id='row-".$id."' rel='".$this->keepUrl('dbo_view='.$id)."' ".(($_GET['dbo_view'] == $id)?("class='active'"):(''))." ".((!$dbo_permission_view && $dbo_permission_update)?("data-update-url='".$this->keepUrl(array("dbo_update=".$id, '!dbo_new&!dbo_delete&!dbo_view'))."'"):(''))." >";
+
 					foreach($this->__module_scheme->campo as $chave => $valor)
 					{
 
@@ -1673,7 +1801,7 @@ class Dbo extends Obj
 							// SELECT / RADIO =============================================================================
 							elseif ($valor->tipo == 'radio' || $valor->tipo == 'select')
 							{
-								if($list_function) { $return .= $list_function($valor->valores[$obj]); }
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
 									$return .= $valor->valores[$val];
 								}
@@ -1779,19 +1907,24 @@ class Dbo extends Obj
 						}//foreach
 					}//if
 
-					$return .= "<td style='white-space: nowrap'>";
+					$return .= "<td class=\"control-icons\" id='controls-row-".$id."' style='white-space: nowrap'>";
 
 					//checa se o modulo permite edição e exclusão dos dados
 					if ($this->__module_scheme->update === true) {
 						if(!DBO_PERMISSIONS || $dbo_permission_update)
 						{
-							$return .= (($update_interaction)?("<a href='".$this->keepUrl(array("dbo_update=".$id, '!dbo_new&!dbo_delete&!dbo_view'))."'><span style='display: inline-block; height: 16px; width: 16px; background-image: url(".DBO_URL."/core/images/icon_update.png)'></a>"):(''));
+							//mostrar a chave de inativo/ativo se houver
+							if($this->hasInativo())
+							{
+								$return .= (($obj->inativo == 0)?("<span class='wrapper-lock'><a title='Desativar' class='trigger-dbo-auto-admin-toggle-active-inactive' href='".$this->keepUrl(array("dbo_toggle_inactive=".$id."&token=".md5($id.SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE)."&".CSRFVar(), '!dbo_toggle_active'))."'><i class=\"fi-unlock\"></i></a></span>"):("<span class='wrapper-lock'><a title='".$this->__module_scheme->titulo." inativo. Clique para ativar' class='trigger-dbo-auto-admin-toggle-active-inactive alert' href='".$this->keepUrl(array("dbo_toggle_active=".$id."&token=".md5($id.SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE)."&".CSRFVar(), '!dbo_toggle_inactive'))."'><i class=\"fi-lock\"></i></a></span>"));
+							}
+							$return .= (($update_interaction)?(" <a title='Alterar' href='".$this->keepUrl(array("dbo_update=".$id, '!dbo_new&!dbo_delete&!dbo_view'))."'><i class=\"fi-pencil\"></i></a>"):(''));
 						}
 					}
 					if ($this->__module_scheme->delete === true) {
 						if(!DBO_PERMISSIONS || $dbo_permission_delete)
 						{
-							$return .= (($delete_interaction)?(" <a href=\"javascript:confirmacao('Tem certeza que deseja excluir o item ".$id."?', '".$this->keepUrl(array("dbo_delete=".$id."&".CSRFVar(), '!dbo_new&!dbo_update&!dbo_view'))."')\"><span style='display: inline-block; width: 16px; height: 16px; background-image: url(".DBO_URL."/core/images/icon_delete.png)'></a>"):(''));
+							$return .= (($delete_interaction)?(" <a title='Excluir' class=\"trigger-dbo-auto-admin-delete\" data-id=\"".$id."\" href=\"".$this->keepUrl(array("dbo_delete=".$id."&".CSRFVar(), '!dbo_new&!dbo_update&!dbo_view'))."\"><i class=\"fi-x\"></i></a>"):(''));
 						}
 					}
 
@@ -1806,8 +1939,6 @@ class Dbo extends Obj
 			}
 
 			$return .= "</tbody></table></div></div>";
-
-			$return .= "<script type='text/javascript' charset='utf=8'>function confirmacao(\$pergunta, \$destino) { var \$resposta = confirm(\$pergunta); if (\$resposta) { window.location = \$destino } }</script>";
 
 			echo $return;
 
@@ -2013,6 +2144,10 @@ class Dbo extends Obj
 										//setando restricoes...
 										$rest = '';
 										if($valor->restricao) { eval($valor->restricao.";"); }
+
+										//seta deleted_by = 0, se for o caso
+										$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
 										//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
 										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
 
@@ -2069,6 +2204,10 @@ class Dbo extends Obj
 										//setando restricoes...
 										$rest = '';
 										if($valor->restricao) { eval($valor->restricao.";"); }
+
+										//seta deleted_by = 0, se for o caso
+										$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
 										//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
 										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
 
@@ -2358,6 +2497,10 @@ class Dbo extends Obj
 									//setando restricoes...
 									$rest = '';
 									if($valor->restricao) { eval($valor->restricao.";"); }
+
+									//seta deleted_by = 0, se for o caso
+									$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
 									//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
 									$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
 
@@ -2433,6 +2576,10 @@ class Dbo extends Obj
 									//setando restricoes...
 									$rest = '';
 									if($valor->restricao) { eval($valor->restricao.";"); }
+
+									//seta deleted_by = 0, se for o caso
+									$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
 									//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
 									$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
 
@@ -2573,7 +2720,7 @@ class Dbo extends Obj
 				}
 			}
 
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Editar ".$this->__module_scheme->titulo."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Alterar ".$this->__module_scheme->titulo."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -2602,8 +2749,6 @@ class Dbo extends Obj
 				$this->myHeader("Location: index.php");
 			}
 		}
-
-
 
 		if($this->ok())
 		{
@@ -2702,14 +2847,44 @@ class Dbo extends Obj
 
 					if(function_exists("setMessage"))
 					{
-						setMessage("<div class='success'>".$this->__module_scheme->titulo." de ID ".$obj->id." removido com sucesso.</div>");
+						setMessage("<div class='success'>".$this->__module_scheme->titulo." de ".$this->getFieldName($this->getPK())." ".$obj->id." removido com sucesso.</div>");
 					}
-					$this->myHeader("Location: ".$this->keepUrl("!dbo_delete"));
+					$this->myHeader("Location: ".$this->keepUrl("!dbo_delete&!deleted_because&!DBO_CSRF_token&!token"));
 					exit();
 				}
 
+				//toggle de ativo/inativo
+				if($_GET['dbo_toggle_active'] || $_GET['dbo_toggle_inactive'])
+				{
+					CSRFCheckRequest();
+					if(DBO_PERMISSIONS && hasPermission('update', $_GET['dbo_mod']))
+					{
+						$mod_name = $this->__module_scheme->modulo;
+						if($_GET['dbo_toggle_active'])
+						{
+							if(md5($_GET['dbo_toggle_active'].SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE) == $_GET['token'])
+							{
+								$mod_toggle_obj = new $mod_name(dboescape($_GET['dbo_toggle_active']));
+								$mod_toggle_obj->inativo = 0;
+								$mod_toggle_obj->update();
+							}
+						}
+						elseif($_GET['dbo_toggle_inactive'])
+						{
+							if(md5($_GET['dbo_toggle_inactive'].SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE) == $_GET['token'])
+							{
+								$mod_toggle_obj = new $mod_name(dboescape($_GET['dbo_toggle_inactive']));
+								$mod_toggle_obj->inativo = 1;
+								$mod_toggle_obj->update();
+							}
+						}
+						unset($mod_name);
+						unset($mod_toggle_obj);
+					}
+				}
+
 				//insert ou update automatico
-				if($_POST['__dbo_insert_flag'] || $_POST['__dbo_update_flag'])
+				if($_POST['__dbo_insert_flag'] || $_POST['__dbo_update_flag']) 
 				{
 
 					//checa se o usuário logado pode inserir ou alterar deste modulo, senão, tchau!
@@ -2731,6 +2906,7 @@ class Dbo extends Obj
 						}
 					}
 
+					$this->__update_id = dboescape($_POST['__dbo_update_flag']);
 					$this->autoAdminInsertUpdate();
 				}
 
@@ -2783,7 +2959,10 @@ class Dbo extends Obj
 							if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
 							{
 							?>
-								<span class='button-new' rel='<?= $meta->modulo ?>'><a class="button radius small top-14" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'><i class="fi-plus"></i> Cadastrar Nov<?= $meta->genero ?></a></span>
+								<span class='button-new' rel='<?= $meta->modulo ?>'>
+									<a class="button radius small top-14 trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar Nov<?= $meta->genero ?></a>
+									<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button radius secondary small top-14 trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('Alteração'):('Inserção')) ?></a>
+								</span>
 							<?
 							}
 						?>
@@ -2935,6 +3114,22 @@ class Dbo extends Obj
 				$('.hide-fixo').closest('.row').hide();
 			}
 
+			//toggle active e inactive
+			$(document).on('click', '.trigger-dbo-auto-admin-toggle-active-inactive', function(e){
+				e.preventDefault();
+				clicado = $(this);
+				peixeGet(clicado.attr('href'), function(d) {
+					var html = $.parseHTML(d);
+					/* item 1 */
+					handler = '#'+clicado.closest('td').attr('id')+" .wrapper-lock";
+					content = $(html).find(handler).html();
+					if(typeof content != 'undefined'){
+						$(handler).fadeHtml(content);
+					}
+				})
+				return false;
+			});
+
 			//scripts para filtros
 			$(document).on('click', ".filter-button", function(e){
 				e.preventDefault();
@@ -2958,6 +3153,45 @@ class Dbo extends Obj
 				var montada = $(this).closest('.input').find('input.data-montada');
 				montada.val(dinicial.val()+'|---|'+dfinal.val());
 			})
+
+			$(document).on('click', '.trigger-dbo-auto-admin-delete', function(e){
+				e.preventDefault();
+				item = $(this).data('id');
+				url = $(this).attr('href');
+				<?
+				if($this->hasDeletionEngine() && $this->hasField('deleted_because')){
+					?>
+					var ans = prompt("Digite a razão da exclusão do item "+item);
+					if (ans!=null)
+					{
+						if($.trim(ans) != ''){
+							document.location = url+"&deleted_because="+encodeURIComponent(ans);
+						}
+						else {
+							setPeixeMessage("<div class='error'>Erro: As exclusões devem ser justificadas.</div>");
+							showPeixeMessage();
+						}
+					}
+					else {
+						setPeixeMessage("<div class='success'>Exclusão cancelada.</div>");	
+						showPeixeMessage();
+					}
+					<?
+				}
+				else 
+				{
+					?>
+					var ans = confirm("Tem certeza que deseja excluir o item "+item+"?");
+					if (ans==true) {
+						document.location = url;
+					} else {
+						setPeixeMessage("<div class='success'>Exclusão cancelada.</div>");	
+						showPeixeMessage();
+					}
+					<?	
+				}
+				?>
+			});
 
 			//filtros com ajax
 			$('#form-dbo-filter').submit(function(){
@@ -3080,10 +3314,14 @@ class Dbo extends Obj
 
 				$(document).on('click', '.button-new', function(e){
 					e.preventDefault();
+					clicado = $(this);
 					var $wrapper_novo = $('.wrapper-dbo-auto-admin #novo-'+$(this).attr('rel'));
 					if($($wrapper_novo).hasClass('hidden'))
 					{
 						$wrapper_novo.fadeIn().removeClass('hidden');
+						$('.trigger-dbo-auto-admin-inserir').fadeOut('fast', function(){
+							$('.trigger-dbo-auto-admin-cancelar-insercao-edicao').fadeIn('fast');
+						})
 						$('#dbo-list').hide().addClass('hidden');
 						$('.wrapper-auto-admin-view').hide();
 
@@ -3096,6 +3334,9 @@ class Dbo extends Obj
 						})
 
 					} else {
+						$('.trigger-dbo-auto-admin-cancelar-insercao-edicao').fadeOut('fast', function(){
+							$('.trigger-dbo-auto-admin-inserir').fadeIn('fast');
+						})
 						$wrapper_novo.fadeOut('fast', function(){
 							$wrapper_novo.addClass('hidden');
 							$('#dbo-list').fadeIn().removeClass('hidden');
@@ -3758,7 +3999,7 @@ class Dbo extends Obj
 
 			if(!DBO_PERMISSIONS || hasPermission('update', $_GET['dbo_mod']))
 			{
-				$return .= (($update_interaction)?("<a class='button small radius no-margin' href='".$this->keepUrl(array('dbo_update='.$modulo->id, '!dbo_view'))."'>Editar</a>"):(''));
+				$return .= (($update_interaction)?("<a class='button small radius no-margin' href='".$this->keepUrl(array('dbo_update='.$modulo->id, '!dbo_view'))."'>Alterar</a>"):(''));
 			}
 
 			$return .= " <a href='' class='view-button-close button secondary small radius no-margin'>Fechar</a></div></div>"; //input //item //row (dos botoes customizados)
@@ -4085,7 +4326,14 @@ class Dbo extends Obj
 
 		} //foreach
 
-		$new = $this->saveOrUpdate();
+		if($_POST['__dbo_update_flag'])
+		{
+			$new = $this->update();
+		}
+		else
+		{
+			$new = $this->save();
+		}
 
 		if($temp_id) //se foi insert de NxN...
 		{
@@ -4140,12 +4388,12 @@ class Dbo extends Obj
 			{
 				if($_POST['__dbo_update_flag'])
 				{
-					setMessage("<div class='success'>".$this->__module_scheme->titulo." de ID ".$new." alterado com sucesso.</div>");
+					setMessage("<div class='success'>".$this->__module_scheme->titulo." de ".$this->getFieldName($this->getPK())." ".$new." alterado com sucesso.</div>");
 					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_update'))):($this->keepUrl(array('!dbo_update'))));
 				}
 				else
 				{
-					setMessage("<div class='success'>".$this->__module_scheme->titulo." inserido com sucesso. ID: ".$new."</div>");
+					setMessage("<div class='success'>".$this->__module_scheme->titulo." inserido com sucesso. ".$this->getFieldName($this->getPK()).": ".$new."</div>");
 					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_new'))):($this->keepUrl(array('!dbo_new'))));
 				}
 			}

@@ -755,7 +755,6 @@ function toggleFieldControl ($mod, $field, $attr)
 	if($campo->{$attr} == TRUE) { $campo->{$attr} = FALSE; } else { $campo->{$attr} = TRUE; }
 	if($campo->lista == FALSE)
 	{
-		$campo->filter = FALSE;
 		$campo->order = FALSE;
 	}
 	flagUpdate($mod);
@@ -1012,7 +1011,7 @@ function getFieldForm ($mod,$field)
 						<label>Tipo</label>
 						<div class='input'>
 							<select name='tipo'>
-								<option value='pk' <?= ($campo->tipo == 'pk')?('SELECTED'):('') ?>>Chave Primária</option>
+								<option value='pk' <?= ($campo->tipo == 'pk')?('SELECTED'):('') ?>>Chave Primária A.I.</option>
 								<option value='text' <?= ($campo->tipo == 'text')?('SELECTED'):('') ?>>Text</option>
 								<option value='password' <?= ($campo->tipo == 'password')?('SELECTED'):('') ?>>Password</option>
 								<option value='textarea' <?= ($campo->tipo == 'textarea')?('SELECTED'):('') ?>>Textarea</option>
@@ -1434,7 +1433,7 @@ function getNewFieldForm($mod)
 		<form method='POST' action='actions.php' id='form-new-field'>
 			<ul class='field-types field-types-basic'>
 				<li class='title'>Pré-definidos</li>
-				<li><input type='radio' name='tipo' value='pk'/><span>Chave Primária</span></li>
+				<li><input type='radio' name='tipo' value='pk'/><span>Chave Primária A.I.</span></li>
 				<li class='active'><input type='radio' name='tipo' value='text' checked/><span>Text</span></li>
 				<li><input type='radio' name='tipo' value='textarea'/><span>Textarea</span></li>
 				<li><input type='radio' name='tipo' value='textarea-rich'/><span>Textarea Rich Text</span></li>
@@ -1458,6 +1457,9 @@ function getNewFieldForm($mod)
 				<li><input type='radio' name='tipo' value='created_on'/><span>Criado Em (created_on)</span></li>
 				<li><input type='radio' name='tipo' value='updated_by'/><span>Modificado Por (updated_by)</span></li>
 				<li><input type='radio' name='tipo' value='updated_on'/><span>Modificado Em (updated_on)</span></li>
+				<li><input type='radio' name='tipo' value='deleted_by'/><span>Deletado Por (deleted_by)</span></li>
+				<li><input type='radio' name='tipo' value='deleted_on'/><span>Deletado Em (deleted_on)</span></li>
+				<li><input type='radio' name='tipo' value='deleted_because'/><span>Deletado Porque (deleted_because)</span></li>
 				<li><input type='radio' name='tipo' value='order_by'/><span>Auto Ordenação (order_by)</span></li>
 				<li><input type='radio' name='tipo' value='inativo'/><span>Inativo</span></li>
 				<li><input type='radio' name='tipo' value='permalink'/><span>Permalink (permalink)</span></li>
@@ -1535,7 +1537,7 @@ function runUpdateField($post_data)
 		{
 			if($campo_def->tipo == 'pk' && $campo_def->coluna != $field)
 			{
-				echo "ERROR::Erro: O campo '".$campo_def->titulo."' já é a Chave Primária::#wrapper-details"; exit();
+				//echo "ERROR::Erro: O campo '".$campo_def->titulo."' já é a Chave Primária::#wrapper-details"; exit();
 			}
 		}
 	}
@@ -1762,9 +1764,12 @@ function runNewField($post_data)
 	}
 	if(
 		$post_data['tipo'] == 'created_by' ||
+		$post_data['tipo'] == 'created_on' ||
 		$post_data['tipo'] == 'updated_by' ||
-		$post_data['tipo'] == 'created_on' ||
-		$post_data['tipo'] == 'created_on' ||
+		$post_data['tipo'] == 'updated_on' ||
+		$post_data['tipo'] == 'deleted_by' ||
+		$post_data['tipo'] == 'deleted_on' ||
+		$post_data['tipo'] == 'deleted_because' ||
 		$post_data['tipo'] == 'order_by' ||
 		$post_data['tipo'] == 'inativo' ||
 		$post_data['tipo'] == 'permalink'
@@ -1947,7 +1952,6 @@ function runNewField($post_data)
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->add = false;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->edit = false;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->view = false;
-		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
 	}
 	//Created On
 	elseif($post_data['tipo'] == 'created_on')
@@ -1977,7 +1981,6 @@ function runNewField($post_data)
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->add = false;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->edit = false;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->view = false;
-		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
 	}
 	//Updated On
 	elseif($post_data['tipo'] == 'updated_on')
@@ -1986,6 +1989,47 @@ function runNewField($post_data)
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->coluna = "updated_on";
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "DATETIME";
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'datetime';
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->add = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->edit = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->view = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
+	}
+	//Deleted By
+	elseif($post_data['tipo'] == 'deleted_by')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->titulo = "Deletado Por";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->coluna = "deleted_by";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "INT(11)";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'join';
+		$join = new obj();
+		$join->modulo = 'pessoa';
+		$join->chave = 'id';
+		$join->valor = 'nome';
+		$join->order_by = 'nome';
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->join = $join;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->add = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->edit = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->view = false;
+	}
+	//Deleted On
+	elseif($post_data['tipo'] == 'deleted_on')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->titulo = "Deletado Em";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->coluna = "deleted_on";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "DATETIME";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'datetime';
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->add = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->edit = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->view = false;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
+	}
+	//Deleted Because
+	elseif($post_data['tipo'] == 'deleted_because')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->titulo = "Deletado Porque";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->coluna = "deleted_because";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "VARCHAR(255)";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'text';
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->add = false;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->edit = false;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->view = false;

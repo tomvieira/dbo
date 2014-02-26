@@ -93,6 +93,20 @@ table {
 					td { background: lighten($primary-color, 20%); }
 				}
 			}
+			td {
+				&.control-icons {
+					a { color: #bbb;
+						&.primary { color: $primary-color; 
+							&:hover { color: darken($primary-color, 10%); }
+						}
+						&.alert { color: lighten($alert-color, 30%); 
+							&:hover { color: $alert-color; }
+						}
+						&:hover { color: #666; }
+						i { font-size: 42px; margin-left: .2em; }
+					}
+				}
+			}
 		}
 	}
 }
@@ -347,12 +361,25 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 		input, .button { top: emCalc(6px) }
 	}
 
-	table.responsive {
-		thead { display: table-header-group; }
-		tbody { 
-			tr { display: table-row; border-top: 4px solid #ccc;
-				td { display: table-cell; padding-left: emCalc(10); position: relative; min-height: auto;
-					&:before { content: ''; position: absolute; font-weight: bold; top: 0; left: 0; display: none; }
+	table {
+		&.responsive {
+			thead { display: table-header-group; }
+			tbody { 
+				tr { display: table-row; border-top: 4px solid #ccc;
+					td { display: table-cell; padding-left: emCalc(10); position: relative; min-height: auto;
+						&:before { content: ''; position: absolute; font-weight: bold; top: 0; left: 0; display: none; }
+					}
+				}
+			}
+		}
+		&.list {
+			tr {
+				td {
+					&.control-icons {
+						a {
+							i { font-size: 16px; }
+						}
+					}
 				}
 			}
 		}

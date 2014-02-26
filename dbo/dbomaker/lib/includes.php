@@ -202,6 +202,7 @@ function syncTable($module)
 	if(is_array($module->campo))
 	{
 		$sql_parts = array();
+	
 		foreach($module->campo as $field)
 		{
 			if($field->tipo == 'pk')
@@ -209,6 +210,7 @@ function syncTable($module)
 				$pk = $field->coluna;
 				$sql_parts[] = "\t".$field->coluna." int(11) NOT NULL auto_increment";
 			}
+			//para o caso de PKs não A.I.
 			elseif($field->tipo == 'joinNN')
 			{
 				$sql_join  = "CREATE TABLE IF NOT EXISTS ".$field->join->tabela_ligacao." (\n";
@@ -226,6 +228,9 @@ function syncTable($module)
 			elseif($field->tipo == 'query') {}
 			else
 			{
+				if($field->pk == true) {
+					$pk = $field->coluna;
+				}
 				$sql_parts[] = "\t".$field->coluna." ".$field->type." ".(($field->isnull)?("NULL"):("NOT NULL"));
 			}
 		}
