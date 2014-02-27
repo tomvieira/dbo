@@ -1,11 +1,10 @@
-chmod 777 lib/
-chmod 777 dbo/
-chmod 777 dbo/module_backups/
-chmod -R 777 dbo/upload/
-chmod -R 777 dbo/plugins/jcrop_dbo/temp
+chown www lib/
+chown www dbo/
+chown www scss/
+chown www scss/foundation/
+chown www dbo/plugins/jcrop_dbo/
 
 echo " "
 echo "------------------------------------------------------"
 echo "Permissoes concedidas"
 echo "------------------------------------------------------"
-echo " "

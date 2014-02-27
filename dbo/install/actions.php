@@ -315,6 +315,34 @@ function step2()
 						}
 					}
 
+					//creating necessary folders for the CMS
+					$oldumask = umask(0);
+					$needed_folders = array(
+						'../module_backups',
+						'../upload',
+						'../upload/files',
+						'../upload/images',
+						'../plugins/jcrop_dbo/temp',
+					);
+					foreach($needed_folders as $key => $value)
+					{
+						if(!is_dir($value))
+						{
+							mkdir($value, 0755); 
+						}
+					}
+					umask($oldumask); 
+
+					//copying sample files
+					if(!file_exists('../../scss/foundation/_variables.scss'))
+					{
+						copy('./sample-files/_variables.scss', '../../scss/foundation/_variables.scss');
+					}
+					if(!file_exists('../../scss/_project.scss'))
+					{
+						copy('./sample-files/_project.scss', '../../scss/_project.scss');
+					}
+
 					$admins = getAdmins();
 					foreach($admins as $key => $value)
 					{

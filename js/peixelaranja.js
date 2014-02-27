@@ -56,8 +56,9 @@ function showPeixeLoader() {
 	$('.peixe-screen-freezer').show();
 }
 
-//function que funciona como o .html() do jQuery, mas com um efeito de fade
 (function($) {
+
+	//function que funciona como o .html() do jQuery, mas com um efeito de fade
 	$.fn.fadeHtml = function(content, callback) {
 		return this.each(function() {
 			$(this).fadeTo('fast', 0, function(){
@@ -66,6 +67,43 @@ function showPeixeLoader() {
 			});
 		});
 	}
+
+	//função para remover determinados inputs do Foundation Abide
+	$.fn.peixeUnrequire = function(callback) {
+		var size = this.length-1;
+		return this.each(function(i) {
+			if(this.nodeName != 'INPUT' && this.nodeName != 'SELECT' && this.nodeName != 'TEXTAREA'){
+				$(this).find('[required]').removeAttr('required').removeClass('required').attr('maybe-required', '');
+			}
+			else {
+				$(this).removeAttr('required').removeClass('required').attr('maybe-required', '');
+			}
+			if(size == i){
+				if(typeof callback == 'function'){
+					callback.call(this);
+				}
+			}
+		});
+	}
+
+	//função para adicionar determinados inputs no Foundation Abide
+	$.fn.peixeRequire = function(callback) {
+		var size = this.length-1;
+		return this.each(function(i) {
+			if(this.nodeName != 'INPUT' && this.nodeName != 'SELECT' && this.nodeName != 'TEXTAREA'){
+				$(this).find('[maybe-required]').removeAttr('maybe-required').addClass('required').attr('required', '');
+			}
+			else {
+				$(this).removeAttr('maybe-required').addClass('required').attr('required', '');
+			}
+			if(size == i){
+				if(typeof callback == 'function'){
+					callback.call(this);
+				}
+			}
+		});
+	}
+
 })(jQuery);	
 
 //mostra o loader de AJAX

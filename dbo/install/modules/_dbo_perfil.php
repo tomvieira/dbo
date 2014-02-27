@@ -20,7 +20,7 @@ $module->delete = true;
 $module->insert = 'Novo Perfil';
 $module->preload_insert_form = false;
 $module->auto_view = false;
-$module->order_by = '0';
+$module->order_by = '10';
 
 /* FIELDS =========================================================================================================== */
 
@@ -109,7 +109,7 @@ $button = new Obj();
 $button->value = 'Permissões';
 $button->custom = true;
 $button->code = '
-	$code = "<a class=\'button-dbo-fixo\' href=\'dbo_permissions.php?perfil=$id\'>[VALUE]</a>";
+	$code = "<a class=\'button tiny no-margin radius\' href=\'dbo_permissions.php?perfil=$id\'>[VALUE]</a>";
 ';
 $module->button[] = $button;
 

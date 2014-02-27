@@ -17,6 +17,9 @@ Improvements
 - Auto Admin UI improvements
 - Filters are now available for fields not present in the listing
 - CSRF security added
+- New functions peixeRequire() and peixeUnrequire() in peixelaranja.js
+- Install now creates all necessary folders and SCSS files
+- Bug correction in "Cadastros" menu
 
 - Version 0.9.6 -------------------------------------------------------------------------
 
