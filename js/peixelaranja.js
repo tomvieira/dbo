@@ -104,6 +104,31 @@ function showPeixeLoader() {
 		});
 	}
 
+	//funcao para equalizar a altura dos elementos
+	$.fn.peixeEqualizeHeights = function(callback){
+
+		var size = this.length-1;
+		var height = 0, reset = $.browser.msie ? "1%" : "auto";
+  
+		return this
+			.css("height", reset)
+			.each(function() {
+				height = Math.max(height, this.offsetHeight);
+			})
+			.css("height", height)
+			.each(function(i) {
+				var h = this.offsetHeight;
+				if (h > height) {
+					$(this).css("height", height - (h - height));
+				};
+				if(size == i){
+					if(typeof callback == 'function'){
+						callback.call(this);
+					}
+				}
+			});
+	}
+
 })(jQuery);	
 
 //mostra o loader de AJAX

@@ -197,7 +197,7 @@ class Dbo extends Obj
 		}
 	}
 
-	//cria uma nova instancia de si mesmo -----------------------------------------------------------------------------------------------------------
+	//função magica para tratar atribuição --------------------------------------------------------------------------------------------------------
 
 	public function __get ($name)
 	{
@@ -612,12 +612,19 @@ class Dbo extends Obj
 
 	function getPK()
 	{
-		foreach($this->__module_scheme->campo as $key => $obj)
+		if(is_array($this->__module_scheme->campo))
 		{
-			if($obj->pk == 1)
+			foreach($this->__module_scheme->campo as $key => $obj)
 			{
-				return $key;
+				if($obj->pk == 1)
+				{
+					return $key;
+				}
 			}
+		}
+		else
+		{
+			return 'id';
 		}
 	}
 	
@@ -2571,6 +2578,7 @@ class Dbo extends Obj
 								{
 									$join = $valor->join;
 									$obj = new Dbo($join->modulo);
+									
 									$cadastrados_array = array();
 
 									//setando restricoes...
