@@ -61,6 +61,8 @@
 	<script src="js/select2/jquery.select2.pt-BR.js"></script>
 	<link rel="stylesheet" href="js/select2/select2.css">
 
+	<script src="js/jquery.priceformat.js"></script>
+
 	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.js'></script>
 	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.scrollfix.js'></script>
 	<link rel="stylesheet" media="screen" href="js/colorbox/colorbox.css">

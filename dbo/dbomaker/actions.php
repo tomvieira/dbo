@@ -1021,6 +1021,7 @@ function getFieldForm ($mod,$field)
 								<option value='checkbox' <?= ($campo->tipo == 'checkbox')?('SELECTED'):('') ?>>Checkbox</option>
 								<option value='date' <?= ($campo->tipo == 'date')?('SELECTED'):('') ?>>Data</option>
 								<option value='datetime' <?= ($campo->tipo == 'datetime')?('SELECTED'):('') ?>>Data e Hora</option>
+								<option value='price' <?= ($campo->tipo == 'price')?('SELECTED'):('') ?>>Preço</option>
 								<option value='file' <?= ($campo->tipo == 'file')?('SELECTED'):('') ?>>Arquivo</option>
 								<option value='image' <?= ($campo->tipo == 'image')?('SELECTED'):('') ?>>Imagem</option>
 								<option value='join' <?= ($campo->tipo == 'join' || $campo->tipo == 'joinNN')?('SELECTED'):('') ?>>Join</option>
@@ -1110,6 +1111,20 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 									</div><!-- row -->
 								</div><!-- wrapper-field-type-detail -->
 							</div><!-- input -->
+						</div>
+					</div><!-- row -->
+		<?
+		// IMAGE ------------------------------------------------------------------------------------------------------------------------
+		} elseif($type == 'price') {
+		?>
+					<div class='row wide'>
+						<div class='item'>
+							<label>Formato</label>
+							<select name="formato">
+								<option value="real" <?= (($campo->formato == 'real')?('selected'):('')) ?>>Real (R$ 1.000,00)</option>
+								<option value="dolar" <?= (($campo->formato == 'dolar')?('selected'):('')) ?>>Dólar (US$ 1,000.00)</option>
+								<option value="generico" <?= (($campo->formato == 'generico')?('selected'):('')) ?>>Genérico ($ 1.000,00)</option>
+							</select>
 						</div>
 					</div><!-- row -->
 		<?
@@ -1445,6 +1460,7 @@ function getNewFieldForm($mod)
 				<li><input type='radio' name='tipo' value='checkbox'/><span>Checkbox (múltiplos valores)</span></li>
 				<li><input type='radio' name='tipo' value='date'/><span>Data com Calendário</span></li>
 				<li><input type='radio' name='tipo' value='datetime'/><span>Data e Hora com Calendário</span></li>
+				<li><input type='radio' name='tipo' value='price'/><span>Preço</span></li>
 				<li><input type='radio' name='tipo' value='join'/><span>Join com outro Módulo</span></li>
 				<li><input type='radio' name='tipo' value='query'/><span>Query (campo virtual)</span></li>
 				<li><input type='radio' name='tipo' value='plugin'/><span>Plugin</span></li>
@@ -1644,6 +1660,11 @@ function runUpdateField($post_data)
 		}
 
 		$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->valores = $values;
+	}
+	//preco ----------------------------------------------------------------------------------------
+	elseif($post_data['tipo'] == 'price')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->formato = $post_data['formato'];
 	}
 	//imagem ----------------------------------------------------------------------------------------
 	elseif($post_data['tipo'] == 'image')
@@ -1905,6 +1926,16 @@ function runNewField($post_data)
 	{
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "DATETIME";
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'datetime';
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->lista = true;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->order = true;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->filter = true;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
+	}
+	//Datetime
+	elseif($post_data['tipo'] == 'price')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "DOUBLE";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'price';
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->lista = true;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->order = true;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->filter = true;
@@ -2611,6 +2642,11 @@ function writeModuleFile($mod)
 							}
 						}
 						fwrite($fh, ");\n");
+					}
+					//price
+					elseif($field->tipo == 'price')
+					{
+						fwrite($fh, "\$field->formato = '".$field->formato."';\n");
 					}
 					//image
 					elseif($field->tipo == 'image')

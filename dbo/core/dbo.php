@@ -398,7 +398,7 @@ class Dbo extends Obj
 
 	//pega o nome de execução do módulo atual -------------------------------------------------------------------------------------------------------
 
-	private function getModule ()
+	function getModule ()
 	{
 		return $this->__module_scheme->modulo;
 	}
@@ -1258,7 +1258,7 @@ class Dbo extends Obj
 							<?
 								foreach($this->__filter_scheme as $chave => $campo)
 								{
-									if($campo->tipo == 'text' || $campo->tipo == 'textarea' || $campo->tipo == 'textarea-rich')
+									if($campo->tipo == 'text' || $campo->tipo == 'textarea' || $campo->tipo == 'textarea-rich' || $campo->tipo == 'price')
 									{
 										?>
 										<div class='item columns large-3'>
@@ -1805,6 +1805,28 @@ class Dbo extends Obj
 							{
 								$return .= "********";
 							}
+							// TEXT =======================================================================================
+							if($valor->tipo == 'price')
+							{
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
+								else {
+									$valor_price = $val;
+									if($valor->formato == 'real')
+									{
+										$valor_price = 'R$ '.number_format($valor_price, 2, ',', '.');
+									}
+									elseif($valor->formato == 'generico')
+									{
+										$valor_price = '$ '.number_format($valor_price, 2, ',', '.');
+									}
+									else
+									{
+										$valor_price = 'US$ '.number_format($valor_price, 2, '.', ',');
+									}
+									$return .= htmlspecialchars($valor_price);
+									unset($valor_price);
+								}
+							}
 							// SELECT / RADIO =============================================================================
 							elseif ($valor->tipo == 'radio' || $valor->tipo == 'select')
 							{
@@ -2094,6 +2116,16 @@ class Dbo extends Obj
 											$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 										}
 										$return .= "</span>";
+									}
+									// PRICE ====================================================================================
+									elseif ($valor->tipo == 'price')
+									{
+										$return .= "<div class=\"row collapse\">";
+										$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right'/></div>";
+										$return .= "	<div class=\"small-2 columns\">";
+										$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fi-x\"></i></span>";
+										$return .= "	</div>";
+										$return .= "</div>";
 									}
 									// SELECT ====================================================================================
 									elseif ($valor->tipo == 'select')
@@ -2440,6 +2472,21 @@ class Dbo extends Obj
 										$return .= "<span style='display: block; white-space: nowrap'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."' ".((in_array($chave2, $database_checkbox_values))?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
 									$return .= "</span>";
+								}
+								// PRICE ====================================================================================
+								elseif ($valor->tipo == 'price')
+								{
+									$valor_price = $modulo->{$valor->coluna};
+									$valor_price = number_format($valor_price, 2, '', '.');
+
+									$return .= "<div class=\"row collapse\">";
+									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right' value=\"".(($edit_function)?($edit_function($this->clearValue($valor_price))):($this->clearValue($valor_price)))."\"/></div>";
+									$return .= "	<div class=\"small-2 columns\">";
+									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fi-x\"></i></span>";
+									$return .= "	</div>";
+									$return .= "</div>";
+
+									unset($valor_price);
 								}
 								// SELECT ====================================================================================
 								elseif ($valor->tipo == 'select')
@@ -3122,6 +3169,12 @@ class Dbo extends Obj
 				$('.hide-fixo').closest('.row').hide();
 			}
 
+			//limpar os precos
+			$(document).on('click', '.trigger-clear-price', function(){
+				clicado = $(this);
+				clicado.closest('.item').find('.price').val('');
+			});
+
 			//toggle active e inactive
 			$(document).on('click', '.trigger-dbo-auto-admin-toggle-active-inactive', function(e){
 				e.preventDefault();
@@ -3393,6 +3446,25 @@ class Dbo extends Obj
 					],
 					toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | fullscreen | code",
 					image_advtab: true
+				});
+
+				//precos
+				$('.price.price-real').priceFormat({
+					prefix: 'R$ ',
+					centsSeparator: ',',
+					thousandsSeparator: '.'
+				});
+
+				$('.price.price-generico').priceFormat({
+					prefix: '$ ',
+					centsSeparator: ',',
+					thousandsSeparator: '.'
+				});
+
+				$('.price.price-dolar').priceFormat({
+					prefix: 'US$ ',
+					centsSeparator: '.',
+					thousandsSeparator: ','
 				});
 
 				//tinymce
@@ -4154,6 +4226,25 @@ class Dbo extends Obj
 					{
 						$this->{$campo->coluna} = '';
 					}
+				}
+				// PRICE ====================================================================================
+				elseif ($campo->tipo == 'price')
+				{
+					$valor_price = $_POST[$campo->coluna];
+					if($campo->formato == 'real' || $campo->formato == 'generico')
+					{
+						$replace_from = array('R$ ', '$ ', '.', ',');
+						$replace_to = array('', '', '', '.');
+						$valor_price = str_replace($replace_from, $replace_to, $valor_price);
+					}
+					else
+					{
+						$replace_from = array('US$ ', ',');
+						$replace_to = array('', '');
+						$valor_price = str_replace($replace_from, $replace_to, $valor_price);
+					}
+					$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '')?($this->null()):($valor_price));
+					unset($valor_price);
 				}
 				// SELECT ====================================================================================
 				elseif ($campo->tipo == 'select')
