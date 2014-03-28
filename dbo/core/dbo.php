@@ -3901,6 +3901,22 @@ class Dbo extends Obj
 								$return .= ((in_array($chave2, $database_checkbox_values))?($valor2."<br />"):(''));
 							}
 						}
+						// PRICE ====================================================================================
+						elseif ($valor->tipo == 'price')
+						{
+							if($valor->formato == 'real')
+							{
+								$return .= "R$ ".number_format($modulo->{$valor->coluna}, 2, ',', '.');
+							}
+							elseif($valor->formato == 'generico')
+							{
+								$return .= number_format($modulo->{$valor->coluna}, 2, ',', '.');
+							}
+							else
+							{
+								$return .= "US$ ".number_format($modulo->{$valor->coluna}, 2, '.', ',');
+							}
+						}
 						// SELECT ====================================================================================
 						elseif ($valor->tipo == 'select')
 						{

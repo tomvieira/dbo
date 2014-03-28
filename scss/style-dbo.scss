@@ -11,6 +11,8 @@
 
 body { overflow-y: scroll; }
 
+textarea { height: auto; }
+
 /* acertando a cor do header */
 #main-header .nome-sistema { background-color: $primary-color; }
 
@@ -40,7 +42,7 @@ body.dbo.modal { padding: 1em; overflow-y: auto;
 
 /* big buttons do cockpit */
 #cockpit-big-buttons { margin-bottom: 1em;
-	a { border: 1px solid darken(#fff, 15%); display: block; position: relative; padding-top: 100%; color: darken(#fff, 45%); background-color: darken(#fff, 3%); -webkit-transition: all .15s ease; -moz-transition: all .15s ease; transition: all .15s ease;
+	a { border: 1px solid darken(#fff, 15%); display: block; position: relative; padding-top: 100%; color: darken(#fff, 45%); background-color: darken(#fff, 1%); -webkit-transition: all .15s ease; -moz-transition: all .15s ease; transition: all .15s ease;
 		span.icon { position: absolute; display: block; width: 40%; height: 40%; top: 25%; left: 30%; background-size: cover; background-repeat: no-repeat; opacity: .6; }
 		div.name { position: absolute; width: 100%; bottom: 0; text-align: center; left: 0; padding: 0.2em; font-size: emCalc(14); }
 		&:hover { border: 1px solid $primary-color; box-shadow: 0px 1px 3px lighten($primary-color, 30%); background-color: darken(#fff, 5%); color: darken($primary-color, 10%); 
@@ -205,12 +207,12 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 
 .bread-crumb { margin: 0 auto; margin-bottom: 1em; font-size: 14px; line-height: 39px; padding: 0 10px; 
 	li { display: inline-block; position: relative; padding-left: 30px; 
-		&:before { content: url(../images/bread-bullet.png); width: 7px; height: 7px; position: absolute; left: 10px; top: 0px; }
+		&:before { /*content: url(../images/bread-bullet.png); width: 7px; height: 7px; position: absolute; left: 10px; top: 0px;*/ }
 		&:last-child a:not(.label) { color: #333; text-decoration: none; }
 		a { color: $neutral-link-color; text-decoration: underline; 
 			&:hover { color: darken($neutral-link-color, 30%); }
 		}
-		a.label { color: #333; text-decoration: none;
+		a.label { color: #fff; text-decoration: none;
 			&+a { display: block; margin-top: emCalc(-15); }
 		}
 	}

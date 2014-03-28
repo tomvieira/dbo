@@ -151,7 +151,7 @@ function peixeGet(url, args, callback) {
 
 function peixeAddRequiredBullets() {
 	//colocando * nos requireds
-	$('form .required').closest('.item').find('label:not(:has(.bullet-required))').append(' <span class="bullet-required">*</span>');
+	$('form .required, form [required]').closest('.item').find('label:not(:has(.bullet-required))').append(' <span class="bullet-required">*</span>');
 }
 
 function peixeInit() {
