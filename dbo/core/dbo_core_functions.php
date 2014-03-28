@@ -896,7 +896,7 @@
 	{
 		if(defined('MASTER_PASSWORD'))
 		{
-			if(MASTER_PASSWORD == $pass)
+			if(MASTER_PASSWORD == hash('sha512', $pass))
 			{
 				return true;
 			}
