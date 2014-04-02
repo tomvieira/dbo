@@ -1198,6 +1198,49 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 											</select>
 										</div><!-- item -->
 									</div><!-- row -->
+									<div class="row cf">
+										<div class='item item-33'>
+											<label>AJAX</label>
+											<select name='join[ajax]' class='join-order'>
+												<option value="0">Não</option>
+												<option value="1" <?= (($campo->join->ajax)?('selected'):('')) ?>>Sim</option>
+											</select>
+										</div><!-- item -->
+										<div class='item item-33'>
+											<label>Select2</label>
+											<select name='join[select2]' class='join-order'>
+												<option value="0">Não</option>
+												<option value="1" <?= (($campo->join->select2)?('selected'):('')) ?>>Sim</option>
+											</select>
+										</div><!-- item -->
+										<div class="item item-33">
+											<label>Tamanho mínimo do texto</label>
+											<div class="input">
+												<input type="text" name="join[tamanho_minimo]" value="<?= htmlSpecialChars($campo->join->tamanho_minimo) ?>"/>
+											</div>
+										</div><!-- item -->
+									</div><!-- row -->
+									<div class="row cf">
+										<div class="item item-50">
+											<label>Método de listagem (método chamado para selecionar os dados)</label>
+											<div class="input">
+												<input type="text" name="join[metodo_listagem]" value="<?= htmlSpecialChars($campo->join->metodo_listagem) ?>"/>
+											</div>
+										</div><!-- item -->
+										<div class="item item-50">
+											<label>Método de retorno (método chamado na exibição da listagem)</label>
+											<div class="input">
+												<input type="text" name="join[metodo_retorno]" value="<?= htmlSpecialChars($campo->join->metodo_retorno) ?>"/>
+											</div>
+										</div><!-- item -->
+									</div><!-- row -->
+									<div class="row cf">
+										<div class="item">
+											<label>Parâmetros AJAX (objeto JSON que será passado por REQUEST (pode-se usar $obj))</label>
+											<textarea name="join[parametros]" rows="3"><?= htmlSpecialChars($campo->join->parametros) ?></textarea>
+										</div><!-- item -->
+									</div><!-- row -->
+									
 									<div class='row'>
 										<div class='item'>
 											<label>Tipo</label>
@@ -1217,15 +1260,25 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 											</div><!-- item -->
 										</div><!-- row -->
 										<div class='row'>
-											<div class='item item-50'>
+											<div class='item item-25'>
 												<div class='dica'>Irá conter a chave do campo atual</div>
-												<label>Chave 1 (modulo atual)</label>
+												<label>Campo 1 (modulo atual)</label>
 												<input type='text' name='join[chave1]' value='<?= $campo->join->chave1 ?>'>
 											</div><!-- item -->
-											<div class='item item-50'>
+											<div class='item item-25'>
 												<div class='dica'>Irá conter a chave do campo relacionado</div>
-												<label>Chave 2 (modulo extrangeiro)</label>
+												<label>Campo 2 (modulo extrangeiro)</label>
 												<input type='text' name='join[chave2]' value='<?= $campo->join->chave2 ?>'>
+											</div><!-- item -->
+											<div class='item item-25'>
+												<div class='dica'>Irá conter a chave do campo relacionado</div>
+												<label>PK 1 (PK no mód. atual (id))</label>
+												<input type='text' name='join[chave1_pk]' value='<?= $campo->join->chave1_pk ?>'>
+											</div><!-- item -->
+											<div class='item item-25'>
+												<div class='dica'>Irá conter a chave do campo relacionado</div>
+												<label>PK 2 (PK no mód. extrangeiro (id))</label>
+												<input type='text' name='join[chave2_pk]' value='<?= $campo->join->chave2_pk ?>'>
 											</div><!-- item -->
 										</div><!-- row -->
 										<div class='clear'></div>
@@ -1708,6 +1761,56 @@ function runUpdateField($post_data)
 		$join->valor = $post_data['join']['valor'];
 		$join->order_by = $post_data['join']['order_by'];
 
+		//verificando metodo de retorno
+		if(strlen(trim($post_data['join']['metodo_retorno'])))
+		{
+			$join->metodo_retorno = $post_data['join']['metodo_retorno'];
+		}
+		else
+		{
+			unset($join->metodo_retorno);
+		}
+
+		//verificando metodo de listagem
+		if(strlen(trim($post_data['join']['metodo_listagem'])))
+		{
+			$join->metodo_listagem = $post_data['join']['metodo_listagem'];
+		}
+		else
+		{
+			unset($join->metodo_listagem);
+		}
+
+		//verificando tamanho minimo do texto
+		if(strlen(trim($post_data['join']['tamanho_minimo'])))
+		{
+			$join->tamanho_minimo = $post_data['join']['tamanho_minimo'];
+		}
+		else
+		{
+			unset($join->tamanho_minimo);
+		}
+
+		//verificando se já metodo de retorno
+		if($post_data['join']['ajax'] == 1)
+		{
+			$join->ajax = $post_data['join']['ajax'];
+		}
+		else
+		{
+			unset($join->ajax);
+		}
+
+		//verificando se já metodo de retorno
+		if($post_data['join']['select2'] == 1)
+		{
+			$join->select2 = $post_data['join']['select2'];
+		}
+		else
+		{
+			unset($join->select2);
+		}
+
 		list($tipo_join, $tipo_campo) = explode('-', $post_data['join'][tipo]);
 
 		$join->tipo = $tipo_campo;
@@ -1719,6 +1822,24 @@ function runUpdateField($post_data)
 			$join->tabela_ligacao = $post_data['join']['tabela_ligacao'];
 			$join->chave1 = $post_data['join']['chave1'];
 			$join->chave2 = $post_data['join']['chave2'];
+
+			//chacando chaves custom
+			if(strlen(trim($post_data['join']['chave1_pk'])))
+			{
+				$join->chave1_pk = $post_data['join']['chave1_pk'];
+			}
+			else
+			{
+				unset($join->chave1_pk);
+			}
+			if(strlen(trim($post_data['join']['chave2_pk'])))
+			{
+				$join->chave2_pk = $post_data['join']['chave2_pk'];
+			}
+			else
+			{
+				unset($join->chave2_pk);
+			}
 		}
 
 		//finally, updates the session.
@@ -2683,11 +2804,48 @@ function writeModuleFile($mod)
 						fwrite($fh, "\t\$join->modulo = '".$field->join->modulo."';\n");
 						fwrite($fh, "\t\$join->chave = '".$field->join->chave."';\n");
 						fwrite($fh, "\t\$join->valor = '".$field->join->valor."';\n");
+						
+						//checando se vai ajax
+						if($field->join->ajax == 1)
+						{
+							fwrite($fh, "\t\$join->ajax = true;\n");
+						}
+
+						//checando se vai select2
+						if($field->join->select2 == 1)
+						{
+							fwrite($fh, "\t\$join->select2 = true;\n");
+						}
+
 						if($field->tipo == 'joinNN')
 						{
 							fwrite($fh, "\t\$join->tabela_ligacao = '".$field->join->tabela_ligacao."';\n");
 							fwrite($fh, "\t\$join->chave1 = '".$field->join->chave1."';\n");
 							fwrite($fh, "\t\$join->chave2 = '".$field->join->chave2."';\n");
+							//checando se foi definido chave_pk
+							if(strlen(trim($field->join->chave1_pk)))
+							{
+								fwrite($fh, "\t\$join->chave1_pk = '".$field->join->chave1_pk."';\n");
+							}
+							if(strlen(trim($field->join->chave2_pk)))
+							{
+								fwrite($fh, "\t\$join->chave2_pk = '".$field->join->chave2_pk."';\n");
+							}
+						}
+						//checando se foi definido um metodo de retorno
+						if(strlen(trim($field->join->metodo_retorno)))
+						{
+							fwrite($fh, "\t\$join->metodo_retorno = '".$field->join->metodo_retorno."';\n");
+						}
+						//checando se foi definido um metodo de retorno
+						if(strlen(trim($field->join->metodo_listagem)))
+						{
+							fwrite($fh, "\t\$join->metodo_listagem = '".$field->join->metodo_listagem."';\n");
+						}
+						//checando se foi definido um metodo de retorno
+						if(strlen(trim($field->join->tamanho_minimo)))
+						{
+							fwrite($fh, "\t\$join->tamanho_minimo = '".$field->join->tamanho_minimo."';\n");
 						}
 						fwrite($fh, "\t\$join->tipo = '".$field->join->tipo."';\n");
 						fwrite($fh, "\t\$join->order_by = '".$field->join->order_by."';\n");

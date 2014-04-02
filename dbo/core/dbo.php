@@ -544,13 +544,17 @@ class Dbo extends Obj
 	{
 		$this->makeArrays();
 
-		$sql  = "SELECT * FROM ".$this->__table.( sizeof($this->__chave_array) ? ' WHERE ' : '' );
+		$sql  = "SELECT * FROM ".$this->__table.( (sizeof($this->__chave_array) || $this->id) ? ' WHERE ' : '' );
 
-		if(sizeof($this->__chave_array))
+		if(sizeof($this->__chave_array) || $this->id)
 		{
 			foreach($this->__chave_array as $chave => $valor)
 			{
 				$aux[] = $valor.$this->trataValor($this->__valor_array[$chave]);
+			}
+			if($this->id)
+			{
+				$aux[] = "id = '".dboescape($this->id)."'";
 			}
 			$sql .= implode(" AND ", $aux);
 		}
@@ -2177,58 +2181,131 @@ class Dbo extends Obj
 									{
 
 										$join = $valor->join;
-										$nome_modulo = $join->modulo;
-										$obj = new $nome_modulo();
+										$mod_aux = $join->modulo;
+										$obj = new $mod_aux();
 
-										//setando restricoes...
-										$rest = '';
-										if($valor->restricao) { eval($valor->restricao.";"); }
-
-										//seta deleted_by = 0, se for o caso
-										$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
-
-										//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
-										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
-
-										$obj->loadAll($rest);
-										if($this->isFixo($valor->coluna))
+										//se for ajax, muda tudo!
+										if($join->ajax)
 										{
-											do {
-												if($obj->{$join->chave} == $this->isFixo($valor->coluna))
-												{
-													$return .= "<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
-												}
-											}while($obj->fetch());
-											$return .= "
-												<script type='text/javascript' charset='utf-8'>
-													$('input[name=".$valor->coluna."]').closest('.item').hide();
+											$mod_selected = $join->modulo;
+											$mod_selected = new $mod_selected();
+										
+											//handler para o ID do campo
+											$id_handler = uniqid();
+
+											//variaveis necessárias para o javascript
+											$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
+											$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
+											
+											ob_start();
+											?>
+												<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<script>
+													$(document).ready(function(){
+
+														//pegando responsavels por ajax
+														$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
+															placeholder: "...",
+															minimumInputLength: <?= $tamanho_minimo ?>,
+															allowClear: true,
+															ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+																url: "<?= $url_dbo_ui_joins_ajax ?>",
+																dataType: 'json',
+																data: function (term, page) {
+																	return {
+																		module: '<?= $this->getModule(); ?>',
+																		field: '<?= $valor->coluna; ?>',
+																		term: term
+																	};
+																},
+																results: function (data, page) {
+																	return { results: data };
+																}
+															},
+															formatResult: function (data) {
+																return data.valor;
+															},
+															formatSelection: function (data, container) {
+																return data.valor;
+															},
+															initSelection: function (element, callback) {
+																callback({ valor: element.val() });
+															}
+														});
+														$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
+															target = $($(this).data('target'));
+															if(e.val > 0){
+																target.val(e.val).closest('.item').addClass('ok');
+															}
+															else {
+																target.val('').closest('.item').removeClass('ok');
+															}
+														}).on('select2-opening', function(){
+															//$(window).scrollTo($(this).closest('.item'), 500);
+														})
+													}) //doc.ready
 												</script>
-											";
+											<?
+											$return .= ob_get_clean();
 										}
 										else
 										{
-											if($custom_field)
+											//setando restricoes...
+											$rest = '';
+											if($valor->restricao) { eval($valor->restricao.";"); }
+
+											//seta deleted_by = 0, se for o caso
+											$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
+											//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
+											$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
+
+											$obj->loadAll($rest);
+											if($this->isFixo($valor->coluna))
 											{
-												$return .= $custom_field;
+												do {
+													if($obj->{$join->chave} == $this->isFixo($valor->coluna))
+													{
+														$return .= "<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
+													}
+												}while($obj->fetch());
+												$return .= "
+													<script type='text/javascript' charset='utf-8'>
+														$('input[name=".$valor->coluna."]').closest('.item').hide();
+													</script>
+												";
 											}
 											else
 											{
-												if($join->tipo == 'select') //se o join for do tipo select
+												if($custom_field)
 												{
-													$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
-													$return .= "<option value='-1'>...</option>";
-													do {
-														$return .= "<option value='".$obj->{$join->chave}."'>".$obj->{$join->valor}."</option>";
-													}while($obj->fetch());
-													$return .= "</select>";
+													$return .= $custom_field;
 												}
-												elseif($join->tipo == 'radio') //se o join for do tipo select
+												else
 												{
-													$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
-													do {
-														$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."'>".$obj->{$join->valor}."</label></span>\n";
-													}while($obj->fetch());
-													$return .= "</span>";
+													$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
+													if($join->tipo == 'select') //se o join for do tipo select
+													{
+														$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">";
+														$return .= "<option value='-1'>...</option>";
+														do {
+															$join_retorno = '';
+															$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+															$return .= "<option value='".$obj->{$join->chave}."'>".$join_retorno."</option>";
+														}while($obj->fetch());
+														$return .= "</select>";
+													}
+													elseif($join->tipo == 'radio') //se o join for do tipo select
+													{
+														$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
+														do {
+															$join_retorno = '';
+															$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+															$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n";
+														}while($obj->fetch());
+														$return .= "</span>";
+													}
 												}
 											}
 										}
@@ -2238,7 +2315,8 @@ class Dbo extends Obj
 									{
 
 										$join = $valor->join;
-										$obj = new Dbo($join->modulo);
+										$mod_aux = $join->modulo;
+										$obj = new $mod_aux();
 
 										//setando restricoes...
 										$rest = '';
@@ -2251,11 +2329,17 @@ class Dbo extends Obj
 										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
 
 										$obj->loadAll($rest);
+
+										$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 										if($join->tipo == 'select') //se o join for do tipo select
 										{
-											$return .= "<select name='".$valor->coluna."[]' multiple class='multiselect ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>";
+											$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'";
 											do {
-												$return .= "<option value='".$obj->{$join->chave}."'>".$obj->{$join->valor}."</option>";
+												$join_retorno = '';
+												$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+												$join_key_2 = '';
+												$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
+												$return .= "<option value='".$join_key_2."'>".$join_retorno."</option>";
 											}while($obj->fetch());
 											$return .= "</select>";
 										}
@@ -2263,7 +2347,11 @@ class Dbo extends Obj
 										{
 											$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 											do {
-												$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."[]' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."'>".$obj->{$join->valor}."</label></spam>";
+												$join_retorno = '';
+												$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+												$join_key_2 = '';
+												$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
+												$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."[]' value='".$join_key_2."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></spam>";
 											}while($obj->fetch());
 											$return .= "</span>";
 										}
@@ -2546,77 +2634,172 @@ class Dbo extends Obj
 								elseif($valor->tipo == 'join')
 								{
 									$join = $valor->join;
-									$obj = new Dbo($join->modulo);
+									$mod_aux = $join->modulo;
+									$obj = new $mod_aux();
 
-									//setando restricoes...
-									$rest = '';
-									if($valor->restricao) { eval($valor->restricao.";"); }
-
-									//seta deleted_by = 0, se for o caso
-									$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
-
-									//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
-									$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
-
-									//caso o modulo externo tenha inativos, precisamos certificar que o valor previamente existente não é um inativo.
-									//deverá ser adicionado à listagem em caso positivo.
-									$inativo_atual = false;
-									if($obj->hasInativo())
+									if($join->ajax)
 									{
-										$obj_inativo = new Dbo($join->modulo);
-										$obj_inativo->{$join->chave} = $modulo->{$valor->coluna};
-										$obj_inativo->load();
-										if($obj_inativo->inativo > 0)
-										{
-											$inativo_atual[chave] = $modulo->{$valor->coluna};
-											$inativo_atual[valor] = $obj_inativo->{$join->valor};
-										}
-									}
 
-									//depois de descobrirmos se era inativo, fazemos um loadAll.
-									$obj->loadAll($rest);
+										$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 
-									if($this->isFixo($valor->coluna))
-									{
-										do {
-											if($obj->{$join->chave} == $this->isFixo($valor->coluna))
-											{
-												$return .= "\t\t\t<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>\n";
-											}
-										}while($obj->fetch());
-										$return .= "
-											<script type='text/javascript' charset='utf-8'>
-												$('input[name=".$valor->coluna."]').closest('.row').hide();
+										//pegando o item "selected"
+										$join_key_2 = '';
+										$join_key_2 = (($join->chave2_pk)?($join->chave2_pk):('id'));
+										$obj->$join_key_2 = $modulo->{$valor->coluna};
+										$obj->loadAll();
+
+										$join_retorno = '';
+										$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+
+										$mod_selected = $join->modulo;
+										$mod_selected = new $mod_selected();
+									
+										//handler para o ID do campo
+										$id_handler = uniqid();
+
+										//variaveis necessárias para o javascript
+										$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
+										$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
+										
+										ob_start();
+										?>
+											<input type="text" name="<?= $valor->coluna ?>_select2_aux" value="<?= htmlSpecialChars($join_retorno) ?>" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+											<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="<?= $modulo->{$valor->coluna} ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+											<script>
+												$(document).ready(function(){
+
+													//pegando responsavels por ajax
+													$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
+														placeholder: "...",
+														minimumInputLength: <?= $tamanho_minimo ?>,
+														allowClear: true,
+														ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+															url: "<?= $url_dbo_ui_joins_ajax ?>",
+															dataType: 'json',
+															data: function (term, page) {
+																return {
+																	module: '<?= $this->getModule(); ?>',
+																	field: '<?= $valor->coluna; ?>',
+																	term: term
+																};
+															},
+															results: function (data, page) {
+																return { results: data };
+															}
+														},
+														formatResult: function (data) {
+															return data.valor;
+														},
+														formatSelection: function (data, container) {
+															return data.valor;
+														},
+														initSelection: function (element, callback) {
+															callback({ valor: element.val() });
+														}
+													});
+													$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
+														target = $($(this).data('target'));
+														if(e.val > 0){
+															target.val(e.val).closest('.item').addClass('ok');
+														}
+														else {
+															target.val('').closest('.item').removeClass('ok');
+														}
+													}).on('select2-opening', function(){
+														//$(window).scrollTo($(this).closest('.item'), 500);
+													})
+
+													<?
+														if($obj->size()) {
+															?>
+															$('input[name=<?= $valor->coluna ?>_select2_aux]').closest('.item').addClass('ok');
+															<?
+														}
+													?>
+
+												}) //doc.ready
 											</script>
-										";
+										<?
+										$return .= ob_get_clean();
 									}
 									else
 									{
-										if($join->tipo == 'select') //se o join for do tipo select
+										//setando restricoes...
+										$rest = '';
+										if($valor->restricao) { eval($valor->restricao.";"); }
+
+										//seta deleted_by = 0, se for o caso
+										$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
+										//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
+										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
+
+										//caso o modulo externo tenha inativos, precisamos certificar que o valor previamente existente não é um inativo.
+										//deverá ser adicionado à listagem em caso positivo.
+										$inativo_atual = false;
+										if($obj->hasInativo())
 										{
-											$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
-											$return .= "\t\t\t\t<option value='-1'>...</option>\n";
-											//se o atual for inativo, colocar no começo, e em destaque...
-											if($inativo_atual)
+											$obj_inativo = new Dbo($join->modulo);
+											$obj_inativo->{$join->chave} = $modulo->{$valor->coluna};
+											$obj_inativo->load();
+											if($obj_inativo->inativo > 0)
 											{
-												$return .= "\t\t\t\t<option value='".$inativo_atual[chave]."' SELECTED class='flag-inativo'>".$inativo_atual[valor]." (Inativo)</option>\n";
+												$inativo_atual[chave] = $modulo->{$valor->coluna};
+												$inativo_atual[valor] = $obj_inativo->{$join->valor};
 											}
-											do {
-												$return .= "\t\t\t\t<option value='".$obj->{$join->chave}."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" SELECTED "):('')).">".(($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor}))."</option>\n";
-											}while($obj->fetch());
-											$return .= "\t\t\t</select>\n";
 										}
-										elseif($join->tipo == 'radio') //se o join for do tipo select
+
+										//depois de descobrirmos se era inativo, fazemos um loadAll.
+										$obj->loadAll($rest);
+
+										if($this->isFixo($valor->coluna))
 										{
-											$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
 											do {
+												if($obj->{$join->chave} == $this->isFixo($valor->coluna))
+												{
+													$return .= "\t\t\t<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>\n";
+												}
+											}while($obj->fetch());
+											$return .= "
+												<script type='text/javascript' charset='utf-8'>
+													$('input[name=".$valor->coluna."]').closest('.row').hide();
+												</script>
+											";
+										}
+										else
+										{
+											//checando para ver se há metodo de retorno
+											$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
+											if($join->tipo == 'select') //se o join for do tipo select
+											{
+												$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))."' data-name='".$valor->titulo."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">\n";
+												$return .= "\t\t\t\t<option value='-1'>...</option>\n";
+												//se o atual for inativo, colocar no começo, e em destaque...
 												if($inativo_atual)
 												{
-													$return .= "\t\t\t<span style='white-space: nowrap'><input id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."' type='radio' name='".$valor->coluna."' CHECKED value='".$inativo_atual[chave]."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."'  class='flag-inativo'>".(($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor]))." (Inativo)</label></span>\n";
+													$return .= "\t\t\t\t<option value='".$inativo_atual[chave]."' SELECTED class='flag-inativo'>".$inativo_atual[valor]." (Inativo)</option>\n";
 												}
-												$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor})))."' name='".$valor->coluna."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" CHECKED "):(''))." value='".$obj->{$join->chave}."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor})))."'>".(($edit_function)?($edit_function($obj->{$join->valor})):($obj->{$join->valor}))."</label></span>\n";
-											}while($obj->fetch());
-											$return .= "</span>";
+												do {
+													$join_retorno = '';
+													$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+													$return .= "\t\t\t\t<option value='".$obj->{$join->chave}."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" SELECTED "):('')).">".(($edit_function)?($edit_function($join_retorno)):($join_retorno))."</option>\n";
+												}while($obj->fetch());
+												$return .= "\t\t\t</select>\n";
+											}
+											elseif($join->tipo == 'radio') //se o join for do tipo select
+											{
+												$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
+												do {
+													$join_retorno = '';
+													$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+													if($inativo_atual)
+													{
+														$return .= "\t\t\t<span style='white-space: nowrap'><input id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."' type='radio' name='".$valor->coluna."' CHECKED value='".$inativo_atual[chave]."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."'  class='flag-inativo'>".(($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor]))." (Inativo)</label></span>\n";
+													}
+													$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($join_retorno)):($join_retorno)))."' name='".$valor->coluna."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" CHECKED "):(''))." value='".$obj->{$join->chave}."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($join_retorno)):($join_retorno)))."'>".(($edit_function)?($edit_function($join_retorno)):($join_retorno))."</label></span>\n";
+												}while($obj->fetch());
+												$return .= "</span>";
+											}
 										}
 									}
 								} //single join
@@ -2624,7 +2807,8 @@ class Dbo extends Obj
 								elseif($valor->tipo == 'joinNN')
 								{
 									$join = $valor->join;
-									$obj = new Dbo($join->modulo);
+									$mod_aux = $join->modulo;
+									$obj = new $mod_aux();
 									
 									$cadastrados_array = array();
 
@@ -2641,7 +2825,7 @@ class Dbo extends Obj
 									$obj->loadAll($rest);
 
 									$cadastrados = new Dbo($join->tabela_ligacao);
-									$cadastrados->{$join->chave1} = $modulo->id;
+									$cadastrados->{$join->chave1} = (($join->chave1_pk)?($modulo->{$join->chave1_pk}):($modulo->id));
 									$cadastrados->loadAll();
 									do {
 										$cadastrados_array[] = $cadastrados->{$join->chave2};
@@ -2665,9 +2849,10 @@ class Dbo extends Obj
 										}
 									}
 
+									$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 									if($join->tipo == 'select') //se o join for do tipo select
 									{
-										$return .= "\t\t\t<select name='".$valor->coluna."[]' multiple class='multiselect ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>\n";
+										$return .= "\t\t\t<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>\n";
 										if($inativo_atual)
 										{
 											foreach($inativo_atual as $inativo_value)
@@ -2676,7 +2861,11 @@ class Dbo extends Obj
 											}
 										}
 										do {
-											$return .= "\t\t\t\t<option ".((in_array($obj->{$join->chave}, $cadastrados_array))?('SELECTED'):(''))." value='".$obj->{$join->chave}."'>".$obj->{$join->valor}."</option>\n";
+											$join_retorno = '';
+											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+											$join_key_2 = '';
+											$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
+											$return .= "\t\t\t\t<option ".((in_array($join_key_2, $cadastrados_array))?('SELECTED'):(''))." value='".$join_key_2."'>".$join_retorno."</option>\n";
 										}while($obj->fetch());
 										$return .= "\t\t\t</select>\n";
 									}
@@ -2691,7 +2880,11 @@ class Dbo extends Obj
 											}
 										}
 										do {
-											$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' ".((in_array($obj->{$join->chave}, $cadastrados_array))?('CHECKED'):(''))." type='checkbox' name='".$valor->coluna."[]' value='".$obj->{$join->chave}."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."'>".$obj->{$join->valor}."</label></span>\n ";
+											$join_retorno = '';
+											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+											$join_key_2 = '';
+											$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
+											$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' ".((in_array($join_key_2, $cadastrados_array))?('CHECKED'):(''))." type='checkbox' name='".$valor->coluna."[]' value='".$join_key_2."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n ";
 										}while($obj->fetch());
 										$return .= "</span>";
 									}
@@ -3428,6 +3621,13 @@ class Dbo extends Obj
 				$('.datetimepick').each(function(){
 					$(this).mask('99/99/9999 99:99');
 				});
+
+				//select2
+				$('select.select2').each(function(){
+					$(this).select2({
+						minimumInputLength: (($(this).data('tamanho_minimo'))?($(this).data('tamanho_minimo')):(0))
+					})
+				})
 
 				//multiselects
 				$(".multiselect").each(function(){

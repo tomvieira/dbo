@@ -157,6 +157,10 @@ input[type="radio"] + label {
 
 /* consertando as posições das listas */
 ul.inside, ol.inside { list-style-position: inside; }
+ul.indent, ol.indent { padding-left: 1.2em; }
+
+/* colocando uma margem à direita dos icones quando necessário */
+i.margin-right { margin-right: .3em; }
 
 /* removendo margens em determinadas situações, somente para desktop */
 .small-no-for-small { margin-bottom: 0 !important; }
