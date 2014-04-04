@@ -2333,7 +2333,7 @@ class Dbo extends Obj
 										$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 										if($join->tipo == 'select') //se o join for do tipo select
 										{
-											$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'";
+											$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>";
 											do {
 												$join_retorno = '';
 												$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
