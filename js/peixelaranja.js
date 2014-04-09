@@ -47,7 +47,12 @@ function peixeReload(item, html, callback){
 		});
 	}
 	else {
-		$(item).fadeHtml(content, callback);
+		if($(item).is(':visible')){
+			$(item).fadeHtml(content, callback);
+		}
+		else {
+			$(item).html(content, callback);
+		}
 	}
 }
 
