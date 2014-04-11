@@ -169,6 +169,9 @@ i.margin-right { margin-right: .3em; }
 .text-right-center-for-small,
 .text-left-center-for-small { text-align: center; }
 
+/* padding pequeno em dropdowns */
+.f-dropdown.content.small-padding { padding: 7px; }
+
 /* small up */
 @media #{$small} {
 

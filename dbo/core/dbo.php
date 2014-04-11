@@ -1457,6 +1457,44 @@ class Dbo extends Obj
 		return false;
 	}
 
+	//mascara o id do objeto  -------------------------------------------------------------------------------------------------------------
+
+	function maskId($id = false)
+	{
+		if(!$id)
+		{
+			$id = $this->id;
+		}
+		if($id > 0)
+		{
+			$num = $this->id * 54;
+			$num = $num - 7;
+			$num = $num * 1129;
+			$num = $num + 13;
+			return $num;
+		}
+		return false;
+	}
+
+	//desmascara o id do objeto  -------------------------------------------------------------------------------------------------------------
+
+	function unMaskId($id = false)
+	{
+		if(!$id)
+		{
+			$id = $this->id;
+		}
+		if($id > 0)
+		{
+			$num = $id - 13;
+			$num = $num / 1129;
+			$num = $num + 7;
+			$num = $num / 54;
+			return $num;
+		}
+		return false;
+	}
+
 	//trata variaveis de get  -------------------------------------------------------------------------------------------------------------
 
 	function keepUrl ($foo = '')

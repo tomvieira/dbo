@@ -9,7 +9,7 @@
 /* STYLES DBO BACK END ----------------------------------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------------- */
 
-body { overflow-y: scroll; }
+body { overflow-y: scroll; overflow-x: hidden; } 
 
 textarea { height: auto; }
 
@@ -314,7 +314,7 @@ body.wordpress {
 	&.warning { background-color: $status-color-warning; }
 	&.alert { background-color: $status-color-alert; }
 	&.ongoing { background-color: $status-color-ongoing; }
-	&.cancel { background-color: $status-color-cancel; }
+	&.cancel { background-color: $status-color-cancel; color: #999; }
 }
 
 /* estilos para os select2 */
