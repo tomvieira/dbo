@@ -1262,7 +1262,7 @@ class Dbo extends Obj
 							<?
 								foreach($this->__filter_scheme as $chave => $campo)
 								{
-									if($campo->tipo == 'text' || $campo->tipo == 'textarea' || $campo->tipo == 'textarea-rich' || $campo->tipo == 'price')
+									if($campo->tipo == 'text' || $campo->tipo == 'textarea' || $campo->tipo == 'textarea-rich' || $campo->tipo == 'price' || $campo->tipo == 'pk')
 									{
 										?>
 										<div class='item columns large-3'>
