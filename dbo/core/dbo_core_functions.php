@@ -489,7 +489,7 @@
 	//funcao que verifica se o usuário tem permissao. para realizar algo, segundo a tabela perfil.
 	function hasPermission ($perm, $modulo = '')
 	{
-		return pessoaHasPermission(loggedUser(), $perm, $modulo = '');
+		return pessoaHasPermission(loggedUser(), $perm, $modulo);
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
