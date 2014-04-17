@@ -82,7 +82,7 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
-	function loadAllPerfisLogados()
+	function loadAllPerfisPessoa($pessoa_id)
 	{
 		global $_sys;
 
@@ -117,9 +117,9 @@
 			WHERE
 				(
 					perfil.id = pessoa_perfil.perfil AND
-					pessoa_perfil.pessoa = '".loggedUser()."'
+					pessoa_perfil.pessoa = '".$pessoa_id."'
 				)
-				".(($tem_grupo)?(" OR ( perfil.id = ".$tabela_ligacao_perfil.".perfil AND ".$tabela_ligacao_perfil.".grupo = ".$tabela_ligacao_grupo.".grupo AND ".$tabela_ligacao_grupo.".pessoa = '".loggedUser()."' ) "):(''))."
+				".(($tem_grupo)?(" OR ( perfil.id = ".$tabela_ligacao_perfil.".perfil AND ".$tabela_ligacao_perfil.".grupo = ".$tabela_ligacao_grupo.".grupo AND ".$tabela_ligacao_grupo.".pessoa = '".$pessoa_id."' ) "):(''))."
 		";
 
 		$res = dboQuery($sql);
@@ -127,12 +127,12 @@
 		{
 			while($lin = mysql_fetch_object($res))
 			{
-				$_sys[sysId()]['perfis_logados'][$lin->id] = $lin->nome;
+				$_sys[sysId()]['perfis_pessoa'][$pessoa_id][$lin->id] = $lin->nome;
 			}
 		}
 		else
 		{
-			$_sys[sysId()]['perfis_logados'] = false;
+			$_sys[sysId()]['perfis_pessoa'][$pessoa_id] = false;
 		}
 	}
 	
@@ -489,17 +489,25 @@
 	//funcao que verifica se o usuário tem permissao. para realizar algo, segundo a tabela perfil.
 	function hasPermission ($perm, $modulo = '')
 	{
+		return pessoaHasPermission(loggedUser(), $perm, $modulo = '');
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	//funcao que verifica se o usuário tem permissao. para realizar algo, segundo a tabela perfil.
+	function pessoaHasPermission ($pessoa_id, $perm, $modulo = '')
+	{
 
 		global $_sys;
 
-		if(!is_array($_sys[sysId()]['perfis_logados']))
+		if(!is_array($_sys[sysId()]['perfis_pessoa'][$pessoa_id]))
 		{
-			loadAllPerfisLogados();
+			loadAllPerfisPessoa($pessoa_id);
 		}
 
-		if(is_array($_sys[sysId()]['perfis_logados']))
+		if(is_array($_sys[sysId()]['perfis_pessoa'][$pessoa_id]))
 		{
-			foreach($_sys[sysId()]['perfis_logados'] as $id_perfil => $nome_perfil)
+			foreach($_sys[sysId()]['perfis_pessoa'][$pessoa_id] as $id_perfil => $nome_perfil)
 			{
 				if(perfilHasPermission($id_perfil, $perm, $modulo)) return true;
 			}
@@ -568,49 +576,40 @@
 	// verfica se o usuário logado pertence a um determinado perfil, funciona com o id ou nome do perfil como parametro.
 	function logadoNoPerfil($perfil)
 	{
+		return pessoaHasPerfil(loggedUser(), $perfil);
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	// verfica se o usuário logado pertence a um determinado perfil, funciona com o id ou nome do perfil como parametro.
+	function pessoaHasPerfil($pessoa_id, $perfil)
+	{
 
 		global $_sys;
 
-		if(!isset($_sys[sysId()]['perfis_logados']))
+		if(!isset($_sys[sysId()]['perfis_pessoa'][$pessoa_id]))
 		{
-			loadAllPerfisLogados();
+			loadAllPerfisPessoa($pessoa_id);
 		}
 
-		if(is_array($_sys[sysId()]['perfis_logados']))
+		if(is_array($_sys[sysId()]['perfis_pessoa'][$pessoa_id]))
 		{
 			if(!is_numeric($perfil))
 			{
-				if(in_array($perfil, $_sys[sysId()]['perfis_logados']))
+				if(in_array($perfil, $_sys[sysId()]['perfis_pessoa'][$pessoa_id]))
 				{
 					return true;
 				}
 			}
 			else
 			{
-				if(in_array($perfil, array_keys($_sys[sysId()]['perfis_logados'])))
+				if(in_array($perfil, array_keys($_sys[sysId()]['perfis_pessoa'][$pessoa_id])))
 				{
 					return true;
 				}
 			}
 		}
 		return false;
-
-/*		$obj = new dbo('pessoa_perfil');
-		$obj->pessoa = loggedUser();
-		if(!is_numeric($perfil))
-		{
-			$perf = new dbo('perfil');
-			$perf->nome = $perfil;
-			$perf->loadAll();
-			$perfil = $perf->id;
-		}
-		$obj->perfil = $perfil;
-		$obj->loadAll();
-		if($obj->size())
-		{
-			return true;
-		}
-		return false; */
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
