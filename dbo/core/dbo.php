@@ -544,7 +544,7 @@ class Dbo extends Obj
 	{
 		$this->makeArrays();
 
-		$sql  = "SELECT * FROM ".$this->__table.( (sizeof($this->__chave_array) || $this->id) ? ' WHERE ' : '' );
+		$sql  = "SELECT * FROM ".$this->__table.( (sizeof($this->__chave_array) || ($this->id && $this->getPK() == 'id')) ? ' WHERE ' : '' );
 
 		if(sizeof($this->__chave_array) || $this->id)
 		{
@@ -552,7 +552,7 @@ class Dbo extends Obj
 			{
 				$aux[] = $valor.$this->trataValor($this->__valor_array[$chave]);
 			}
-			if($this->id)
+			if($this->id && $this->getPK() == 'id')
 			{
 				$aux[] = "id = '".dboescape($this->id)."'";
 			}
