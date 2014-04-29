@@ -305,6 +305,20 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function dataHoraSQL($datetime)
+	{
+		return dateTimeSQL($datetime);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dataHoraNormal($datetime)
+	{
+		return dateTimeNormal($datetime);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dateTimeSQL ($datetime)
 	{
 		list($datetime_data, $datetime_hora) = explode(" ", trim($datetime));
@@ -1697,6 +1711,57 @@
 		return true;
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function ago($datetime, $show_tense = true) {
+
+		$time = strtotime($datetime);
+
+		$periods = array("segundo", "minuto", "hora", "dia", "semana", "mês", "ano", "década");
+		$lengths = array("60","60","24","7","4.35","12","10");
+
+		$now = time();
+
+		$difference = $now - $time;
+		$tense = "há";
+
+		for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+		   $difference /= $lengths[$j];
+		}
+
+		$difference = round($difference);
+
+		if($difference != 1) {
+			if($j == 5) //mes
+			{
+				$periods[$j] = "meses";
+			}
+			else
+			{
+				$periods[$j].= "s";
+			}
+		}
+
+		return (($show_tense)?($tense." "):('')).abs($difference)." ".$periods[$j];
+	}	
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function goToUpdateForm($obj, $params = array())
+	{
+		extract($params);
+
+		if(!$pagina)
+		{
+			$pagina = $obj->keepUrl(array("!dbo_new&!dbo_view&!dbo_delete", "dbo_update=".$obj->id));
+		}
+
+		setMessage('<div class="success">Sucesso!</div>');
+
+		header("Location: ".$pagina);
+		exit();
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function dboInit()

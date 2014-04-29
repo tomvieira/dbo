@@ -837,13 +837,14 @@ class Dbo extends Obj
 		}
 
 		$splitter = '';
+
 		if($this->__ipp)
 		{
 			$total = $this->total($rest);
 			$ipp = $this->__ipp;
 			$pag = $this->__pag;
 			$total_paginas = ceil($total/$ipp);
-			if($total_paginas == 1) { return; }
+			if($total_paginas <= 1) { return; }
 			$splitter  = "<div class='pagination-centered splitter'>";
 			$splitter .= "<ul class='pagination'>";
 			$splitter .= $this->getDeltaPag($pag, $total_paginas, 'first', '&laquo;');
@@ -1249,9 +1250,7 @@ class Dbo extends Obj
 		?>
 			<div class="wrapper-filter-box <?= $class_hidden ?>">
 
-				<div class="row full">
-					<div class="large-12 columns"><hr></div>
-				</div>
+				<hr>
 				
 				<div class='row'>
 					<div class='large-12 columns'>
@@ -1352,9 +1351,7 @@ class Dbo extends Obj
 					</div>
 				</div><!-- col -->
 
-				<div class="row full">
-					<div class="large-12 columns"><hr></div>
-				</div>
+				<hr>
 				
 			</div><!-- row -->
 		<?
@@ -1753,21 +1750,6 @@ class Dbo extends Obj
 		{
 			$this->__module_scheme->paginacao ? $this->__ipp = $this->__module_scheme->paginacao : '';//setando o número para paginação
 
-			$return = "<span class='dbo-element'><div class='fieldset'><div class='content'><table class='responsive list ".(($this->isAutoOrdered())?('auto-order'):(''))."'><thead><tr>";
-
-			// Colocando os THs na tabela.
-			foreach($this->__module_scheme->campo as $chave => $valor)
-			{
-				if($valor->lista === true && !$this->isFixo($valor->coluna))
-				{
-					$return .= "<th>".$this->getOrderLink($valor)."</th>";
-				}
-			}
-
-			//coluna para as acoes
-			$return .= '<th colspan="10" style="width: 1%;" class="text-right"></th>';
-			$return .= "</tr></thead><tbody>";
-
 			/* setando permissões genéricas */
 
 			/* view */
@@ -1779,14 +1761,6 @@ class Dbo extends Obj
 			/* delete */
 			$dbo_permission_delete = hasPermission('delete', $_GET['dbo_mod']);
 
-			/* buttons */
-			if(is_array($this->__module_scheme->button))
-			{
-				foreach($this->__module_scheme->button as $chave => $botao)
-				{
-					$dbo_permission_button[$botao->value] = hasPermission($botao->value, $_GET['dbo_mod']);
-				}
-			}
 			
 			// Fazendo um "SELECT *" na tabela
 			$classe = ($this->__class);
@@ -1796,6 +1770,30 @@ class Dbo extends Obj
 			$modulo = $obj;
 			if($obj->size())
 			{
+				$return = "<span class='dbo-element'><div class='fieldset'><div class='content'><table class='responsive list ".(($this->isAutoOrdered())?('auto-order'):(''))."'><thead><tr>";
+
+				// Colocando os THs na tabela.
+				foreach($this->__module_scheme->campo as $chave => $valor)
+				{
+					if($valor->lista === true && !$this->isFixo($valor->coluna))
+					{
+						$return .= "<th>".$this->getOrderLink($valor)."</th>";
+					}
+				}
+
+				//coluna para as acoes
+				$return .= '<th colspan="10" style="width: 1%;" class="text-right"></th>';
+				$return .= "</tr></thead><tbody>";
+
+				/* buttons */
+				if(is_array($this->__module_scheme->button))
+				{
+					foreach($this->__module_scheme->button as $chave => $botao)
+					{
+						$dbo_permission_button[$botao->value] = hasPermission($botao->value, $_GET['dbo_mod']);
+					}
+				}
+
 				do {
 
 					$id = $obj->id;
@@ -1835,7 +1833,7 @@ class Dbo extends Obj
 								}
 							}
 							// TEXT =======================================================================================
-							if($valor->tipo == 'text')
+							if($valor->tipo == 'text' || $valor->tipo == 'textarea')
 							{
 								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
 								else {
@@ -2003,13 +2001,12 @@ class Dbo extends Obj
 
 					$return .= "</tr>";
 				} while($obj->fetch());
+				$return .= "</tbody></table></div></div>";
 			}
 			else
 			{
-				$return .= "<tr><td colspan='20'>Não há itens cadastrados</td></tr>";
+				$return .= '<div class="row"><div class="large-12 columns"><h2 class="text-center"><br />- não há '.strtolower($this->__module_scheme->titulo_plural).' cadastrad'.$this->__module_scheme->genero.'s -</h2></div></div>';
 			}
-
-			$return .= "</tbody></table></div></div>";
 
 			echo $return;
 
@@ -2445,7 +2442,7 @@ class Dbo extends Obj
 				}
 
 			}
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Inserir ".$this->__module_scheme->titulo."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Inserir ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -3006,7 +3003,7 @@ class Dbo extends Obj
 				}
 			}
 
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Alterar ".$this->__module_scheme->titulo."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Salvar alterações n".$this->__module_scheme->genero." ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -3222,7 +3219,7 @@ class Dbo extends Obj
 
 					<div class='row'>
 						<div class='large-9 columns wrapper-module-id'>
-							<h2><a href='<?= $this->keepUrl('!dbo_view&!dbo_update&!dbo_delete&!dbo_new&!pag') ?>'><?= $meta->titulo_plural ?></a></h2>
+							<h2><a href='<?= $this->keepUrl('!dbo_view&!dbo_update&!dbo_delete&!dbo_new') ?>'><?= $meta->titulo_plural ?></a></h2>
 							<?
 								$notification_function = $meta->modulo."_notifications";
 								if(function_exists($notification_function))
@@ -3246,8 +3243,8 @@ class Dbo extends Obj
 							{
 							?>
 								<span class='button-new' rel='<?= $meta->modulo ?>'>
-									<a class="button radius small top-14 trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar Nov<?= $meta->genero ?></a>
-									<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button radius secondary small top-14 trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('Alteração'):('Inserção')) ?></a>
+									<a class="button radius small top-14 trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
+									<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button radius secondary small top-14 trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
 								</span>
 							<?
 							}
@@ -3263,7 +3260,7 @@ class Dbo extends Obj
 						<div class='<?= !$_GET['dbo_new'] ? 'hidden' : '' ?>' id='novo-<?= $meta->modulo ?>'>
 							<div class='row'>
 								<div class='large-12 columns'>
-									<h3>Nov<?= $meta->genero ?> <?= $meta->titulo ?></h3>
+									<h3>Nov<?= $meta->genero ?> <?= strtolower($meta->titulo) ?></h3>
 								</div>
 							</div><!-- row -->
 							<?= ((!$_GET['dbo_update'])?($this->getInsertForm()):('')); ?>

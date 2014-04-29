@@ -113,7 +113,7 @@ function showPeixeLoader() {
 	$.fn.peixeEqualizeHeights = function(callback){
 
 		var size = this.length-1;
-		var height = 0, reset = $.browser.msie ? "1%" : "auto";
+		var height = 0, reset = "auto";
   
 		return this
 			.css("height", reset)

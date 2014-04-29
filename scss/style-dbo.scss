@@ -315,6 +315,7 @@ body.wordpress {
 	&.alert { background-color: $status-color-alert; }
 	&.ongoing { background-color: $status-color-ongoing; }
 	&.cancel { background-color: $status-color-cancel; color: #999; }
+	&.alt { padding: 3px 5px; } 
 }
 
 /* estilos para os select2 */
