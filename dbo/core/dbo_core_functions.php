@@ -113,13 +113,11 @@
 			FROM
 				perfil,
 				pessoa_perfil
-				".(($tem_grupo)?(", ".$tabela_ligacao_perfil.", ".$tabela_ligacao_grupo.""):(""))."
 			WHERE
-				(
-					perfil.id = pessoa_perfil.perfil AND
-					pessoa_perfil.pessoa = '".$pessoa_id."'
-				)
-				".(($tem_grupo)?(" OR ( perfil.id = ".$tabela_ligacao_perfil.".perfil AND ".$tabela_ligacao_perfil.".grupo = ".$tabela_ligacao_grupo.".grupo AND ".$tabela_ligacao_grupo.".pessoa = '".$pessoa_id."' ) "):(''))."
+				perfil.id = pessoa_perfil.perfil AND
+				pessoa_perfil.pessoa = '".$pessoa_id."'
+			
+			".(($tem_grupo)?(" UNION SELECT perfil.nome AS nome, perfil.id AS id FROM perfil, ".$tabela_ligacao_perfil.", ".$tabela_ligacao_grupo." WHERE perfil.id = ".$tabela_ligacao_perfil.".perfil AND ".$tabela_ligacao_perfil.".grupo = ".$tabela_ligacao_grupo.".grupo AND ".$tabela_ligacao_grupo.".pessoa = '".$pessoa_id."' "):(''))."
 		";
 
 		$res = dboQuery($sql);

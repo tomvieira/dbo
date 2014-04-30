@@ -75,6 +75,7 @@
 
 input, a, select {
 	&:focus { outline: 0; }
+	&.auto { width: auto !important; display: inline-block !important; }
 }
 
 /* --------------------------------------------------------------------------------------------------------*/
@@ -151,6 +152,8 @@ h4 { letter-spacing: -1px; }
 
 .hide-for-small.inline { display: none !important; }
 .show-for-small.inline { display: inline !important; }
+
+label.inline { display: inline-block !important; margin-right: .5em !important; }
 
 /* consertando labels dos switches */
 .switch label { margin: 0 !important; }

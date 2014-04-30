@@ -13,6 +13,12 @@ body { overflow-y: scroll; overflow-x: hidden; }
 
 textarea { height: auto; }
 
+a {
+	&.grey { color: #bbb; 
+		&:hover { color: #666; }
+	}
+}
+
 /* acertando a cor do header */
 #main-header .nome-sistema { background-color: $primary-color; }
 

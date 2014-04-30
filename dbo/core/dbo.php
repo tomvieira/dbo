@@ -1587,6 +1587,26 @@ class Dbo extends Obj
 
 	//limpas os arrays de query -----------------------------------------------------------------------------------------------------------
 
+	function parseGridCell($grid_cell)
+	{
+		if(strstr($grid_cell, '[inline'))
+		{
+			$grid_cell = str_replace(array('[', ']'), '', $grid_cell);
+			list($parent, $child) = explode("inline", $grid_cell);
+			$child = str_replace(array('(', ')'), '', $child);
+			$child = explode(":", $child);
+			$retorno[] = $parent;
+			$retorno[] = $child;
+		}
+		else
+		{
+			$retorno[] = $grid_cell;
+		}
+		return $retorno;
+	}
+	
+	//limpas os arrays de query -----------------------------------------------------------------------------------------------------------
+
 	function viewButtons ()
 	{
 		//checa se exitem botoes customizados no modulo
@@ -2097,262 +2117,209 @@ class Dbo extends Obj
 					{
 						if($this->perfilTemAcessoCampo($valor->perfil))
 						{
+							$grid_cell = $this->parseGridCell($grid[$gc++]);
 
-								if (!$hasgrid) { $return .= "<div class='row clearfix'>"; }
-								$return .= "<div class='item columns ".(($hasgrid)?('large-'.$grid[$gc++]):(''))."' id='item-".$valor->coluna."'>\n";
-								$return .= "<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>";
-								$return .= "<span class='input input-".$valor->tipo."'>";
+							if (!$hasgrid) { $return .= "<div class='row clearfix'>"; }
+							$return .= "<div class='item columns ".(($hasgrid)?('large-'.$grid_cell[0]):(''))."' id='item-".$valor->coluna."'>\n";
 
-								if($custom_field)
+							//checando se existe uma subgrid para exibicao do elemento filho
+							if($grid_cell[1])
+							{
+								$return .= '<div class="row collapse"><div class="large-'.$grid_cell[1][0].' columns"><span class="form-height-fix">';
+							}
+
+							$return .= "<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>";
+							$return .= "<span class='input input-".$valor->tipo."'>";
+
+							//checando se existe uma subgrid para exibicao do elemento filho
+							if($grid_cell[1])
+							{
+								$return .= '</span></div><div class="large-'.$grid_cell[1][1].' columns">';
+							}
+
+							if($custom_field)
+							{
+								$return .= $custom_field;
+							}
+							else
+							{
+								// TEXT ======================================================================================
+								if($valor->tipo == 'text')
 								{
-									$return .= $custom_field;
+									$return .= "<input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
 								}
-								else
+								// PASSWORD ==================================================================================
+								if($valor->tipo == 'password')
 								{
-									// TEXT ======================================================================================
-									if($valor->tipo == 'text')
-									{
-										$return .= "<input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
-									}
-									// PASSWORD ==================================================================================
-									if($valor->tipo == 'password')
-									{
-										$return .= "<input type='password' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
-									}
-									// TEXTAREA ==================================================================================
-									if($valor->tipo == 'textarea')
-									{
-										$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'></textarea>";
-									}
-									// TEXTAREA-RICH ==================================================================================
-									if($valor->tipo == 'textarea-rich')
-									{
-										$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='tinymce ".(($valor->valida)?('required'):(''))."' id='insert-".$valor->coluna."' data-name='".$valor->titulo."'></textarea>";
+									$return .= "<input type='password' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
+								}
+								// TEXTAREA ==================================================================================
+								if($valor->tipo == 'textarea')
+								{
+									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'></textarea>";
+								}
+								// TEXTAREA-RICH ==================================================================================
+								if($valor->tipo == 'textarea-rich')
+								{
+									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='tinymce ".(($valor->valida)?('required'):(''))."' id='insert-".$valor->coluna."' data-name='".$valor->titulo."'></textarea>";
 
-										//getting the settings for tinymce
-										/*$file_code = '';
-										$file_code = file_get_contents(getTinyMCESettingsFile());
-										ob_start();
-										eval("?>".$file_code."<?");
-										$return .= ob_get_clean();*/
-									}
-									// RADIO =====================================================================================
-									elseif ($valor->tipo == 'radio')
+									//getting the settings for tinymce
+									/*$file_code = '';
+									$file_code = file_get_contents(getTinyMCESettingsFile());
+									ob_start();
+									eval("?>".$file_code."<?");
+									$return .= ob_get_clean();*/
+								}
+								// RADIO =====================================================================================
+								elseif ($valor->tipo == 'radio')
+								{
+									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
+									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
-										foreach($valor->valores as $chave2 => $valor2)
-										{
-											$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
-										}
-										$return .= "</span>";
+										$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
-									// CHECKBOX ==================================================================================
-									elseif ($valor->tipo == 'checkbox')
+									$return .= "</span>";
+								}
+								// CHECKBOX ==================================================================================
+								elseif ($valor->tipo == 'checkbox')
+								{
+									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
+									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
-										foreach($valor->valores as $chave2 => $valor2)
-										{
-											$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
-										}
-										$return .= "</span>";
+										$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
-									// PRICE ====================================================================================
-									elseif ($valor->tipo == 'price')
+									$return .= "</span>";
+								}
+								// PRICE ====================================================================================
+								elseif ($valor->tipo == 'price')
+								{
+									$return .= "<div class=\"row collapse\">";
+									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right'/></div>";
+									$return .= "	<div class=\"small-2 columns\">";
+									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fi-x\"></i></span>";
+									$return .= "	</div>";
+									$return .= "</div>";
+								}
+								// SELECT ====================================================================================
+								elseif ($valor->tipo == 'select')
+								{
+									$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+									$return .= "<option value='-1'>...</option>";
+									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<div class=\"row collapse\">";
-										$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right'/></div>";
-										$return .= "	<div class=\"small-2 columns\">";
-										$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fi-x\"></i></span>";
-										$return .= "	</div>";
-										$return .= "</div>";
+										$return .= "<option value='".$chave2."'>".$valor2."</option>";
 									}
-									// SELECT ====================================================================================
-									elseif ($valor->tipo == 'select')
+									$return .= "</select>";
+								}
+								// DATA ======================================================================================
+								elseif($valor->tipo == 'date')
+								{
+									$return .= (($custom_field)?($custom_field):("<input type='text' class='datepick ".(($valor->valida)?('required'):(''))."' name='".$valor->coluna."' data-name='".$valor->titulo."'/>"));
+								}
+								// DATA E HORA ================================================================================
+								elseif($valor->tipo == 'datetime')
+								{
+									ob_start();
+									?>
+									<div class="row collapse">
+										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='datetimepick <?= (($valor->valida)?('required'):('')) ?>' data-name="<?= $valor->titulo ?>"/></div>
+										<div class="small-2 columns"><a href="#" class="button secondary postfix radius trigger-clear-closest-input" title="Limpar data e hora" style="background-image: url('<?= DBO_URL ?>/../images/cross.png'); background-repeat: no-repeat; background-position: center center;">&nbsp;</a></div>
+									</div>
+									<?
+									$return .= ob_get_clean();
+								}
+								// PLUGINS ==========================================================================
+								elseif($valor->tipo == 'plugin')
+								{
+									$plugin = $valor->plugin;
+									$plugin_path = DBO_PATH."/plugins/".$plugin->name."/".$plugin->name.".php";
+									$plugin_class = "dbo_".$plugin->name;
+									//checa se o plugin existe, antes de mais nada.
+									if(file_exists($plugin_path))
 									{
-										$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
-										$return .= "<option value='-1'>...</option>";
-										foreach($valor->valores as $chave2 => $valor2)
-										{
-											$return .= "<option value='".$chave2."'>".$valor2."</option>";
-										}
-										$return .= "</select>";
+										include_once($plugin_path); //inclui a classe
+										$plug = new $plugin_class($plugin->params); //instancia com os parametros
+										$return .= "<div class='wrapper-plugin'>".$plug->getInsertForm($valor->coluna)."</div>"; //pega os campos de inserção
 									}
-									// DATA ======================================================================================
-									elseif($valor->tipo == 'date')
-									{
-										$return .= (($custom_field)?($custom_field):("<input type='text' class='datepick ".(($valor->valida)?('required'):(''))."' name='".$valor->coluna."' data-name='".$valor->titulo."'/>"));
+									else { //senão, avisa que não está instalado.
+										$return .= "O Plugin <b>'".$plugin->name."'</b> não está instalado";
 									}
-									// DATA E HORA ================================================================================
-									elseif($valor->tipo == 'datetime')
+								} //plugins
+								// SINGLE JOIN ============================================================================
+								elseif($valor->tipo == 'join')
+								{
+
+									$join = $valor->join;
+									$mod_aux = $join->modulo;
+									$obj = new $mod_aux();
+
+									//se for ajax, muda tudo!
+									if($join->ajax)
 									{
+										$mod_selected = $join->modulo;
+										$mod_selected = new $mod_selected();
+									
+										//handler para o ID do campo
+										$id_handler = uniqid();
+
+										//variaveis necessárias para o javascript
+										$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
+										$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
+										
 										ob_start();
 										?>
-										<div class="row collapse">
-											<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='datetimepick <?= (($valor->valida)?('required'):('')) ?>' data-name="<?= $valor->titulo ?>"/></div>
-											<div class="small-2 columns"><a href="#" class="button secondary postfix radius trigger-clear-closest-input" title="Limpar data e hora" style="background-image: url('<?= DBO_URL ?>/../images/cross.png'); background-repeat: no-repeat; background-position: center center;">&nbsp;</a></div>
-										</div>
+											<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+											<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+											<script>
+												$(document).ready(function(){
+
+													//pegando responsavels por ajax
+													$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
+														placeholder: "...",
+														minimumInputLength: <?= $tamanho_minimo ?>,
+														allowClear: true,
+														ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+															url: "<?= $url_dbo_ui_joins_ajax ?>",
+															dataType: 'json',
+															data: function (term, page) {
+																return {
+																	module: '<?= $this->getModule(); ?>',
+																	field: '<?= $valor->coluna; ?>',
+																	term: term
+																};
+															},
+															results: function (data, page) {
+																return { results: data };
+															}
+														},
+														formatResult: function (data) {
+															return data.valor;
+														},
+														formatSelection: function (data, container) {
+															return data.valor;
+														},
+														initSelection: function (element, callback) {
+															callback({ valor: element.val() });
+														}
+													});
+													$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
+														target = $($(this).data('target'));
+														if(e.val > 0){
+															target.val(e.val).closest('.item').addClass('ok');
+														}
+														else {
+															target.val('').closest('.item').removeClass('ok');
+														}
+													}).on('select2-opening', function(){
+														//$(window).scrollTo($(this).closest('.item'), 500);
+													})
+												}) //doc.ready
+											</script>
 										<?
 										$return .= ob_get_clean();
 									}
-									// PLUGINS ==========================================================================
-									elseif($valor->tipo == 'plugin')
+									else
 									{
-										$plugin = $valor->plugin;
-										$plugin_path = DBO_PATH."/plugins/".$plugin->name."/".$plugin->name.".php";
-										$plugin_class = "dbo_".$plugin->name;
-										//checa se o plugin existe, antes de mais nada.
-										if(file_exists($plugin_path))
-										{
-											include_once($plugin_path); //inclui a classe
-											$plug = new $plugin_class($plugin->params); //instancia com os parametros
-											$return .= "<div class='wrapper-plugin'>".$plug->getInsertForm($valor->coluna)."</div>"; //pega os campos de inserção
-										}
-										else { //senão, avisa que não está instalado.
-											$return .= "O Plugin <b>'".$plugin->name."'</b> não está instalado";
-										}
-									} //plugins
-									// SINGLE JOIN ============================================================================
-									elseif($valor->tipo == 'join')
-									{
-
-										$join = $valor->join;
-										$mod_aux = $join->modulo;
-										$obj = new $mod_aux();
-
-										//se for ajax, muda tudo!
-										if($join->ajax)
-										{
-											$mod_selected = $join->modulo;
-											$mod_selected = new $mod_selected();
-										
-											//handler para o ID do campo
-											$id_handler = uniqid();
-
-											//variaveis necessárias para o javascript
-											$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
-											$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
-											
-											ob_start();
-											?>
-												<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-												<script>
-													$(document).ready(function(){
-
-														//pegando responsavels por ajax
-														$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
-															placeholder: "...",
-															minimumInputLength: <?= $tamanho_minimo ?>,
-															allowClear: true,
-															ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-																url: "<?= $url_dbo_ui_joins_ajax ?>",
-																dataType: 'json',
-																data: function (term, page) {
-																	return {
-																		module: '<?= $this->getModule(); ?>',
-																		field: '<?= $valor->coluna; ?>',
-																		term: term
-																	};
-																},
-																results: function (data, page) {
-																	return { results: data };
-																}
-															},
-															formatResult: function (data) {
-																return data.valor;
-															},
-															formatSelection: function (data, container) {
-																return data.valor;
-															},
-															initSelection: function (element, callback) {
-																callback({ valor: element.val() });
-															}
-														});
-														$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
-															target = $($(this).data('target'));
-															if(e.val > 0){
-																target.val(e.val).closest('.item').addClass('ok');
-															}
-															else {
-																target.val('').closest('.item').removeClass('ok');
-															}
-														}).on('select2-opening', function(){
-															//$(window).scrollTo($(this).closest('.item'), 500);
-														})
-													}) //doc.ready
-												</script>
-											<?
-											$return .= ob_get_clean();
-										}
-										else
-										{
-											//setando restricoes...
-											$rest = '';
-											if($valor->restricao) { eval($valor->restricao.";"); }
-
-											//seta deleted_by = 0, se for o caso
-											$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
-
-											//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
-											$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
-
-											$obj->loadAll($rest);
-											if($this->isFixo($valor->coluna))
-											{
-												do {
-													if($obj->{$join->chave} == $this->isFixo($valor->coluna))
-													{
-														$return .= "<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
-													}
-												}while($obj->fetch());
-												$return .= "
-													<script type='text/javascript' charset='utf-8'>
-														$('input[name=".$valor->coluna."]').closest('.item').hide();
-													</script>
-												";
-											}
-											else
-											{
-												if($custom_field)
-												{
-													$return .= $custom_field;
-												}
-												else
-												{
-													$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
-													if($join->tipo == 'select') //se o join for do tipo select
-													{
-														$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">";
-														$return .= "<option value='-1'>...</option>";
-														do {
-															$join_retorno = '';
-															$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
-															$return .= "<option value='".$obj->{$join->chave}."'>".$join_retorno."</option>";
-														}while($obj->fetch());
-														$return .= "</select>";
-													}
-													elseif($join->tipo == 'radio') //se o join for do tipo select
-													{
-														$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
-														do {
-															$join_retorno = '';
-															$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
-															$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n";
-														}while($obj->fetch());
-														$return .= "</span>";
-													}
-												}
-											}
-										}
-									}
-									// MULTI JOIN ============================================================================
-									elseif($valor->tipo == 'joinNN')
-									{
-
-										$join = $valor->join;
-										$mod_aux = $join->modulo;
-										$obj = new $mod_aux();
-
 										//setando restricoes...
 										$rest = '';
 										if($valor->restricao) { eval($valor->restricao.";"); }
@@ -2364,47 +2331,121 @@ class Dbo extends Obj
 										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
 
 										$obj->loadAll($rest);
+										if($this->isFixo($valor->coluna))
+										{
+											do {
+												if($obj->{$join->chave} == $this->isFixo($valor->coluna))
+												{
+													$return .= "<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
+												}
+											}while($obj->fetch());
+											$return .= "
+												<script type='text/javascript' charset='utf-8'>
+													$('input[name=".$valor->coluna."]').closest('.item').hide();
+												</script>
+											";
+										}
+										else
+										{
+											if($custom_field)
+											{
+												$return .= $custom_field;
+											}
+											else
+											{
+												$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
+												if($join->tipo == 'select') //se o join for do tipo select
+												{
+													$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">";
+													$return .= "<option value='-1'>...</option>";
+													do {
+														$join_retorno = '';
+														$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+														$return .= "<option value='".$obj->{$join->chave}."'>".$join_retorno."</option>";
+													}while($obj->fetch());
+													$return .= "</select>";
+												}
+												elseif($join->tipo == 'radio') //se o join for do tipo select
+												{
+													$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block;'>";
+													do {
+														$join_retorno = '';
+														$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+														$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n";
+													}while($obj->fetch());
+													$return .= "</span>";
+												}
+											}
+										}
+									}
+								}
+								// MULTI JOIN ============================================================================
+								elseif($valor->tipo == 'joinNN')
+								{
 
-										$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
-										if($join->tipo == 'select') //se o join for do tipo select
-										{
-											$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>";
-											do {
-												$join_retorno = '';
-												$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
-												$join_key_2 = '';
-												$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
-												$return .= "<option value='".$join_key_2."'>".$join_retorno."</option>";
-											}while($obj->fetch());
-											$return .= "</select>";
-										}
-										elseif($join->tipo == 'checkbox') //se o join for do tipo select
-										{
-											$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
-											do {
-												$join_retorno = '';
-												$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
-												$join_key_2 = '';
-												$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
-												$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."[]' value='".$join_key_2."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></spam>";
-											}while($obj->fetch());
-											$return .= "</span>";
-										}
-									}
-									// IMAGE ============================================================================
-									elseif($valor->tipo == 'image')
+									$join = $valor->join;
+									$mod_aux = $join->modulo;
+									$obj = new $mod_aux();
+
+									//setando restricoes...
+									$rest = '';
+									if($valor->restricao) { eval($valor->restricao.";"); }
+
+									//seta deleted_by = 0, se for o caso
+									$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
+									//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
+									$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
+
+									$obj->loadAll($rest);
+
+									$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
+									if($join->tipo == 'select') //se o join for do tipo select
 									{
-										$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+										$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>";
+										do {
+											$join_retorno = '';
+											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+											$join_key_2 = '';
+											$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
+											$return .= "<option value='".$join_key_2."'>".$join_retorno."</option>";
+										}while($obj->fetch());
+										$return .= "</select>";
 									}
-									// FILES ============================================================================
-									elseif($valor->tipo == 'file')
+									elseif($join->tipo == 'checkbox') //se o join for do tipo select
 									{
-										$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+										$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
+										do {
+											$join_retorno = '';
+											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+											$join_key_2 = '';
+											$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
+											$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."[]' value='".$join_key_2."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></spam>";
+										}while($obj->fetch());
+										$return .= "</span>";
 									}
-								} //if custom_field
-								$return .= "</span>"; //input
-								$return .= "\n</div>\n"; //item
-								if (!$hasgrid) { $return .= "</div> <!-- row -->\n\n"; /*row*/ }
+								}
+								// IMAGE ============================================================================
+								elseif($valor->tipo == 'image')
+								{
+									$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+								}
+								// FILES ============================================================================
+								elseif($valor->tipo == 'file')
+								{
+									$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+								}
+							} //if custom_field
+
+							//checando se existe uma subgrid para exibicao do elemento filho
+							if($grid_cell[1])
+							{
+								$return .= '</div></div>';
+							}
+
+							$return .= "</span>"; //input
+							$return .= "\n</div>\n"; //item
+							if (!$hasgrid) { $return .= "</div> <!-- row -->\n\n"; /*row*/ }
 						} //if se o perfil tem acesso a esse campo!
 						else
 						{
@@ -2533,14 +2574,28 @@ class Dbo extends Obj
 						if($this->perfilTemAcessoCampo($valor->perfil))
 						{
 
+							$grid_cell = $this->parseGridCell($grid[$gc++]);
+
 							//checa se existe função de exibição de dados
 							$edit_function = ((strlen($valor->edit_function))?($valor->edit_function):(false));
 
 							if (!$hasgrid) { $return .= "<div class='row clearfix'>"; }
-							$return .= "\t<div class='item columns ".(($hasgrid)?('large-'.$grid[$gc++]):(''))."' id='item-".$valor->coluna."'>\n";
+							$return .= "\t<div class='item columns ".(($hasgrid)?('large-'.$grid_cell[0]):(''))."' id='item-".$valor->coluna."'>\n";
+
+							//checando se existe uma subgrid para exibicao do elemento filho
+							if($grid_cell[1])
+							{
+								$return .= '<div class="row collapse"><div class="large-'.$grid_cell[1][0].' columns"><span class="form-height-fix">';
+							}
+							
 							$return .= "\t\t<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>\n";
 							$return .= "\t\t<span class='input input-".$valor->tipo."'>\n";
 
+							//checando se existe uma subgrid para exibicao do elemento filho
+							if($grid_cell[1])
+							{
+								$return .= '</span></div><div class="large-'.$grid_cell[1][1].' columns">';
+							}
 							
 							if($custom_field)
 							{
@@ -2963,6 +3018,13 @@ class Dbo extends Obj
 									$return .= "\t\t\t<input type='file' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
 								}
 							} //if custom field
+
+							//checando se existe uma subgrid para exibicao do elemento filho
+							if($grid_cell[1])
+							{
+								$return .= '</div></div>';
+							}
+							
 							$return .= "\t\t</span>\n"; //input
 							$return .= "\t</div> <!-- item -->\n"; //item
 							if (!$hasgrid) { $return .= "</div> <!-- row -->\n\n"; /*row*/ }
