@@ -256,6 +256,11 @@ class Dbo extends Obj
 
 	function newSelf()
 	{
+		if(class_exists($this->getModule()))
+		{
+			$classname = $this->getModule();
+			return new $classname();
+		}
 		if(get_class($this) == 'Dbo')
 		{
 			$obj = new Dbo($this->__class);
@@ -2483,7 +2488,7 @@ class Dbo extends Obj
 				}
 
 			}
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Inserir ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Inserir ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -3065,7 +3070,7 @@ class Dbo extends Obj
 				}
 			}
 
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' type='Submit' accesskey='s' value='Salvar alterações n".$this->__module_scheme->genero." ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Salvar alterações n".$this->__module_scheme->genero." ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
