@@ -198,6 +198,8 @@ i.margin-right { margin-right: .3em; }
 /* small up */
 @media #{$small} {
 
+	.text-right-for-medium-up { text-align: right !important; }
+
 	.narrow-for-medium-up { width: 1px; }
 	.text-center-for-medium-up { text-align: center; }
 	.text-right-center-for-small { text-align: right; }
@@ -247,8 +249,8 @@ i.margin-right { margin-right: .3em; }
 
 }
 
-//media query especifica para situações small que tem que seguir a abordagem "mobile last"
+//media query especifica para situações small que tem que seguir a abordagem "mobile last (not...)"
 
 @media only screen and (max-width: $small-screen) {
 	.text-center-for-small { text-align: center !important; }
-}
+} 

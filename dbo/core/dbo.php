@@ -1594,20 +1594,76 @@ class Dbo extends Obj
 
 	function parseGridCell($grid_cell)
 	{
-		if(strstr($grid_cell, '[inline'))
+		//inline
+		if(strstr($grid_cell, '[inline('))
 		{
+			$retorno['type'] = 'inline';
 			$grid_cell = str_replace(array('[', ']'), '', $grid_cell);
-			list($parent, $child) = explode("inline", $grid_cell);
-			$child = str_replace(array('(', ')'), '', $child);
-			$child = explode(":", $child);
-			$retorno[] = $parent;
-			$retorno[] = $child;
+
+			list($item_data, $field_data) = explode("inline", $grid_cell);
+
+			/* tratando informações do item pai */
+			$item_data = explode('.', $item_data);
+			$item['size'] = array_shift($item_data);
+			$item['classes'] = $item_data;
+
+			/* tratando informações do label e campo */
+			$field_data = str_replace(array('(', ')'), '', $field_data);
+			list($label_data, $input_data) = explode(":", $field_data);
+			$label_data = explode('.', $label_data);
+			$input_data = explode('.', $input_data);
+
+			$label['size'] = array_shift($label_data);
+			$label['classes'] = $label_data;
+
+			$input['size'] = array_shift($input_data);
+			$input['classes'] = $input_data;
+
+			$retorno['item'] = $item;
+			$retorno['label'] = $label;
+			$retorno['input'] = $input;
 		}
+		//padrao dbo
 		else
 		{
-			$retorno[] = $grid_cell;
+			$parts_data = explode('.', $grid_cell);
+			$parts['item']['size'] = array_shift($parts_data);
+			$parts['item']['classes'] = $parts_data;
+			$retorno = $parts;
 		}
 		return $retorno;
+	}
+	
+	//pega a informação do grid cell para o formulario ------------------------------------------------------------------------------------
+
+	function getGridCellPart($gc, $part)
+	{
+		//padrão do DBO
+		if($part == 'item-size')
+		{
+			return $gc['item']['size'];
+		}
+		if($part == 'item-classes')
+		{
+			return @implode(' ', $gc['item']['classes']);
+		}
+		//campo inline
+		if($gc['type'] == 'inline')
+		{
+			if($part == 'field-start')
+			{
+				return '<div class="row"><div class="large-'.$gc['label']['size'].' columns text-right-for-medium-up '.implode(' ', $gc['label']['classes']).'"><span class="form-height-fix">';
+			}
+			if($part == 'field-middle')
+			{
+				return '</span></div><div class="large-'.$gc['input']['size'].' columns '.implode(' ', $gc['input']['classes']).'">';
+			}
+			if($part == 'field-end')
+			{
+				return '</div></div>';
+			}
+		}
+		return '';
 	}
 	
 	//limpas os arrays de query -----------------------------------------------------------------------------------------------------------
@@ -2125,22 +2181,16 @@ class Dbo extends Obj
 							$grid_cell = $this->parseGridCell($grid[$gc++]);
 
 							if (!$hasgrid) { $return .= "<div class='row clearfix'>"; }
-							$return .= "<div class='item columns ".(($hasgrid)?('large-'.$grid_cell[0]):(''))."' id='item-".$valor->coluna."'>\n";
+							$return .= "<div class='item columns ".(($hasgrid)?('large-'.$this->getGridCellPart($grid_cell, 'item-size')):(''))." ".(($hasgrid)?($this->getGridCellPart($grid_cell, 'item-classes')):(''))."' id='item-".$valor->coluna."'>\n";
 
 							//checando se existe uma subgrid para exibicao do elemento filho
-							if($grid_cell[1])
-							{
-								$return .= '<div class="row collapse"><div class="large-'.$grid_cell[1][0].' columns"><span class="form-height-fix">';
-							}
+							$return .= $this->getGridCellPart($grid_cell, 'field-start');
 
 							$return .= "<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>";
 							$return .= "<span class='input input-".$valor->tipo."'>";
 
 							//checando se existe uma subgrid para exibicao do elemento filho
-							if($grid_cell[1])
-							{
-								$return .= '</span></div><div class="large-'.$grid_cell[1][1].' columns">';
-							}
+							$return .= $this->getGridCellPart($grid_cell, 'field-middle');
 
 							if($custom_field)
 							{
@@ -2443,10 +2493,7 @@ class Dbo extends Obj
 							} //if custom_field
 
 							//checando se existe uma subgrid para exibicao do elemento filho
-							if($grid_cell[1])
-							{
-								$return .= '</div></div>';
-							}
+							$return .= $this->getGridCellPart($grid_cell, 'field-end');
 
 							$return .= "</span>"; //input
 							$return .= "\n</div>\n"; //item
@@ -2585,22 +2632,14 @@ class Dbo extends Obj
 							$edit_function = ((strlen($valor->edit_function))?($valor->edit_function):(false));
 
 							if (!$hasgrid) { $return .= "<div class='row clearfix'>"; }
-							$return .= "\t<div class='item columns ".(($hasgrid)?('large-'.$grid_cell[0]):(''))."' id='item-".$valor->coluna."'>\n";
+							$return .= "\t<div class='item columns ".(($hasgrid)?('large-'.$this->getGridCellPart($grid_cell, 'item-size')):(''))." ".(($hasgrid)?($this->getGridCellPart($grid_cell, 'item-classes')):(''))."' id='item-".$valor->coluna."'>\n";
 
-							//checando se existe uma subgrid para exibicao do elemento filho
-							if($grid_cell[1])
-							{
-								$return .= '<div class="row collapse"><div class="large-'.$grid_cell[1][0].' columns"><span class="form-height-fix">';
-							}
+							$return .= $this->getGridCellPart($grid_cell, 'field-start');
 							
 							$return .= "\t\t<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>\n";
 							$return .= "\t\t<span class='input input-".$valor->tipo."'>\n";
 
-							//checando se existe uma subgrid para exibicao do elemento filho
-							if($grid_cell[1])
-							{
-								$return .= '</span></div><div class="large-'.$grid_cell[1][1].' columns">';
-							}
+							$return .= $this->getGridCellPart($grid_cell, 'field-middle');
 							
 							if($custom_field)
 							{
@@ -3025,10 +3064,7 @@ class Dbo extends Obj
 							} //if custom field
 
 							//checando se existe uma subgrid para exibicao do elemento filho
-							if($grid_cell[1])
-							{
-								$return .= '</div></div>';
-							}
+							$return .= $this->getGridCellPart($grid_cell, 'field-end');
 							
 							$return .= "\t\t</span>\n"; //input
 							$return .= "\t</div> <!-- item -->\n"; //item
