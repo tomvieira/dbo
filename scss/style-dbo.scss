@@ -211,6 +211,33 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 	}
 }
 
+//estilos para o bredcrumb inspirado no foundation
+.breadcrumb {
+	&.border { border-bottom: 1px solid #ddd; margin-bottom: .75em; }
+	ul { list-style: none; text-transform: uppercase; display: block; margin-bottom: .75em;
+		&:after { visibility: hidden; display: block; font-size: 0; content: " "; clear: both; height: 0; }
+		li { display: list-item; float: left; font-size: emCalc(11);
+			&:before { content: '/'; padding: 0 0.75em; color: #999; position: relative; top: 1; }
+			&:first-child {
+				&:before { display: none; }
+			}
+			&.unavailable {
+				a { color: #999; cursor: default; 
+					&:hover { text-decoration: none; }
+				}
+			}
+			&.current, &:last-child {
+				a { color: inherit; cursor: default; 
+					&:hover { text-decoration: none; }
+				}
+			}
+			a { 
+				&:hover { text-decoration: underline; }
+			}
+		}
+	}
+}
+
 .bread-crumb { margin: 0 auto; margin-bottom: 1em; font-size: 14px; line-height: 39px; padding: 0 10px; 
 	li { display: inline-block; position: relative; padding-left: 30px; 
 		&:before { /*content: url(../images/bread-bullet.png); width: 7px; height: 7px; position: absolute; left: 10px; top: 0px;*/ }

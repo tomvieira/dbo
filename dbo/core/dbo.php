@@ -412,7 +412,8 @@ class Dbo extends Obj
 
 	public function getJoinModule ($campo)
 	{
-		return new Dbo($this->__module_scheme->campo[$campo]->join->modulo);
+		$class = $this->__module_scheme->campo[$campo]->join->modulo;
+		return new $class();
 	}
 
 	//pega a chave estrangeira do do join para o campo atual ----------------------------------------------------------------------------------------
@@ -436,7 +437,7 @@ class Dbo extends Obj
 		{
 			$parent_id = $this->getModuleParent($mid, $fixo);
 			$mid = $parent_id;
-			$fixo = $_SESSION['dbo_mid'][$parent_id][fixo];
+			$fixo = $_SESSION[sysId()]['dbo_mid'][$parent_id][fixo];
 			$parents[] = $this->getModuleParentData($mid);
 		}
 
@@ -458,8 +459,8 @@ class Dbo extends Obj
 			$obj->{$atual->getJoinKey($fixo_campo)} = $fixo_valor;
 			$obj->load();
 
-			$bread_crumb[$i]['label'] = $atual->__module_scheme->campo[$fixo_campo]->titulo;
-			$bread_crumb[$i]['valor'] = $obj->{$atual->__module_scheme->campo[$fixo_campo]->join->valor};
+			$bread_crumb[$i]['label'] = $obj->__module_scheme->titulo_plural;
+			$bread_crumb[$i]['valor'] = ((method_exists($obj, 'getBreadcrumbIdentifier'))?($obj->getBreadcrumbIdentifier()):($obj->{$atual->__module_scheme->campo[$fixo_campo]->join->valor}));
 			$bread_crumb[$i]['key'] = $fixo_valor;
 			$bread_crumb[$i]['modulo'] = $obj->__module_scheme->modulo;
 			$bread_crumb[$i]['fixo'] = $module_data[fixo];
@@ -478,14 +479,22 @@ class Dbo extends Obj
 		}
 
 		$bread_crumb = array_reverse($bread_crumb);
-		echo "<ul class='panel radius bread-crumb'>";
+		echo "<ul class=\"no-margin\">";
+		echo '<li><a href="cadastros.php">Cadastros</a></li>';
 		foreach($bread_crumb as $chave => $obj)
 		{
 			?>
-			<li>
-			<a class="label radius" href='<?= $this->keepUrl(array('dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_update&!dbo_delete&!dbo_view")) ?>'><?= $obj['label'] ?></a><a class='valor' href='<?= $this->keepUrl(array('dbo_view='.$obj['key'].'&dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_update&!dbo_delete")) ?>'><?= $obj['valor'] ?></a>
-			</li>
+			<li><a href='<?= $this->keepUrl(array('dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_update&!dbo_delete&!dbo_view")) ?>'><?= $obj['label'] ?></a></li>
+			<li><a class='valor' href='<?= $this->keepUrl(array('dbo_update='.$obj['key'].'&dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_delete")) ?>'><?= $obj['valor'] ?></a></li>
 			<?
+		}
+		echo '<li><a href="'.$this->keepUrl('!dbo_update&!dbo_view').'">'.$this->__module_scheme->titulo_plural.'</a></li>';
+		if($_GET['dbo_update'])
+		{
+			$obj = $this->newSelf();
+			$obj->id = $_GET['dbo_update'];
+			$obj->load();
+			echo '<li><a href="#">'.$obj->getBreadcrumbIdentifier().'</a></li>';
 		}
 		echo "</ul><!-- breadcrumbs -->";
 	}
@@ -512,6 +521,33 @@ class Dbo extends Obj
 		}
 	}
 
+	// retorna o campo principal do objeto (padrao de ordenacao)----------------------------------------------------------------------------------------
+
+	function getMainField()
+	{
+		foreach($this->__module_scheme->campo as $key => $value)
+		{
+			if(strlen($value->default))
+			{
+				return $value->coluna;
+			}			
+		}		
+	}
+
+	// retorna o campo o valor para o breadcrumb ativo -------------------------------------------------------------------------------------------------
+
+	function getBreadcrumbIdentifier()
+	{
+		if($this->size())
+		{
+			return $this->{$this->getMainField()};
+		}
+		else
+		{
+			return $this->__module_scheme->titulo_plural;
+		}
+	}
+	
 	// carrega uma query custom ---------------------------------------------------------------------------------------------------------------------------
 
 	function query($sql)
@@ -951,8 +987,8 @@ class Dbo extends Obj
 	function setMid($mid)
 	{
 		global $_SESSION;
-		$_SESSION['dbo_mid'][$mid]['modulo'] = $this->__class;
-		$_SESSION['dbo_mid'][$mid]['mid'] = $mid;
+		$_SESSION[sysId()]['dbo_mid'][$mid]['modulo'] = $this->__class;
+		$_SESSION[sysId()]['dbo_mid'][$mid]['mid'] = $mid;
 		return $mid;
 	}
 
@@ -963,7 +999,7 @@ class Dbo extends Obj
 		global $_SESSION;
 		global $_GET;
 
-		if($_SESSION['dbo_mid'][$mid][modulo] == $type) return true;
+		if($_SESSION[sysId()]['dbo_mid'][$mid][modulo] == $type) return true;
 		return false;
 	}
 
@@ -976,7 +1012,7 @@ class Dbo extends Obj
 
 		if($_GET['mid'])
 		{
-			if(sizeof($_SESSION['dbo_mid'][$_GET['mid']]))
+			if(sizeof($_SESSION[sysId()]['dbo_mid'][$_GET['mid']]))
 			{
 				return $_GET['mid'];
 			}
@@ -990,11 +1026,11 @@ class Dbo extends Obj
 	function getModuleParent($mid, $fixo)
 	{
 		global $_SESSION;
-		foreach($_SESSION['dbo_mid'] as $key => $value)
+		foreach($_SESSION[sysId()]['dbo_mid'] as $key => $value)
 		{
 			if($key == $mid)
 			{
-				if(sizeof($_SESSION['dbo_mid'][$value['parent']]) && $value['fixo'] == $fixo) { return $_SESSION['dbo_mid'][$value['parent']][mid]; }
+				if(sizeof($_SESSION[sysId()]['dbo_mid'][$value['parent']]) && $value['fixo'] == $fixo) { return $_SESSION[sysId()]['dbo_mid'][$value['parent']][mid]; }
 			}
 		}
 		return false;
@@ -1005,7 +1041,7 @@ class Dbo extends Obj
 	function getModuleParentData($mid)
 	{
 		global $_SESSION;
-		return $_SESSION['dbo_mid'][$mid];
+		return $_SESSION[sysId()]['dbo_mid'][$mid];
 	}
 
 	//checa o pai --------------------------------------------------------------------------------------------------------------------------
@@ -1014,8 +1050,8 @@ class Dbo extends Obj
 		global $_SESSION;
 		$new_mid = $this->makeMid();
 		$this->setMid($new_mid);
-		$_SESSION['dbo_mid'][$new_mid]['parent'] = $mid;
-		$_SESSION['dbo_mid'][$new_mid]['fixo'] = $fixo;
+		$_SESSION[sysId()]['dbo_mid'][$new_mid]['parent'] = $mid;
+		$_SESSION[sysId()]['dbo_mid'][$new_mid]['fixo'] = $fixo;
 		header('Location: '.$this->keepUrl('mid='.$new_mid));
 		exit();
 	}
@@ -1024,9 +1060,9 @@ class Dbo extends Obj
 	function setOrderBy($order_by)
 	{
 		global $_SESSION;
-		unset($_SESSION['dbo_mid'][$this->getMid()][order_by]);
+		unset($_SESSION[sysId()]['dbo_mid'][$this->getMid()][order_by]);
 		list($campo, $valor) = explode('::', $order_by);
-		$_SESSION['dbo_mid'][$this->getMid()][order_by][$campo] = $valor;
+		$_SESSION[sysId()]['dbo_mid'][$this->getMid()][order_by][$campo] = $valor;
 	}
 
 	//cria um complemento de SQL com a paginacao (IPP = itens por pagina )-----------------------------------------------------------------
@@ -1126,7 +1162,7 @@ class Dbo extends Obj
 	{
 		global $_SESSION;
 
-		$filters = $_SESSION['dbo_mid'][$this->getMid()][filter];
+		$filters = $_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter];
 
 		if(sizeof($filters))
 		{
@@ -1228,7 +1264,7 @@ class Dbo extends Obj
 		{
 			ob_start();
 			?>
-				<a href='' class='filter-button dbo-button-aba button tiny radius secondary <?= ((sizeof($_SESSION['dbo_mid'][$this->getMid()][filter]))?('hidden'):('')) ?>'>Filtrar</a>
+				<a href='' class='filter-button dbo-button-aba button tiny radius secondary <?= ((sizeof($_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter]))?('hidden'):('')) ?>'>Filtrar</a>
 			<?
 			$ob_result = ob_get_clean();
 			return $ob_result;
@@ -1240,7 +1276,7 @@ class Dbo extends Obj
 	function getFilterValue ($campo)
 	{
 		global $_SESSION;
-		return (string)((strlen($_SESSION['dbo_mid'][$this->getMid()][filter][$campo]))?($_SESSION['dbo_mid'][$this->getMid()][filter][$campo]):(''));
+		return (string)((strlen($_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter][$campo]))?($_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter][$campo]):(''));
 	}
 
 	//mostra o botão de filtors na listagem, se houver filtos na pagina ativa. -----------------------------------------------------------
@@ -1250,13 +1286,11 @@ class Dbo extends Obj
 
 		global $_SESSION;
 
-		if(!sizeof($_SESSION['dbo_mid'][$this->getMid()][filter])) { $class_hidden = 'hidden'; }
+		if(!sizeof($_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter])) { $class_hidden = 'hidden'; }
 
 		?>
 			<div class="wrapper-filter-box <?= $class_hidden ?>">
 
-				<hr>
-				
 				<div class='row'>
 					<div class='large-12 columns'>
 						
@@ -1369,13 +1403,13 @@ class Dbo extends Obj
 		global $_SESSION;
 
 		//limpa os filtros que já estão na sessao.
-		unset($_SESSION['dbo_mid'][$this->getMid()][filter]);
+		unset($_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter]);
 
 		foreach($vars as $key => $value)
 		{
 			if(in_array($key, array_keys($this->__filter_scheme)) && strlen($value))
 			{
-				$_SESSION['dbo_mid'][$this->getMid()][filter][$key] = $value;
+				$_SESSION[sysId()]['dbo_mid'][$this->getMid()][filter][$key] = $value;
 			}
 		}
 	}
@@ -1785,8 +1819,8 @@ class Dbo extends Obj
 	{
 		global $_SESSION;
 
-		if(sizeof($_SESSION['dbo_mid'][$this->getMid()][order_by])) {
-			return $_SESSION['dbo_mid'][$this->getMid()][order_by];
+		if(sizeof($_SESSION[sysId()]['dbo_mid'][$this->getMid()][order_by])) {
+			return $_SESSION[sysId()]['dbo_mid'][$this->getMid()][order_by];
 		} elseif(sizeof($this->__order_by)) {
 			return $this->__order_by;
 		} else {
@@ -2086,7 +2120,7 @@ class Dbo extends Obj
 			}
 			else
 			{
-				$return .= '<div class="row"><div class="large-12 columns"><h2 class="text-center"><br />- não há '.strtolower($this->__module_scheme->titulo_plural).' cadastrad'.$this->__module_scheme->genero.'s -</h2></div></div>';
+				$return .= '<div class="row"><div class="large-12 columns"><h2 class="text-center"><br />- não há '.strtolower($this->__module_scheme->titulo_plural).' cadastrad'.$this->__module_scheme->genero.'s -</h2></div></div><style> .filter-button { display: none; } </style>';
 			}
 
 			echo $return;
@@ -3305,24 +3339,64 @@ class Dbo extends Obj
 
 				<div class='wrapper-dbo-auto-admin' id='module-<?= $meta->modulo ?>'>
 
-					<?
-					//cria cabeçalho em caso de ser um form com valor fixo na URL (bread-crumb header)
-					if(is_array($this->__fixos))
-					{
-					?>
-						<div class='dbo-header row wrapper-module-fixos'>
-							<div class='large-12 columns'>
-							<? $this->makeBreadCrumb() ?>
-							</div><!-- col -->
+					<div id="auto-admin-header">
+						<div class="row">
+							<div class="large-8 columns">
+								<div class="breadcrumb">
+									<?
+										if(is_array($this->__fixos))
+										{
+										?>
+											<div class='wrapper-module-fixos'>
+												<? $this->makeBreadCrumb() ?>
+											</div>
+										<?
+										}
+										else
+										{
+											?>
+											<ul class="no-margin">
+												<li><a href="cadastros.php">Cadastros</a></li>
+												<li><a href='<?= $this->keepUrl('!dbo_view&!dbo_update&!dbo_delete&!dbo_new') ?>'><?= $meta->titulo_plural ?></a></li>
+												<?
+													if($_GET['dbo_update'])
+													{
+														$obj = $this->newSelf();
+														$obj->id = $_GET['dbo_update'];
+														$obj->load();
+														?>
+														<li><a href="#"><?= $obj->getBreadcrumbIdentifier(); ?></a></li>
+														<?
+													}
+												?>
+											</ul>																			
+											<?
+										}
+									?>
+								</div>
+							</div>
+							<div class="large-4 columns text-right">
+								<div class='wrapper-module-button-new'>
+									<?
+										//checa se mostra ou não o botão de inserir
+										if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
+										{
+										?>
+											<span class='button-new' rel='<?= $meta->modulo ?>'>
+												<a class="button no-margin-for-small top-less-15 radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
+												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button no-margin-for-small top-less-15 radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
+											</span>
+										<?
+										}
+									?>
+								</div>
+							</div>
 						</div>
-					<?
-					}
-					?>
-
-
-					<div class='row'>
+						<hr class="small">
+					</div>
+	
+					<div class='row' style="display: none;">
 						<div class='large-9 columns wrapper-module-id'>
-							<h2><a href='<?= $this->keepUrl('!dbo_view&!dbo_update&!dbo_delete&!dbo_new') ?>'><?= $meta->titulo_plural ?></a></h2>
 							<?
 								$notification_function = $meta->modulo."_notifications";
 								if(function_exists($notification_function))
@@ -3339,22 +3413,7 @@ class Dbo extends Obj
 								}
 							?>
 						</div><!-- large-9 -->
-						<div class='large-3 columns text-right wrapper-module-button-new'>
-						<?
-							//checa se mostra ou não o botão de inserir
-							if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
-							{
-							?>
-								<span class='button-new' rel='<?= $meta->modulo ?>'>
-									<a class="button radius small top-14 trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
-									<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button radius secondary small top-14 trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
-								</span>
-							<?
-							}
-						?>
-						</div><!-- col -->
 					</div><!-- row -->
-					
 
 					<?
 						if(!isset($meta->preload_insert_form) || $meta->preload_insert_form == TRUE || $_GET['dbo_new'])
@@ -3399,7 +3458,7 @@ class Dbo extends Obj
 								?>
 								<div class='row'>
 									<div class='large-12 columns'>
-										<h3>Alterar <?= $meta->titulo ?></h3>
+										<h3>Alterar <?= strtolower($meta->titulo) ?></h3>
 									</div><!-- col -->
 								</div><!-- row -->
 								<?
@@ -4842,12 +4901,12 @@ class Dbo extends Obj
 				if($_POST['__dbo_update_flag'])
 				{
 					setMessage("<div class='success'>".$this->__module_scheme->titulo." de ".$this->getFieldName($this->getPK())." ".$new." alterado com sucesso.</div>");
-					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_update'))):($this->keepUrl(array('!dbo_update'))));
+					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_update'))):($this->keepUrl()));
 				}
 				else
 				{
 					setMessage("<div class='success'>".$this->__module_scheme->titulo." inserido com sucesso. ".$this->getFieldName($this->getPK()).": ".$new."</div>");
-					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_new'))):($this->keepUrl(array('!dbo_new'))));
+					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_new'))):($this->keepUrl(array('!dbo_new', 'dbo_update='.$new))));
 				}
 			}
 			else

@@ -450,7 +450,7 @@
 				{
 					$notifications = $notification_function();
 				}
-				echo "<li><a href='".(($url)?($url."?dbo_mod=".$valor['var']):($dbo->keepUrl(array('!dbo_new&!dbo_update&!dbo_delete&!dbo_view&!pag!','dbo_mod='.$valor['var']))))."' class='sidebar-button'><i style='background-image: url(".DBO_URL."/../images/module_icons/".$valor['icon'].")'></i><span class='name'>".$valor['titulo'].(($notifications)?("<span class='notifications'>".$notifications."</span>"):(''))."</span></a></li><li class='divider'></li>\n";
+				echo "<li><a href='".(($url)?($url."?dbo_mod=".$valor['var']):($dbo->keepUrl(array('!dbo_new&!dbo_update&!dbo_delete&!dbo_view&!pag!','dbo_mod='.$valor['var']))))."' class='sidebar-button'><i style='background-image: url(".DBO_URL."/../images/module_icons/".$valor['icon'].")'></i><span class='name'>".$valor['titulo'].(($notifications)?("<span class='notifications'>".$notifications."</span>"):(''))."</span></a></li>\n";
 			}
 			$count++;
 		}
@@ -1068,7 +1068,7 @@
 		global $dbo;
 		if(isSuperAdmin()) {
 		?>
-			<div id='super-admin-bar'>
+			<div id='super-admin-bar' class="hide-for-small">
 				<div class='wrapper-controls'>
 					<div class='wrapper-buttons'>
 						<a href='<?= DBO_URL ?>/install/?reffered=1' target='install' title='Instalação'><img src='<?= DBO_URL ?>/core/images/install.png' alt='install'/></a>

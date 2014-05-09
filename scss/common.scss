@@ -195,6 +195,20 @@ i.margin-right { margin-right: .3em; }
 /* padding pequeno em dropdowns */
 .f-dropdown.content.small-padding { padding: 7px; }
 
+//variacoes de <hr>
+hr.no-margin { margin: 0; }
+hr.small { margin: 1em 0; }
+hr.tiny { margin: 0.50em 0; }
+
+//sem margem para nada
+.no-margin-for-small { margin-bottom: 0 !important; }
+
+//experimental, margens negativas 
+.top-less-10 { margin-top: -10px !important; }
+.top-less-15 { margin-top: -15px !important; }
+.bottom-less-10 { margin-bottom: -10px !important; }
+.bottom-less-15 { margin-bottom: -15px !important; }
+
 /* small up */
 @media #{$small} {
 

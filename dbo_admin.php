@@ -2,10 +2,8 @@
 <? require('auth.php') ?>
 
 <?
-
 	$obj = new Dbo($_GET['dbo_mod']);
 	$obj->autoAdmin();
-
 ?>
 
 <script>

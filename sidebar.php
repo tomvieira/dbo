@@ -6,9 +6,7 @@
 	else
 	{
 		?>
-		<h6>Módulos</h6>
-		<ul class="side-nav" id='cockpit-side-nav'>
-			<li class="divider"></li>
+		<ul class="side-nav" id='cockpit-side-nav' style="padding-top: 0;">
 			<? dboSideBarMenu('dbo_admin.php'); ?>
 		</ul>		
 		<?
