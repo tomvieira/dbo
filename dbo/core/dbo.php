@@ -1990,6 +1990,14 @@ class Dbo extends Obj
 									$return .= $valor->valores[$val];
 								}
 							}
+							// CHECKBOX =============================================================================
+							elseif ($valor->tipo == 'checkbox')
+							{
+								if($list_function) { $return .= $list_function($obj, $valor->coluna); }
+								else {
+									$return .= str_replace("\n", ", ", $obj->{$valor->coluna});
+								}
+							}
 							// CAMPO DE DATA ==============================================================================
 							elseif ($valor->tipo == 'date')
 							{
