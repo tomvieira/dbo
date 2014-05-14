@@ -556,6 +556,11 @@ class Dbo extends Obj
 		if(is_array($modulo->__module_scheme->button))
 		{
 			$retorno = array();
+
+			//instanciando o modulo para ser usado na criação do custom button.
+			$module = $this->getModule();
+			$obj = new $module($_GET['dbo_update']);
+
 			foreach($modulo->__module_scheme->button as $chave => $botao)
 			{
 				if(!DBO_PERMISSIONS || hasPermission($botao->value, $_GET['dbo_mod']))
@@ -602,7 +607,7 @@ class Dbo extends Obj
 								$retorno[] = $data['codigo'];
 							}
 						}
-						$retorno = "<div>".implode(" ", $retorno)."</div>";
+						$retorno = addslashes(singleLine("<div>".implode(" ", $retorno)."</div>"));
 					?>
 				</div>
 			</div>
@@ -611,6 +616,7 @@ class Dbo extends Obj
 				$(document).ready(function(){
 					codigo = $.parseHTML('<?= $retorno ?>');
 					$(codigo).find('.button').removeClass('tiny').removeClass('primary').addClass('small').addClass('secondary').addClass('top-3');
+					console.log(codigo);
 					target = $('#acoes-update-<?= $this->getModule() ?> .wrapper-buttons-acao');
 					target.append(codigo);
 				}) //doc.ready				
@@ -637,7 +643,7 @@ class Dbo extends Obj
 					$htmls[] = $data['codigo'];
 				}
 			}
-			$retorno = addslashes('<li class="linked-last">'.implode('<br />', $htmls).'</li>');
+			$retorno = addslashes(singleLine('<li class="linked-last">'.implode('<br />', $htmls).'</li>'));
 			ob_start();
 			?>
 				<script>
