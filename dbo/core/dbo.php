@@ -548,6 +548,113 @@ class Dbo extends Obj
 		}
 	}
 	
+	// retorna um array com os dados dos botoes do modulo -------------------------------------------------------------------------------------------------
+
+	function getButtonScheme($modulo)
+	{
+		//checa se exitem botoes customizados no modulo
+		if(is_array($modulo->__module_scheme->button))
+		{
+			$retorno = array();
+			foreach($modulo->__module_scheme->button as $chave => $botao)
+			{
+				if(!DBO_PERMISSIONS || hasPermission($botao->value, $_GET['dbo_mod']))
+				{
+					if($botao->custom === TRUE) //botoes customizados não estarão disponíveis no momento
+					{
+						eval(str_replace("[VALUE]", $botao->value, $botao->code));
+						$posicao = (($botao->posicao)?($botao->posicao):('acoes'));
+						$retorno[$posicao][] = array(
+							'tipo' => 'html',
+							'codigo' => $code
+						);
+					} else {
+						$posicao = (($botao->posicao)?($botao->posicao):('breadcrumb'));
+						$retorno[$posicao][] = array(
+							'tipo' => 'data',
+							'titulo' => $botao->value, 
+							'url' => $modulo->keepUrl(array("dbo_mod=".$botao->modulo."&dbo_fixo=".$modulo->encodeFixos($botao->modulo_fk."=".$modulo->{$botao->key}), "!pag&!dbo_insert&!dbo_update&!dbo_delete&!dbo_view"))
+						);
+					}
+				}
+			}//foreach
+			return $retorno;
+		}//if
+		return array();
+	}
+	
+	// insere as ações na tela de edição ------------------------------------------------------------------------------------------------------------------
+
+	function getBarraAcoesUpdate($buttons)
+	{
+		if(sizeof($buttons['acoes']))
+		{
+			ob_start();
+			?>
+			<div class="row" id="acoes-update-<?= $this->getModule() ?>">
+				<div class="large-2 columns"><h3 class="no-margin">Ações</h3></div>
+				<div class="large-10 columns text-right wrapper-buttons-acao">
+					<?
+						foreach($buttons['acoes'] as $key => $data)
+						{
+							if($data['tipo'] == 'html')
+							{
+								$retorno[] = $data['codigo'];
+							}
+						}
+						$retorno = "<div>".implode(" ", $retorno)."</div>";
+					?>
+				</div>
+			</div>
+			<hr class="small">
+			<script>
+				$(document).ready(function(){
+					codigo = $.parseHTML('<?= $retorno ?>');
+					$(codigo).find('.button').removeClass('tiny').removeClass('primary').addClass('small').addClass('secondary').addClass('top-3');
+					target = $('#acoes-update-<?= $this->getModule() ?> .wrapper-buttons-acao');
+					target.append(codigo);
+				}) //doc.ready				
+			</script>	
+			<?
+			return ob_get_clean();
+		}
+	}
+	
+	// insere os custom buttons no final do breadcrumb ----------------------------------------------------------------------------------------------------
+
+	function pushBreadcrumbModuleButtons($buttons = array())
+	{
+		if(sizeof($buttons['breadcrumb']))
+		{
+			foreach($buttons['breadcrumb'] as $key => $data)
+			{
+				if($data['tipo'] == 'data')
+				{
+					$htmls[] = '<a href="'.$data['url'].'">'.$data['titulo'].'</a>';
+				}
+				else
+				{
+					$htmls[] = $data['codigo'];
+				}
+			}
+			$retorno = addslashes('<li class="linked-last">'.implode('<br />', $htmls).'</li>');
+			ob_start();
+			?>
+				<script>
+					$(document).ready(function(){
+						codigo = $.parseHTML('<?= $retorno ?>');
+						$(codigo).find('a').removeClass();
+						target = $('#auto-admin-header .breadcrumb ul');
+						target.append(codigo).prev('li').addClass('current');
+						target.find('li.linked-last').prev('li').addClass('current');
+					}) //doc.ready				
+				</script>	
+			<?
+			return ob_get_clean();
+		}
+		return false;
+	}
+	
 	// carrega uma query custom ---------------------------------------------------------------------------------------------------------------------------
 
 	function query($sql)
@@ -3155,6 +3262,8 @@ class Dbo extends Obj
 
 			echo $return;
 
+			echo $this->pushBreadcrumbModuleButtons($this->getButtonScheme($modulo));
+
 			//validacao do formulario, se houver.
 			$this->getValidationEngine($id_formulario, $modulo);
 		} //ok()
@@ -3347,10 +3456,10 @@ class Dbo extends Obj
 
 				<div class='wrapper-dbo-auto-admin' id='module-<?= $meta->modulo ?>'>
 
-					<div id="auto-admin-header">
+					<div id="auto-admin-header" style="<?= (($_GET['no_admin_header'])?('display: none;'):('')) ?>">
 						<div class="row">
-							<div class="large-8 columns">
-								<div class="breadcrumb">
+							<div class="large-9 columns">
+								<div class="breadcrumb" style="<?= (($_GET['no_admin_header_breadcrumb'])?('display: none;'):('')) ?>">
 									<?
 										if(is_array($this->__fixos))
 										{
@@ -3383,8 +3492,8 @@ class Dbo extends Obj
 									?>
 								</div>
 							</div>
-							<div class="large-4 columns text-right">
-								<div class='wrapper-module-button-new'>
+							<div class="large-3 columns text-right">
+								<div class='wrapper-module-button-new' style="<?= (($_GET['no_admin_header_insert_button'])?('display: none;'):('')) ?>">
 									<?
 										//checa se mostra ou não o botão de inserir
 										if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
@@ -3400,7 +3509,7 @@ class Dbo extends Obj
 								</div>
 							</div>
 						</div>
-						<hr class="small">
+						<hr class="small" style="<?= (($_GET['no_admin_header_separator'] || ($_GET['no_admin_header_breadcrumb'] && $_GET['no_admin_header_insert_button']))?('display: none;'):('')) ?>">
 					</div>
 	
 					<div class='row' style="display: none;">
@@ -3457,6 +3566,7 @@ class Dbo extends Obj
 					?>
 					</div>
 
+					
 					<?
 						//checa se o usuário pode visualizar o registro
 						if(!DBO_PERMISSIONS || hasPermission('update', $_GET['dbo_mod']))
@@ -3464,6 +3574,7 @@ class Dbo extends Obj
 							if($_GET['dbo_update'])
 							{
 								?>
+								<?= $this->getBarraAcoesUpdate($this->getButtonScheme($this)) ?>
 								<div class='row'>
 									<div class='large-12 columns'>
 										<h3>Alterar <?= strtolower($meta->titulo) ?></h3>
@@ -3482,8 +3593,6 @@ class Dbo extends Obj
 							?>
 							<div id='dbo-list'>
 
-								<? $this->showFilterBox(); ?>
-
 								<?
 								/* executa a funcao append */
 								$function_name = 'list_'.$this->__module_scheme->modulo."_prepend";
@@ -3491,6 +3600,9 @@ class Dbo extends Obj
 								{
 									echo $function_name(clone $this);
 								}
+
+								//cria a caixa de filtros
+								$this->showFilterBox();
 
 								/* verifica se existe uma função pos-list, se sim, clona o obj para poder passar a lista de elementos que serao listados */
 

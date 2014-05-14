@@ -216,17 +216,17 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 	&.border { border-bottom: 1px solid #ddd; margin-bottom: .75em; }
 	ul { list-style: none; text-transform: uppercase; display: block; margin-bottom: .75em;
 		&:after { visibility: hidden; display: block; font-size: 0; content: " "; clear: both; height: 0; }
-		li { display: list-item; float: left; font-size: emCalc(11);
-			&:before { content: '/'; padding: 0 0.75em; color: #999; position: relative; top: 1; }
-			&:first-child {
-				&:before { display: none; }
+		li { display: list-item; float: left; font-size: emCalc(11); padding-right: 1.8em; position: relative;
+			&:after { content: '/'; color: #999; position: absolute; top: 1; right: .75em; }
+			&:last-child {
+				&:after { display: none; }
 			}
 			&.unavailable {
 				a { color: #999; cursor: default; 
 					&:hover { text-decoration: none; }
 				}
 			}
-			&.current, &:last-child {
+			&.current, &:last-child:not(.linked-last) {
 				a { color: inherit; cursor: default; 
 					&:hover { text-decoration: none; }
 				}
