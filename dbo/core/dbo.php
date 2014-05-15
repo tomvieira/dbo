@@ -3465,6 +3465,14 @@ class Dbo extends Obj
 					<div id="auto-admin-header" style="<?= (($_GET['no_admin_header'])?('display: none;'):('')) ?>">
 						<div class="row">
 							<div class="large-9 columns">
+								<?
+									if($_GET['admin_custom_breadcrumb'])
+									{
+										?>
+										<h3 class="no-margin"><?= htmlSpecialChars(strip_tags($_GET['admin_custom_breadcrumb'])) ?></h3>
+										<?
+									}						
+								?>
 								<div class="breadcrumb" style="<?= (($_GET['no_admin_header_breadcrumb'])?('display: none;'):('')) ?>">
 									<?
 										if(is_array($this->__fixos))
@@ -3506,8 +3514,8 @@ class Dbo extends Obj
 										{
 										?>
 											<span class='button-new' rel='<?= $meta->modulo ?>'>
-												<a class="button no-margin-for-small top-less-15 radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
-												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button no-margin-for-small top-less-15 radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
+												<a class="button <?= (($_GET['no_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
+												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['no_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
 											</span>
 										<?
 										}
