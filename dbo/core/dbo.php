@@ -3656,6 +3656,12 @@ class Dbo extends Obj
 							</div>
 							<?
 						}
+						//append geral do modulo
+						$function_name = 'module_'.$this->getModule()."_append";
+						if(function_exists($function_name))
+						{
+							echo $function_name();
+						}
 					?>
 				</div><!-- wrapper-dbo-auto-admin -->
 
