@@ -948,7 +948,11 @@
 						$full_mail = dboescape($_POST['email']).(($_POST['dominio'] > -1)?($_POST['dominio']):(''));
 
 						include('socket-mail.php');
-						$pop3=new POP3Mail('200.145.71.2', $full_mail, dboescape($_POST['pass']));
+						if(!defined('HOST_MAIL_SERVER'))
+						{
+							define(HOST_MAIL_SERVER, '200.145.71.2');
+						}
+						$pop3=new POP3Mail(HOST_MAIL_SERVER, $full_mail, dboescape($_POST['pass']));
 						$pop3->Connect();
 						$result = $pop3->getStat();
 						$pop3->Disconnect();
@@ -1068,7 +1072,7 @@
 		global $dbo;
 		if(isSuperAdmin()) {
 		?>
-			<div id='super-admin-bar' class="hide-for-small">
+			<div id='super-admin-bar' class="hide-for-small" style="<?= (($_GET['dbo_modal'])?('display: none;'):('')) ?>">
 				<div class='wrapper-controls'>
 					<div class='wrapper-buttons'>
 						<a href='<?= DBO_URL ?>/install/?reffered=1' target='install' title='Instalação'><img src='<?= DBO_URL ?>/core/images/install.png' alt='install'/></a>

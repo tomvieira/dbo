@@ -3462,7 +3462,7 @@ class Dbo extends Obj
 
 				<div class='wrapper-dbo-auto-admin' id='module-<?= $meta->modulo ?>'>
 
-					<div id="auto-admin-header" style="<?= (($_GET['no_admin_header'])?('display: none;'):('')) ?>">
+					<div id="auto-admin-header" style="<?= (($_GET['hide_admin_header'])?('display: none;'):('')) ?>">
 						<div class="row">
 							<div class="large-9 columns">
 								<?
@@ -3473,7 +3473,7 @@ class Dbo extends Obj
 										<?
 									}						
 								?>
-								<div class="breadcrumb" style="<?= (($_GET['no_admin_header_breadcrumb'])?('display: none;'):('')) ?>">
+								<div class="breadcrumb" style="<?= (($_GET['hide_admin_header_breadcrumb'])?('display: none;'):('')) ?>">
 									<?
 										if(is_array($this->__fixos))
 										{
@@ -3507,15 +3507,15 @@ class Dbo extends Obj
 								</div>
 							</div>
 							<div class="large-3 columns text-right">
-								<div class='wrapper-module-button-new' style="<?= (($_GET['no_admin_header_insert_button'])?('display: none;'):('')) ?>">
+								<div class='wrapper-module-button-new' style="<?= (($_GET['hide_admin_header_insert_button'])?('display: none;'):('')) ?>">
 									<?
 										//checa se mostra ou não o botão de inserir
 										if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
 										{
 										?>
 											<span class='button-new' rel='<?= $meta->modulo ?>'>
-												<a class="button <?= (($_GET['no_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
-												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['no_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
+												<a class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
+												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
 											</span>
 										<?
 										}
@@ -3523,7 +3523,7 @@ class Dbo extends Obj
 								</div>
 							</div>
 						</div>
-						<hr class="small" style="<?= (($_GET['no_admin_header_separator'] || ($_GET['no_admin_header_breadcrumb'] && $_GET['no_admin_header_insert_button']))?('display: none;'):('')) ?>">
+						<hr class="small" style="<?= (($_GET['hide_admin_header_separator'] || ($_GET['hide_admin_header_breadcrumb'] && $_GET['hide_admin_header_insert_button']))?('display: none;'):('')) ?>">
 					</div>
 	
 					<div class='row' style="display: none;">
