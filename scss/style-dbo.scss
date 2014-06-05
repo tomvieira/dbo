@@ -404,7 +404,7 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 
 	/* acertando posição dos campos de formulário dentro das top-bars */
 	.top-bar {
-		input, .button { top: emCalc(6px) }
+		input, .button { top: emCalc(6px); line-height: 2em; font-size: 0.875em; height: 2em; padding: 0 10px; position: relative; }
 	}
 
 	table {

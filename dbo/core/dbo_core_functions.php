@@ -16,6 +16,57 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function fillNotificationContainer($container)
+	{
+		if(is_array($_SESSION['dbo_global_notifications']))
+		{
+			$alerts = 0;
+			$warnings = 0;
+			$notes = 0;
+			foreach($_SESSION['dbo_global_notifications'] as $notif)
+			{
+				if(@in_array($container, $notif->containers))
+				{
+					if($notif->status == 'alert')
+					{
+						$alerts++;
+					}
+					elseif($notif->status == 'warning')
+					{
+						$warnings++;
+					}
+					elseif($notif->status == 'ok')
+					{
+						$notes++;
+					}
+				}
+			}
+			ob_start();
+			if($alerts > 0)
+			{
+				?>
+				<span class="notification-bubble alert"><?= $alerts ?></span>
+				<?
+			}
+			if($warnings > 0)
+			{
+				?>
+				<span class="notification-bubble warning"><?= $warnings ?></span>
+				<?
+			}
+			if($notes > 0)
+			{
+				?>
+				<span class="notification-bubble ok"><?= $notes ?></span>
+				<?
+			}
+			return ob_get_clean();
+		}
+		return false;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function setMessage($mensagem)
 	{
 		$_SESSION['mensagem'][] = $mensagem;
@@ -793,7 +844,7 @@
 				<?
 					if($tipo == 'fcfar')
 					{
-						?><p><strong>Em caso de dúvidas, consulte o STI - ramal: 4651</strong></p><?
+						?><p><strong><?= WARNING_OUTDATED_BROWSER_SUPPORT ?></strong></p><?
 					}
 				?>
 				<p class="text-center no-margin">
@@ -974,7 +1025,7 @@
 							}
 							else
 							{
-								setMessage("<div class='error'>Permissão de acesso negada. Contate o STI (ramal: 4651).</div>");
+								setMessage("<div class='error'>".ERROR_MAIL_UNSYNC."</div>");
 								header("Location: login.php");
 								exit();
 							}
