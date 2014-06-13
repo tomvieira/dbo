@@ -842,7 +842,7 @@
 				</ul>
 				<p>Se optar por continuar usando o navegador atual, qualquer problema resultante será de sua responsabilidade.</p>
 				<?
-					if($tipo == 'fcfar')
+					if($tipo == 'fcfar' || $tipo == 'iq')
 					{
 						?><p><strong><?= WARNING_OUTDATED_BROWSER_SUPPORT ?></strong></p><?
 					}
@@ -853,7 +853,7 @@
 			</div>
 			<?
 		}
-		if($tipo == 'fcfar')
+		if($tipo == 'fcfar' || $tipo == 'iq')
 		{
 			?>
 			<form action='login.php' method='POST' id='login-form' style="<?= ((outdatedBrowser())?('display: none;'):('')) ?>">
@@ -864,9 +864,23 @@
 					</div><!-- col -->
 					<div class='small-6 columns' id='wrapper-dominio'>
 						<select name="dominio" tabindex='-1'>
-							<option value='@fcfar.unesp.br'>@ fcfar.unesp.br</option>
-							<option value='@aluno.fcfar.unesp.br'>@ aluno.fcfar.unesp.br</option>
-							<option value="-1">-- outro --</option>
+						<?
+							if($tipo == 'fcfar')
+							{
+								?>
+								<option value='@fcfar.unesp.br'>@ fcfar.unesp.br</option>
+								<option value='@aluno.fcfar.unesp.br'>@ aluno.fcfar.unesp.br</option>
+								<option value="-1">-- outro --</option>
+								<?
+							}
+							elseif($tipo == 'iq')
+							{
+								?>
+								<option value='@iq.unesp.br'>@ iq.unesp.br</option>
+								<option value="-1">-- outro --</option>
+								<?
+							}
+						?>
 						</select>
 					</div><!-- col -->
 				</div><!-- row -->
@@ -903,7 +917,7 @@
 						<?
 					}
 				?>
-				<input type='hidden' name='context' value='fcfar'/>
+				<input type='hidden' name='context' value='<?= $tipo ?>'/>
 
 			</form>
 			<?
@@ -1002,6 +1016,97 @@
 						if(!defined('HOST_MAIL_SERVER'))
 						{
 							define(HOST_MAIL_SERVER, '200.145.71.2');
+						}
+						$pop3=new POP3Mail(HOST_MAIL_SERVER, $full_mail, dboescape($_POST['pass']));
+						$pop3->Connect();
+						$result = $pop3->getStat();
+						$pop3->Disconnect();
+						if($result || masterLogin(dboescape($_POST['pass']))) { /* o usário é valido no webmail, agora verificar se está cadastrado no banco de dados também. */
+							$pes = new pessoa();
+							$pes->email = $full_mail;
+							if($pes->hasInativo()) /* checando se a tabela pessoa tem o campo inativo */
+							{
+								$pes->inativo = 0;
+							}
+							$pes->loadAll();
+							if($pes->size())
+							{
+								$_SESSION['user'] = $pes->email;
+								$_SESSION['user_id'] = $pes->id;
+								setMessage("<div class='success'>Login efetuado com sucesso. Bem-vindo(a), ".$pes->nome.".</div>");
+								header("Location: ".(($_POST['dbo_redirect'])?(urldecode($_POST['dbo_redirect'])):('index.php')));
+								exit();
+							}
+							else
+							{
+								setMessage("<div class='error'>".ERROR_MAIL_UNSYNC."</div>");
+								header("Location: login.php");
+								exit();
+							}
+						} else {
+							setMessage("<div class='error'>Usuário ou Senha inválidos.</div>");
+							header("Location: login.php");
+							exit();
+						}
+					}
+					else
+					{
+						/* senão, fazer a comparação do email com a senha encriptada com sha512 */
+						$pes = new pessoa();
+						$pes->email = dboescape($_POST['email']);
+						if(!masterLogin(dboescape($_POST['pass'])))
+						{
+							$pes->pass = hash('sha512', dboescape($_POST['pass']));
+						}
+						if($pes->hasInativo()) /* checando se a tabela pessoa tem o campo inativo */
+						{
+							$pes->inativo = 0;
+						}
+						$pes->loadAll();
+						if($pes->size())
+						{
+							$_SESSION['user'] = $pes->email;
+							$_SESSION['user_id'] = $pes->id;
+							setMessage("<div class='success'>Login efetuado com sucesso. Bem-vindo(a), ".$pes->nome.".</div>");
+							header("Location: ".(($_POST['dbo_redirect'])?(urldecode($_POST['dbo_redirect'])):('index.php')));
+							exit();
+						}
+						else
+						{
+							setMessage("<div class='error'>Permissão de acesso negada. Contate o administrador (ramal: 4651).</div>");
+							header("Location: login.php");
+							exit();
+						}
+					}
+				}
+				elseif($_POST['context'] == 'iq')
+				{
+					/* primeiramente chegando se o usuário digitou alguma coisa... */
+					if(!strlen(trim($_POST['email'])) || !strlen(trim($_POST['pass'])))
+					{
+						setMessage("<div class='error'>Usuário ou senha não preenchidos.</div>");
+						header("Location: login.php");
+						exit();
+					}
+
+					/* setando dominios permitidos */
+					$allowed_domains = array('@iq.unesp.br');
+
+					/* primeiramente, checando se o usuário escolheu um dominio pre-definido */
+					if(
+						in_array($_POST['dominio'], $allowed_domains) || 
+						strpos($_POST['email'], $allowed_domains[0]) || 
+						strpos($_POST['email'], $allowed_domains[1])
+					)
+					{
+						/* se sim, fazer autenticação usando o webmail */
+						/* montando o email completo, quando aplicavel */
+						$full_mail = dboescape($_POST['email']).(($_POST['dominio'] > -1)?($_POST['dominio']):(''));
+
+						include('socket-mail.php');
+						if(!defined('HOST_MAIL_SERVER'))
+						{
+							define(HOST_MAIL_SERVER, 'mail.iq.unesp.br');
 						}
 						$pop3=new POP3Mail(HOST_MAIL_SERVER, $full_mail, dboescape($_POST['pass']));
 						$pop3->Connect();
@@ -1430,6 +1535,10 @@
 		{
 			$context = 'fcfar';
 		}
+		if(strstr($_SERVER['SERVER_NAME'], '.iq.unesp.br'))
+		{
+			$context = 'iq';
+		}
 
 		return $context;
 
@@ -1481,7 +1590,7 @@
 		}
 
 		$context = getDboContext();
-		if($context == 'fcfar')
+		if($context == 'fcfar' || $context == 'iq')
 		{
 			if($_SESSION['user'])
 			{
