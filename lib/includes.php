@@ -27,6 +27,12 @@ ini_set("session.cookie_lifetime","36000"); //makes the session last for 10 hour
 ini_set("session.gc_maxlifetime","36000"); //makes the session last for 10 hours
 header("Content-Type: text/html; charset=".DEFAULT_CHARSET,true);
 
+//checando se existe o pacote de multibyte string
+if(function_exists(mb_internal_encoding))
+{
+	mb_internal_encoding('UTF-8');
+}
+
 @include_once(INCLUDE_PATH.'/../dbo/core/dbo_install_validation.php');
 
 /* at this point the system is sure the installation is valid. Will start instanciating the classes and stuff. */

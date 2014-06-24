@@ -113,7 +113,7 @@ class Dbo extends Obj
 		$this->__size = 0;
 
 		//carregando as definições do modulo (se existir)
-		$file = DBO_PATH.'/_dbo_'.strtolower($this->__class).".php";
+		$file = DBO_PATH.'/_dbo_'.dboStrToLower($this->__class).".php";
 		if(file_exists($file))
 		{
 			$file_code = file_get_contents($file);
@@ -531,7 +531,16 @@ class Dbo extends Obj
 			{
 				return $value->coluna;
 			}			
-		}		
+		}
+		//tentando alguns valores padrão
+		if(strlen(trim($this->nome)))
+		{
+			return $this->nome;
+		}
+		if(strlen(trim($this->titulo)))
+		{
+			return $this->titulo;
+		}
 	}
 
 	// retorna o campo o valor para o breadcrumb ativo -------------------------------------------------------------------------------------------------
@@ -715,7 +724,7 @@ class Dbo extends Obj
 
 		if($restricoes)
 		{
-			if(strtolower(substr(trim($restricoes), 0, 5)) == 'order' || strtolower(substr(trim($restricoes), 0, 5)) == 'limit' || strtolower(substr(trim($restricoes), 0, 5)) == 'where') {}
+			if(dboStrToLower(substr(trim($restricoes), 0, 5)) == 'order' || dboStrToLower(substr(trim($restricoes), 0, 5)) == 'limit' || dboStrToLower(substr(trim($restricoes), 0, 5)) == 'where') {}
 			else
 			{
 				if(!sizeof($this->__chave_array))
@@ -2241,7 +2250,7 @@ class Dbo extends Obj
 			}
 			else
 			{
-				$return .= '<div class="row"><div class="large-12 columns"><h2 class="text-center"><br />- não há '.strtolower($this->__module_scheme->titulo_plural).' cadastrad'.$this->__module_scheme->genero.'s -</h2></div></div><style> .filter-button { display: none; } </style>';
+				$return .= '<div class="row"><div class="large-12 columns"><h2 class="text-center"><br />- não há '.dboStrToLower($this->__module_scheme->titulo_plural).' cadastrad'.$this->__module_scheme->genero.'s -</h2></div></div><style> .filter-button { display: none; } </style>';
 			}
 
 			echo $return;
@@ -2690,7 +2699,7 @@ class Dbo extends Obj
 				}
 
 			}
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Inserir ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Inserir ".dboStrToLower($this->__module_scheme->titulo)."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -3261,7 +3270,7 @@ class Dbo extends Obj
 				}
 			}
 
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Salvar alterações n".$this->__module_scheme->genero." ".strtolower($this->__module_scheme->titulo)."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Salvar alterações n".$this->__module_scheme->genero." ".dboStrToLower($this->__module_scheme->titulo)."'></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -3553,7 +3562,7 @@ class Dbo extends Obj
 						<div class='<?= !$_GET['dbo_new'] ? 'hidden' : '' ?>' id='novo-<?= $meta->modulo ?>'>
 							<div class='row'>
 								<div class='large-12 columns'>
-									<h3>Nov<?= $meta->genero ?> <?= strtolower($meta->titulo) ?></h3>
+									<h3>Nov<?= $meta->genero ?> <?= dboStrToLower($meta->titulo) ?></h3>
 								</div>
 							</div><!-- row -->
 							<?= ((!$_GET['dbo_update'])?($this->getInsertForm()):('')); ?>
@@ -3591,7 +3600,7 @@ class Dbo extends Obj
 								<?= $this->getBarraAcoesUpdate($this->getButtonScheme($this)) ?>
 								<div class='row'>
 									<div class='large-12 columns'>
-										<h3>Alterar <?= strtolower($meta->titulo) ?></h3>
+										<h3>Alterar <?= dboStrToLower($meta->titulo) ?></h3>
 									</div><!-- col -->
 								</div><!-- row -->
 								<?
