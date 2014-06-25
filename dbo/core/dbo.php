@@ -532,14 +532,15 @@ class Dbo extends Obj
 				return $value->coluna;
 			}			
 		}
+
 		//tentando alguns valores padrão
 		if(strlen(trim($this->nome)))
 		{
-			return $this->nome;
+			return 'nome';
 		}
 		if(strlen(trim($this->titulo)))
 		{
-			return $this->titulo;
+			return 'titulo';
 		}
 	}
 
@@ -569,6 +570,7 @@ class Dbo extends Obj
 			//instanciando o modulo para ser usado na criação do custom button.
 			$module = $this->getModule();
 			$obj = new $module($_GET['dbo_update']);
+			$id = $obj->id;
 
 			foreach($modulo->__module_scheme->button as $chave => $botao)
 			{
