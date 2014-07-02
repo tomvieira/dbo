@@ -878,23 +878,30 @@ class Dbo extends Obj
 	{
 		$this->makeArrays();
 
-		$sql = "UPDATE ".$this->__table." SET ";
-
-		foreach($this->__chave_array as $chave => $valor)
+		if(sizeof($this->__chave_array))
 		{
-			$aux[] = $valor." = '".$this->__valor_array[$chave]."'";
+			$sql = "UPDATE ".$this->__table." SET ";
+
+			foreach($this->__chave_array as $chave => $valor)
+			{
+				$aux[] = $valor." = '".$this->__valor_array[$chave]."'";
+			}
+			$sql .= implode(", ", $aux);
+			$sql .= " WHERE ".$this->getPK()." = '".(($this->__update_id)?($this->__update_id):($this->id))."' ".$restricoes;
+
+			//tratamento de NOW(), etc.
+			$sql = $this->remakeSql($sql);
+
+			if(dboQuery($sql))
+			{
+				return $this->id;
+			} else {
+				echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
+			}
 		}
-		$sql .= implode(", ", $aux);
-		$sql .= " WHERE ".$this->getPK()." = '".(($this->__update_id)?($this->__update_id):($this->id))."' ".$restricoes;
-
-		//tratamento de NOW(), etc.
-		$sql = $this->remakeSql($sql);
-
-		if(dboQuery($sql))
+		else
 		{
 			return $this->id;
-		} else {
-			echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
 		}
 		return false;
 	}
@@ -2367,7 +2374,14 @@ class Dbo extends Obj
 								// TEXT ======================================================================================
 								if($valor->tipo == 'text')
 								{
-									$return .= "<input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
+									if($valor->interaction == 'readonly' || $valor->interaction == 'updateonly')
+									{
+										$return .= '<input type="text" class="readonly" readonly placeholder="- indisponível na inserção -">';
+									}
+									else
+									{
+										$return .= "<input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
+									}
 								}
 								// PASSWORD ==================================================================================
 								if($valor->tipo == 'password')
@@ -2816,7 +2830,14 @@ class Dbo extends Obj
 								// TEXT ======================================================================================
 								if($valor->tipo == 'text')
 								{
-									$return .= "\t\t\t<input type='text' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
+									if($valor->interaction == 'insertonly' || $valor->interaction == 'readonly')
+									{
+										$return .= '<div class="form-height-fix margin-bottom"><strong>'.(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna}))).'</strong></div>';
+									}
+									else
+									{
+										$return .= "\t\t\t<input type='text' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
+									}
 								}
 								// PASSWORD ==================================================================================
 								if($valor->tipo == 'password')
@@ -4716,6 +4737,9 @@ class Dbo extends Obj
 
 		foreach($this->__module_scheme->campo as $chave => $campo)
 		{
+
+			$update = (($_POST['__dbo_update_flag'])?(true):(false));
+
 			//treating the automatic fields
 			if(in_array($campo->coluna, $__dbo_auto_fields))
 			{
@@ -4757,7 +4781,13 @@ class Dbo extends Obj
 				// TEXT ======================================================================================
 				if($campo->tipo == 'text')
 				{
-					$this->{$campo->coluna} = $_POST[$campo->coluna];
+					if(
+						( $update && ($campo->interaction == 'updateonly' || $campo->interaction == '')) ||
+						(!$update && ($campo->interaction == 'insertonly' || $campo->interaction == ''))
+					)
+					{
+						$this->{$campo->coluna} = $_POST[$campo->coluna];
+					}
 				}
 				// PASSWORD ======================================================================================
 				elseif($campo->tipo == 'password')

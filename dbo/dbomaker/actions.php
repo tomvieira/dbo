@@ -967,6 +967,19 @@ function getFieldForm ($mod,$field)
 
 				<div class='row'>
 					<div class='item'>
+						<label>Interação do campo</label>
+						<div class='dica'>Define o tipo de interação do campo</div>
+						<div class='input'>
+							<input type="radio" name="interaction" value="readonly" <?= (($campo->interaction == 'readonly')?('checked'):('')) ?>/>Read only &nbsp;&nbsp;&nbsp;
+							<input type="radio" name="interaction" value="insertonly" <?= (($campo->interaction == 'insertonly')?('checked'):('')) ?>/>Insert only &nbsp;&nbsp;&nbsp;
+							<input type="radio" name="interaction" value="updateonly" <?= (($campo->interaction == 'updateonly')?('checked'):('')) ?>/>Update only &nbsp;&nbsp;&nbsp;
+							<input type="radio" name="interaction" value="" <?= (($campo->interaction == '')?('checked'):('')) ?>/>Default
+						</div>
+					</div>
+				</div><!-- row -->
+
+				<div class='row'>
+					<div class='item'>
 						<div class='dica'>Função usada para mostrar o dado na listagem. Recebe o dado puro como parâmetro</div>
 						<label>Função de Listagem</label>
 						<div class='input'><input type='text' name='list_function' value="<?= htmlspecialchars($campo->list_function) ?>"></div>
@@ -1671,6 +1684,7 @@ function runUpdateField($post_data)
 	}
 
 	//back to business
+	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->interaction = $post_data['interaction'];
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->list_function = $post_data['list_function'];
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->edit_function = $post_data['edit_function'];
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->default_value = stripslashes($post_data['default_value']);
@@ -2717,6 +2731,7 @@ function writeModuleFile($mod)
 					fwrite($fh, "\$field->filter = ".(($field->filter === true)?('true'):('false')).";\n");
 					fwrite($fh, "\$field->order = ".(($field->order === true)?('true'):('false')).";\n");
 					fwrite($fh, "\$field->type = '".(($field->tipo == 'pk')?('INT NOT NULL auto_increment'):($field->type))."';\n");
+					fwrite($fh, "\$field->interaction = '".$field->interaction."';\n");
 					if(strlen($field->list_function))
 					{
 						fwrite($fh, "\$field->list_function = '".singleScape($field->list_function)."';\n");
