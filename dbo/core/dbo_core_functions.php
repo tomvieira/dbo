@@ -896,7 +896,7 @@
 						{
 							?>
 							<div class="large-6 columns">
-								<a href="<?= CENTRAL_DE_ACESSOS_URL ?>/password-recovery.php" class="top-10" tabindex='-1'>Esqueci minha senha</a>
+								<a href="<?= CENTRAL_DE_ACESSOS_URL ?>/password-forgotten.php" class="top-10" tabindex='-1'>Esqueci minha senha</a>
 							</div>
 							<?
 						}						
