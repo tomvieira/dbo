@@ -818,6 +818,9 @@
 
 	function getLoginForm($tipo = '')
 	{
+
+		global $dbo_context_allowed_email_domains;
+
 		if(outdatedBrowser())
 		{
 			$browser = outdatedBrowser();
@@ -865,21 +868,15 @@
 					<div class='small-6 columns' id='wrapper-dominio'>
 						<select name="dominio" tabindex='-1'>
 						<?
-							if($tipo == 'fcfar')
+							foreach($dbo_context_allowed_email_domains as $key => $value)
 							{
 								?>
-								<option value='@fcfar.unesp.br'>@ fcfar.unesp.br</option>
-								<option value='@aluno.fcfar.unesp.br'>@ aluno.fcfar.unesp.br</option>
-								<option value="-1">-- outro --</option>
+								<option value='<?= $value ?>'><?= str_replace("@", "@ ", $value) ?></option>
 								<?
 							}
-							elseif($tipo == 'iq')
-							{
-								?>
-								<option value='@iq.unesp.br'>@ iq.unesp.br</option>
-								<option value="-1">-- outro --</option>
-								<?
-							}
+							?>
+							<option value="-1">-- outro --</option>
+							<?
 						?>
 						</select>
 					</div><!-- col -->
@@ -893,7 +890,18 @@
 				</div><!-- row -->
 
 				<div class='row'>
-					<div class='large-12 columns text-right'>
+					<?
+						//checando para ver se este sismtema é integrado com uma central de acessos
+						if(defined('CENTRAL_DE_ACESSOS_PATH'))
+						{
+							?>
+							<div class="large-6 columns">
+								<a href="<?= CENTRAL_DE_ACESSOS_URL ?>/password-recovery.php" class="top-10" tabindex='-1'>Esqueci minha senha</a>
+							</div>
+							<?
+						}						
+					?>
+					<div class='large-6 columns text-right'>
 						<input type='submit' value='Logar' class="button radius no-margin">
 					</div><!-- col -->
 				</div><!-- row -->
@@ -1528,16 +1536,21 @@
 
 		$context = '';
 
+		//variavel com os dominios de autenticação de webmail permitidos para este contexto
+		global $dbo_context_allowed_email_domains; 
+
 		// --------------------------------------------------------------------------------------------------------
 		// este bloco só serve para login dentro da FCFar. Se estiver fora, pode deletar, ou deixe ai. como queira.
 		// --------------------------------------------------------------------------------------------------------
 		if(strstr($_SERVER['SERVER_NAME'], '.fcfar.unesp.br'))
 		{
 			$context = 'fcfar';
+			$dbo_context_allowed_email_domains = array('@fcfar.unesp.br', '@aluno.fcfar.unesp.br');
 		}
 		if(strstr($_SERVER['SERVER_NAME'], '.iq.unesp.br'))
 		{
 			$context = 'iq';
+			$dbo_context_allowed_email_domains = array('@iq.unesp.br');
 		}
 
 		return $context;

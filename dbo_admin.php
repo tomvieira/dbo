@@ -2,7 +2,8 @@
 <? require('auth.php') ?>
 
 <?
-	$obj = new Dbo($_GET['dbo_mod']);
+	$class_name = dboescape($_GET['dbo_mod']);
+	$obj = new $class_name();
 	$obj->autoAdmin();
 ?>
 

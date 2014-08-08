@@ -329,6 +329,13 @@ class Dbo extends Obj
 
 	//cria o grid para exibicao dos campos do formulario --------------------------------------------------------------------------------------------
 
+	public static function cryptPassword($string)
+	{
+		return hash('sha512', $string);
+	}
+	
+	//cria o grid para exibicao dos campos do formulario --------------------------------------------------------------------------------------------
+
 	function makeGrid($var)
 	{
 		foreach($var as $chave => $item)
