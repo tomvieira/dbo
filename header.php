@@ -54,7 +54,7 @@
 	<link rel="stylesheet" media="screen" href="css/common.css">
 	<link rel="stylesheet" media="screen" href="css/style-dbo.css">
 	<link rel="stylesheet" media="screen" href="fonts/museo-sans/stylesheet.css">
-	<link rel="stylesheet" media="screen" href="fonts/foundation-icons/foundation-icons.css">
+	<link rel="stylesheet" media="screen" href="fonts/font-awesome/css/font-awesome.css">
 	<link rel="stylesheet" media="screen" href="css/style.css">
 
 	<script src="js/select2/jquery.select2.min.js"></script>

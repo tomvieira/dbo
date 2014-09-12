@@ -135,7 +135,7 @@ fieldset { -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5
 /* corrigindo tamanho do postfix e prefix para forms com tamanho de fonte 16 */
 .postfix.button, .prefix.button { line-height: 2.4375em; }
 
-.button i[class^=fi-]:not(.single) { margin-right: .3em; }
+.button i[class^=fa-]:not(.single) { margin-right: .3em; }
 
 //um mini-fix para alert-box
 .alert-box { 

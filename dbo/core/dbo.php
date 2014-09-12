@@ -1517,7 +1517,7 @@ class Dbo extends Obj
 					
 							<div class='row'>
 								<div class='item columns large-12 text-right'>
-									<span class='input'><input type='submit' class="button no-margin small radius" value='Filtrar' accesskey='s'> <input type='button' class="button no-margin small radius" value='Limpar' id='dbo-button-limpar-filtros'> <a href='' class='dbo-button-aba no-margin filter-button-close button small secondary radius special-button'><i class="fi-x"></i> Fechar</a></span>
+									<span class='input'><input type='submit' class="button no-margin small radius" value='Filtrar' accesskey='s'> <input type='button' class="button no-margin small radius" value='Limpar' id='dbo-button-limpar-filtros'> <a href='' class='dbo-button-aba no-margin filter-button-close button small secondary radius special-button'><i class="fa-times"></i> Fechar</a></span>
 								</div><!-- item -->
 							</div><!-- row -->
 					
@@ -2246,15 +2246,15 @@ class Dbo extends Obj
 							//mostrar a chave de inativo/ativo se houver
 							if($this->hasInativo())
 							{
-								$return .= (($obj->inativo == 0)?("<span class='wrapper-lock'><a title='Desativar' class='trigger-dbo-auto-admin-toggle-active-inactive' href='".$this->keepUrl(array("dbo_toggle_inactive=".$id."&token=".md5($id.SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE)."&".CSRFVar(), '!dbo_toggle_active'))."'><i class=\"fi-unlock\"></i></a></span>"):("<span class='wrapper-lock'><a title='".$this->__module_scheme->titulo." inativo. Clique para ativar' class='trigger-dbo-auto-admin-toggle-active-inactive alert' href='".$this->keepUrl(array("dbo_toggle_active=".$id."&token=".md5($id.SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE)."&".CSRFVar(), '!dbo_toggle_inactive'))."'><i class=\"fi-lock\"></i></a></span>"));
+								$return .= (($obj->inativo == 0)?("<span class='wrapper-lock'><a title='Desativar' class='trigger-dbo-auto-admin-toggle-active-inactive' href='".$this->keepUrl(array("dbo_toggle_inactive=".$id."&token=".md5($id.SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE)."&".CSRFVar(), '!dbo_toggle_active'))."'><i class=\"fa-unlock-alt\"></i></a></span>"):("<span class='wrapper-lock'><a title='".$this->__module_scheme->titulo." inativo. Clique para ativar' class='trigger-dbo-auto-admin-toggle-active-inactive alert' href='".$this->keepUrl(array("dbo_toggle_active=".$id."&token=".md5($id.SALT_DBO_AUTO_ADMIN_TOGGLE_ACTIVE)."&".CSRFVar(), '!dbo_toggle_inactive'))."'><i class=\"fa-lock\"></i></a></span>"));
 							}
-							$return .= (($update_interaction)?(" <a title='Alterar' href='".$this->keepUrl(array("dbo_update=".$id, '!dbo_new&!dbo_delete&!dbo_view'))."'><i class=\"fi-pencil\"></i></a>"):(''));
+							$return .= (($update_interaction)?(" <a title='Alterar' href='".$this->keepUrl(array("dbo_update=".$id, '!dbo_new&!dbo_delete&!dbo_view'))."'><i class=\"fa-pencil\"></i></a>"):(''));
 						}
 					}
 					if ($this->__module_scheme->delete === true) {
 						if(!DBO_PERMISSIONS || $dbo_permission_delete)
 						{
-							$return .= (($delete_interaction)?(" <a title='Excluir' class=\"trigger-dbo-auto-admin-delete\" data-id=\"".$id."\" href=\"".$this->keepUrl(array("dbo_delete=".$id."&".CSRFVar(), '!dbo_new&!dbo_update&!dbo_view'))."\"><i class=\"fi-x\"></i></a>"):(''));
+							$return .= (($delete_interaction)?(" <a title='Excluir' class=\"trigger-dbo-auto-admin-delete\" data-id=\"".$id."\" href=\"".$this->keepUrl(array("dbo_delete=".$id."&".CSRFVar(), '!dbo_new&!dbo_update&!dbo_view'))."\"><i class=\"fa-times\"></i></a>"):(''));
 						}
 					}
 
@@ -2438,7 +2438,7 @@ class Dbo extends Obj
 									$return .= "<div class=\"row collapse\">";
 									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right'/></div>";
 									$return .= "	<div class=\"small-2 columns\">";
-									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fi-x\"></i></span>";
+									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fa-times\"></i></span>";
 									$return .= "	</div>";
 									$return .= "</div>";
 								}
@@ -2898,7 +2898,7 @@ class Dbo extends Obj
 									$return .= "<div class=\"row collapse\">";
 									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right' value=\"".(($edit_function)?($edit_function($this->clearValue($valor_price))):($this->clearValue($valor_price)))."\"/></div>";
 									$return .= "	<div class=\"small-2 columns\">";
-									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fi-x\"></i></span>";
+									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fa-times\"></i></span>";
 									$return .= "	</div>";
 									$return .= "</div>";
 
@@ -3553,8 +3553,8 @@ class Dbo extends Obj
 										{
 										?>
 											<span class='button-new' rel='<?= $meta->modulo ?>'>
-												<a class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fi-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
-												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fi-x"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
+												<a class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fa-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
+												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fa-times"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
 											</span>
 										<?
 										}

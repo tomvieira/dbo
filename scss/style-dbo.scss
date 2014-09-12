@@ -66,8 +66,8 @@ body.dbo.modal { padding: 1em; overflow-y: auto;
 	.notifications { position: absolute; top: 0; right: 0; min-height: 1.5em; min-width: 1.5em; -webkit-border-radius: 100px; -moz-border-radius: 100px; border-radius: 100px; background-color: $primary-color; color: #fff; text-align: center; }
 }
 
-/* icones do foundation */
-i[class^=fi-].big-icon { font-size: 25px; }
+/* icones do font-awesome */
+i[class^=fa-].big-icon { font-size: 25px; }
 
 /* erros dos forms */
 .validation-error {
