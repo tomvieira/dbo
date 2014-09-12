@@ -268,7 +268,7 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 	&.ok {
 		.select2-container > a.select2-choice { padding-left: 8px !important; border: 1px solid $primary-color !important; background-color: lighten($primary-color, 25%) !important; 
 			> .select2-chosen { overflow: show !important;
-				&:before { font-family: "foundation-icons"; content: "\f126"; color: $primary-color; margin-right: .5em; }
+				&:before { font-family: "FontAwesome"; content: "\f00c"; color: $primary-color; margin-right: .5em; }
 			}
 		}
 	}
@@ -280,12 +280,12 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 .fake-input { 
     @include form-element;
 	line-height: 20px;
-	&:before { font-family: "foundation-icons"; content: "\f16a"; margin-right: .5em; }
+	&:before { font-family: "FontAwesome"; content: "\f023"; margin-right: .5em; }
 	&.ok { border: 1px solid $primary-color !important; background-color: lighten($primary-color, 25%) !important;
-		&:before { content: "\f126"; color: $primary-color; }
+		&:before { content: "\f00c"; color: $primary-color; }
 	}
 	&.validation-error { border: 1px solid $alert-color; background-color: lighten($alert-color, 55%); 
-		&:before { content: "\f217"; color: $alert-color; }
+		&:before { content: "\f00d"; color: $alert-color; }
 	}
 }
 
