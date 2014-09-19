@@ -374,6 +374,8 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 
 @media #{$small} {
 
+	.tooltip { max-width: 400px; }
+
 	.reveal-modal.smart.small { width: 700px; left: 50%; margin-left: -350px; }
 	.reveal-modal.smart.medium { width: 96%; left: 50%; margin-left: -48%; }
 	.reveal-modal.smart.large { width: 96%; left: 50%; margin-left: -48%; }

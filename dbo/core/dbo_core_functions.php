@@ -16,6 +16,45 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function fileSQL($file_name, $file_on_server)
+	{
+		if(strlen(trim($file_on_server)) && strlen(trim($file_name)))
+		{
+			if(!strstr($file_name, dboGetExtension($file_on_server)))
+			{
+				$file_name .= dboGetExtension($file_on_server);
+			}
+			return $file_name."\n".$file_on_server;
+		}
+		return '';
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboGetExtension($file_name, $dot = true)
+	{
+		$parts = explode(".", $file_name);
+		return (($dot)?("."):('')).$parts[sizeof($parts)-1];
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboCheckDate($date)
+	{
+		//determinando o tipo de data
+		if(strstr($date, '/'))
+		{
+			list($dia, $mes, $ano) = explode('/', $date);
+		}
+		elseif(strstr($date, '-'))
+		{
+			list($ano, $mes, $dia) = explode('-', $date);
+		}
+		return checkDate($mes, $dia, $ano);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function fillNotificationContainer($container)
 	{
 		if(is_array($_SESSION['dbo_global_notifications']))
@@ -63,6 +102,77 @@
 			return ob_get_clean();
 		}
 		return false;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboUpload($uploaded_file_data, $file_path = '')
+	{
+		//setando o path, se não foi customizado
+		if(!strlen($file_path))
+		{
+			$file_path = DBO_PATH."/upload/files/";
+		}
+
+		//checa se ouve erro no upload, antes de mais nada...
+		if($uploaded_file_data[error] > 0)
+		{
+			$uploaded_file_data[error] = 'Erro ao enviar o arquivo. Cod '.$uploaded_file_data[error];
+			return $uploaded_file_data;
+		}
+
+		//pegando a extensão do arquivo
+		$ext = dboGetExtension($uploaded_file_data[name]);
+
+		//definindo novo nome para o arquivo
+		$new_file_name = time().'-'.str_pad(rand(1,1000), 4, 0, STR_PAD_LEFT).$ext;
+
+		unset($parts);
+		unset($ext);
+
+		//salvando o arquivo com novo nome e retornando as informações
+		if(move_uploaded_file($uploaded_file_data[tmp_name], $file_path.$new_file_name))
+		{
+			$uploaded_file_data[old_name] = $uploaded_file_data[name];
+			$uploaded_file_data[name] = $new_file_name;
+			return $uploaded_file_data;
+		}
+		else
+		{
+			//erro 5: erro ao mudar o arquivo de lugar...
+			return array('error' => 'Erro ao enviar o arquivo. O tamanho não pode exceder '.min(ini_get('post_max_size'), ini_get('upload_max_filesize')));
+		}
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function peixeAjaxFileUploadInput($name, $id, $tipo = 'required', $db_data = '')
+	{
+		//se houver arquivo setado, mostra a estrutura do peixelaranja pronta.
+		if(strlen(trim($db_data)))
+		{
+			list($file_name, $server_file_name) = explode("\n", $db_data);
+			ob_start();
+			?>
+			<input type="file" class="peixe-ajax-file-upload-ready" name="<?= $name ?>_aux" value="<?= $server_file_name ?>" style="display: none;" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?>/>
+			<div class="peixe-ajax-upload-status">
+				<input type="text" name="<?= $name ?>" value="<?= $server_file_name ?>" style="display: none;" <?= $tipo ?>/>
+				<div class="upload-progress progress radius" style="display: none;"><span class="meter" style="width: 0%;"></span></div>
+				<div class="upload-sending font-14 margin-bottom" style="display: none;"><i class="fa-spinner fa-spin"></i> <span>Enviando...</span></div>
+				<div class="upload-success font-14 margin-bottom" style="display: none;"><i class="fa-check"></i> <span>Sucesso!</span></div>
+				<div class="upload-error font-14 alert-box radius alert" style="display: none;"><i class="fa-refresh pointer trigger-peixe-ajax-upload-retry right" title="Tentar novamente..."></i> <span>Erro ao enviar o arquivo</span></div>
+				<div class="upload-file-placeholder font-14 alert-box radius"><i class="fa-file-text-o"></i> <span class="uploaded-file"><?= htmlSpecialChars($file_name) ?></span> <a href="#" style="color: #fff;" class="margin-bottom trigger-peixe-ajax-upload-remove" title="Remover este arquivo"><i class="fa-close right"></i></a></div></div>
+			<?
+			return ob_get_clean();
+		}
+		else
+		{
+			ob_start();
+			?>
+			<input type="file" name="<?= $name ?>" value="" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?>/>
+			<?
+			return ob_get_clean();
+		}
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1557,6 +1667,13 @@
 
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function generateToken()
+	{
+		return uniqid()."-".generatePassword();
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function generatePassword($length=9, $strength=4) {
