@@ -6,12 +6,43 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function dboAuth($tipo = '')
+	{
+		if($tipo == '')
+		{
+			if(!loggedUser())
+			{
+				header("Location: login.php?dbo_redirect=".base64_encode(fullUrl()));
+				exit();
+			}
+		}
+		elseif($tipo == 'ajax' || $tipo == 'json')
+		{
+			if(!loggedUser())
+			{
+				$json_result['message'] = '<div class="error">Erro: Sua sessão expirou. Você precisa fazer login novamente.</div>';
+				echo json_encode($json_result);
+				exit();
+			}
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dboQuery($sql)
 	{
 		global $dbo_query_counter;
 		$dbo_query_counter++;
 		//dboLog('query', $sql);
 		return mysql_query($sql);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function getDownloadUrl($dados)
+	{
+		list($nome, $arquivo) = explode("\n", $dados);
+		return DBO_URL."/core/classes/download.php?name=".$nome."&file=".$arquivo;
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1862,7 +1893,7 @@
 		$port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
 		*/
 
-		$sal = '--##--NaCl--@@@-!';
+		$sal = ((!defined('DBO_SECURE_URL_SALT'))?('--##--NaCl--@@@-!'):(DBO_SECURE_URL_SALT));
 		$hash_var = 'dbo_secure_hash';
 		
 		//pega url pasada pelo usuário ou página atual.
@@ -1902,7 +1933,7 @@
 		//caseo queira checar se a url é valida
 		else
 		{
-			if($_GET[$hash_var] == md5($sal.$clean_url.$sal))
+			if($_REQUEST[$hash_var] == md5($sal.$clean_url.$sal))
 			{
 				return true;
 			}
