@@ -29,6 +29,38 @@ function slidePeixeMessageUp() {
 	}, 1500);
 }
 
+function peixeJSON(action, args, callback, log) {
+	peixePost(
+		action,
+		args,
+		function(data) {
+			if(log == true){
+				console.log(data);
+			}
+			var result = $.parseJSON(data);
+			if(result.message){
+				setPeixeMessage(result.message);
+				showPeixeMessage();
+			}
+			if(result.reload){
+				//nao pode ser o primeiro no depois do <body>
+			}
+			if(result.html){
+				for(var key in result.html)
+				{
+					$(key).fadeHtml(result.html[key]);
+				}
+			}
+			if(result.callback){
+				result.callback.forEach(function(value) {
+					window[value]();
+				});
+			}
+		}
+	)
+	return false;
+}
+
 function removePeixeMessage() {
 	clearTimeout(peixe_message_timer);
 	wrapper_peixe_message.addClass('no-transition').addClass('closed').html('').removeClass('no-transition');
@@ -343,7 +375,8 @@ $(document).ready(function(){
 	});
 
 	//botao de submit que só funciona com javascript, e impede dupla submissão
-	$(document).on('click', 'form .submitter', function(){
+	$(document).on('click', 'form .submitter', function(e){
+		e.preventDefault();
 		$(this).closest('form').submit();
 	})
 
@@ -374,6 +407,22 @@ $(document).ready(function(){
 		if (ans==true) {
 			peixeAjaxFileUploadRetry($(this).closest('.peixe-ajax-upload-status').prev('input[type="file"]').attr('id'));
 		} 
+	});
+
+	//confirmando uma ação, em um click em um link por exemplo.
+	$(document).on('click', '.peixe-confirm', function(e){
+		//e.preventDefault();
+		clicado = $(this);
+		var ans = confirm(clicado.data('confirm'));
+		if (ans==true) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+
+	$(document).on('click', '.stop-propagation', function(e){
+		e.stopPropagation();
 	});
 
 	//colcando ajax loader e screen freezer

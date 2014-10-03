@@ -39,9 +39,40 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
-	function getDownloadUrl($dados)
+	function dboNow($tipo = 'datetime')
+	{
+		if(!defined('DBO_NOW'))
+		{
+			$agora = 'Y-m-d';
+		}
+		else
+		{
+			$agora = DBO_NOW;
+		}
+		if($tipo == 'datetime')
+		{
+			return date($agora.' H:i:s');
+		}
+		elseif($tipo == 'date')
+		{
+			return date($agora);
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function getDownloadUrl($dados, $file_name = false)
 	{
 		list($nome, $arquivo) = explode("\n", $dados);
+		if($file_name)
+		{
+			$file_name = trim($file_name);
+			if(!strstr($file_name, dboGetExtension($arquivo)))
+			{
+				$file_name .= dboGetExtension($arquivo);
+			}
+			$nome = $file_name;
+		}
 		return DBO_URL."/core/classes/download.php?name=".$nome."&file=".$arquivo;
 	}
 	
@@ -175,6 +206,17 @@
 		}
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboFileUploaded($file_name)
+	{
+		if(file_exists(DBO_PATH."/upload/files/".$file_name))
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function peixeAjaxFileUploadInput($name, $id, $tipo = 'required', $db_data = '')
@@ -2010,13 +2052,15 @@
 
 	function CSRFCheckJson()
 	{
-		global $json_result; 
+		//global $json_result; 
 		if(!CSRFCheck())
 		{
 			$json_result['message'] = "<div class='error'>Erro: CSRF - O token fornecido não é compatível com a sessão.</div>";
-			return false;
+			echo json_encode($json_result);
+			exit();
+			//return false;
 		}
-		return true;
+		//return true;
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -2043,7 +2087,14 @@
 		$periods = array("segundo", "minuto", "hora", "dia", "semana", "mês", "ano", "década");
 		$lengths = array("60","60","24","7","4.35","12","10");
 
-		$now = time();
+		if(function_exists('dboNow'))
+		{
+			$now = strtotime(dboNow());
+		}
+		else
+		{
+			$now = time();
+		}
 
 		$difference = $now - $time;
 		$tense = "há";
@@ -2064,6 +2115,8 @@
 				$periods[$j].= "s";
 			}
 		}
+
+		if($difference < 0) { return 'agora'; }
 
 		return (($show_tense)?($tense." "):('')).abs($difference)." ".$periods[$j];
 	}	

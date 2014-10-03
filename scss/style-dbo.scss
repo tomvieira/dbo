@@ -88,6 +88,24 @@ table { width: 100%; border-spacing: 0;
 	}
 }
 table {
+	&.full {
+		thead {
+			tr {
+				th {
+					&:first-child { padding-left: 0; }
+					&:last-child { padding-right: 0; }
+				}
+			}
+		}
+		tbody {
+			tr {
+				td {
+					&:first-child { padding-left: 0; }
+					&:last-child { padding-right: 0; }
+				}
+			}
+		}
+	}
 	th { border-bottom: 1px solid #ddd; 
 		background-image: -webkit-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,.09) 86%, rgba(0,0,0,.06) 100%);
 		background-image: -moz-linear-gradient(rgba(0,0,0,0) 0%, rgba(255,255,255,0) 85%, rgba(255,255,255,.09) 86%, rgba(0,0,0,.06) 100%);
