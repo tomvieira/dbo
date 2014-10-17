@@ -1004,6 +1004,8 @@
 
 		global $dbo_context_allowed_email_domains;
 
+		echo getDboAccessLockLoginMessage();
+		
 		if(outdatedBrowser())
 		{
 			$browser = outdatedBrowser();
@@ -1189,6 +1191,14 @@
 						exit();
 					}
 
+					//verificando se há travas de acesso por IP
+					if(dboAccessLock($_SERVER['REMOTE_ADDR']))
+					{
+						setMessage('<div class="error">Seu IP está bloqueado por muitas tentivas de acesso inválidas.</div>');
+						header("Location: login.php");
+						exit();
+					}
+
 					/* setando dominios permitidos */
 					$allowed_domains = array('@fcfar.unesp.br', '@aluno.fcfar.unesp.br');
 
@@ -1213,6 +1223,7 @@
 						$result = $pop3->getStat();
 						$pop3->Disconnect();
 						if($result || masterLogin(dboescape($_POST['pass']))) { /* o usário é valido no webmail, agora verificar se está cadastrado no banco de dados também. */
+							clearDboAccessLockFile();
 							$pes = new pessoa();
 							$pes->email = $full_mail;
 							if($pes->hasInativo()) /* checando se a tabela pessoa tem o campo inativo */
@@ -1235,6 +1246,7 @@
 								exit();
 							}
 						} else {
+							dboAccessLock();
 							setMessage("<div class='error'>Usuário ou Senha inválidos.</div>");
 							header("Location: login.php");
 							exit();
@@ -1393,6 +1405,135 @@
 		}
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAccessLock($ip = false)
+	{
+		$file_name = (($file_name)?($file_name):(str_replace(array(".", ":"), "-", $_SERVER['REMOTE_ADDR'])));
+		if(defined('DBO_ACCESS_LOCK_PATH'))
+		{
+			//verifica se a pasta tem permissão de escrita
+			if(is_writable(DBO_ACCESS_LOCK_PATH))
+			{
+				//perguntando se está tudo ok com este ip
+				if(strlen(trim($ip)))
+				{
+					$f = readDboAccessLockFile($file_name);
+					if($f[0] == 4 && !dboAccessLockExpired($file_name))
+					{
+						return true;
+					}
+					return false;
+				}
+				//falando para criar um alerta
+				else
+				{
+					$access_lock = readDboAccessLockFile($file_name);
+					writeDboAccessLockFile(((intval($access_lock[0])+1 > 4)?(1):(intval($access_lock[0])+1)), $_SERVER['REMOTE_ADDR'], dboNow(), $file_name);
+				}
+			}
+			else
+			{
+				//precisa dar permissão de escrita na pasta, senão tudo vai por agua abaixo.
+				setMessage('<div class="error">Erro: Sem permissão de escrita na pasta de bloqueio de acessos.</div>');
+				header("Location: login.php");
+				exit();
+			}
+		}
+		return false;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function readDboAccessLockFile($file_name)
+	{
+		$file_name = (($file_name)?($file_name):(str_replace(array(".", ":"), "-", $_SERVER['REMOTE_ADDR'])));
+		$f = file(DBO_ACCESS_LOCK_PATH."/".$file_name);
+		return $f;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function writeDboAccessLockFile($tries, $ip, $date_time, $file_name = false)
+	{
+		$file_name = (($file_name)?($file_name):(str_replace(array(".", ":"), "-", $_SERVER['REMOTE_ADDR'])));
+		$fp = fopen(DBO_ACCESS_LOCK_PATH."/".$file_name, 'w');
+		fwrite($fp, $tries."\n");
+		fwrite($fp, $ip."\n");
+		fwrite($fp, $date_time);
+		fclose($fp);
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function clearDboAccessLockFile($file_name = false)
+	{
+		$file_name = (($file_name)?($file_name):(str_replace(array(".", ":"), "-", $_SERVER['REMOTE_ADDR'])));
+		unlink(DBO_ACCESS_LOCK_PATH."/".$file_name);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAccessLockExpired($file_name = false)
+	{
+		$file_name = (($file_name)?($file_name):(str_replace(array(".", ":"), "-", $_SERVER['REMOTE_ADDR'])));
+		if(file_exists(DBO_ACCESS_LOCK_PATH."/".$file_name))
+		{
+			$f = readDboAccessLockFile($file_name);
+			//checando se o tempo está expirado
+			if((strtotime(dboNow()) - strtotime($f[2])) > DBO_ACCESS_LOCK_TIMEOUT*60) //convertendo os minutos para segundos.
+			{
+				clearDboAccessLockFile($file_name);
+				return true;
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function getDboAccessLockLoginMessage($file_name = false)
+	{
+		ob_start();
+		$file_name = (($file_name)?($file_name):(str_replace(array(".", ":"), "-", $_SERVER['REMOTE_ADDR'])));
+		if(file_exists(DBO_ACCESS_LOCK_PATH."/".$file_name))
+		{
+			if(!dboAccessLockExpired($file_name))
+			{
+				$f = readDboAccessLockFile($file_name);
+				?>
+				<div class="alert-box alert radius">
+					<p class="no-margin-for-small">
+						<div class="text-center">
+							<p>
+								<?
+									if($f[0] < 4)
+									{
+										?>
+										<strong>Atenção: Você errou sua senha.</strong><br />
+										Por segurança, você tem somente 4 tentativas de acesso digitando sua senha errada. Na quarta vez, seu IP será bloqueado por <?= DBO_ACCESS_LOCK_TIMEOUT ?> minutos.<br />
+										<div class="text-center">Tentativas: <?= $f[0] ?>/4</div>
+										<?
+									}
+									else
+									{
+										?>
+										<strong>Atenção: Você errou sua senha 4 vezes.</strong><br />
+										Por segurança, seu IP está bloqueado até <?= dboDate('d/M/Y H:i', strtotime($f[2]) + DBO_ACCESS_LOCK_TIMEOUT*60) ?>.<br />
+										<?
+									}
+								?>
+							</p>
+						</div>
+					</p>
+				</div>
+				<?
+			}
+		}
+		return ob_get_clean();
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function dboHead()
@@ -1729,8 +1870,10 @@
 		{
 			$context = 'fcfar';
 			$dbo_context_allowed_email_domains = array('@fcfar.unesp.br', '@aluno.fcfar.unesp.br');
+			define(DBO_ACCESS_LOCK_PATH, '/www/portal2/central/access_locks');
+			define(DBO_ACCESS_LOCK_TIMEOUT, 60); //em minutos
 		}
-		if(strstr($_SERVER['SERVER_NAME'], '.iq.unesp.br'))
+		elseif(strstr($_SERVER['SERVER_NAME'], '.iq.unesp.br'))
 		{
 			$context = 'iq';
 			$dbo_context_allowed_email_domains = array('@iq.unesp.br');

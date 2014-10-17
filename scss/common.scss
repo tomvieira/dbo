@@ -212,8 +212,22 @@ hr.tiny { margin: 0.50em 0; }
 .bottom-less-10 { margin-bottom: -10px !important; }
 .bottom-less-15 { margin-bottom: -15px !important; }
 
+.nowrap { white-space: nowrap;
+	* { white-space: nowrap; }
+}
+
 /* small up */
 @media #{$small} {
+
+	/* alteração de fonte sob demanda */
+	.font-9-for-medium-up { font-size: 9px; }
+	.font-10-for-medium-up { font-size: 10px; }
+	.font-11-for-medium-up { font-size: 11px; }
+	.font-12-for-medium-up { font-size: 12px; }
+	.font-13-for-medium-up { font-size: 13px; }
+	.font-14-for-medium-up { font-size: 14px; }
+	.font-15-for-medium-up { font-size: 15px; }
+	.font-16-for-medium-up { font-size: 16px; }
 
 	.text-right-for-medium-up { text-align: right !important; }
 
@@ -238,7 +252,7 @@ hr.tiny { margin: 0.50em 0; }
 
 	span.tooltip { pointer-events: none; }
 
-	.nowrap { white-space: nowrap;
+	.nowrap-for-medium-up { white-space: nowrap;
 		* { white-space: nowrap; }
 	}
 

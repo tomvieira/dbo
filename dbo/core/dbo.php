@@ -58,6 +58,7 @@ class Dbo extends Obj
 	var $__ipp_start = '0';
 	var $__pag = '1';
 	var $__data = array();
+	var $__joins = array();
 	var $__black_list = array();
 	var $__table;
 	var $__form_acao;
@@ -119,7 +120,7 @@ class Dbo extends Obj
 			$file_code = file_get_contents($file);
 			ob_start();
 			eval("?>".$file_code."<?");
-			$resttt = ob_get_clean();
+			ob_get_clean();
 			$this->__module_scheme = $module;
 			$this->__table = $this->__module_scheme->tabela;
 		}
@@ -236,6 +237,23 @@ class Dbo extends Obj
 			}
 
 		}
+		elseif($name[0] == '_' && $name[1] != '_')
+		{
+			//removendo o _
+			$name = substr($name, 1);
+
+			//verificando se este join já está instanciado neste objeto.
+			if($this->__joins[$name])
+			{
+				return $this->__joins[$name];
+			}
+
+			//se não estava, tem que instanciar.
+			$module = $this->getJoinModule($name, false);
+			$this->__joins[$name] = new $module($this->__data[$name]);
+			return $this->__joins[$name];
+			
+		}
 		return $this->__data[$name];
 	}
 
@@ -252,6 +270,11 @@ class Dbo extends Obj
 			$this->__data[$name] = $attr;
 		}
     }
+
+	//verifica se o atributo é um join --------------------------------------------------------------------------------------------------------------
+
+
+	
 	//cria uma nova instancia de si mesmo -----------------------------------------------------------------------------------------------------------
 
 	function newSelf()
@@ -417,10 +440,17 @@ class Dbo extends Obj
 
 	//pega uma instancia do modulo do join do campo passado para o objeto atual----------------------------------------------------------------------
 
-	public function getJoinModule ($campo)
+	public function getJoinModule ($campo, $instance = true)
 	{
 		$class = $this->__module_scheme->campo[$campo]->join->modulo;
-		return new $class();
+		if($instance)
+		{
+			return new $class();
+		}
+		else
+		{
+			return $class;
+		}
 	}
 
 	//pega a chave estrangeira do do join para o campo atual ----------------------------------------------------------------------------------------
@@ -821,8 +851,10 @@ class Dbo extends Obj
 		if($lin = mysql_fetch_assoc($this->__res)) {
 			foreach($lin as $chave => $valor)
 			{
+				$this->__joins = array();
 				$this->$chave = $valor;
 			}
+			$this->clearJoins();
 			return true;
 		}
 		return false;
@@ -1755,11 +1787,19 @@ class Dbo extends Obj
 		$this->__valor_array = array();
 	}
 
-	//limpas os arrays de query -----------------------------------------------------------------------------------------------------------
+	//limpa os dados instanciados ---------------------------------------------------------------------------------------------------------
 
 	function clearData ()
 	{
 		$this->__data = array();
+		$this->clearJoins();
+	}
+
+	//limpas os arrays de query -----------------------------------------------------------------------------------------------------------
+
+	function clearJoins ()
+	{
+		$this->__joins = array();
 	}
 
 	//limpas os arrays de query -----------------------------------------------------------------------------------------------------------
@@ -2238,6 +2278,8 @@ class Dbo extends Obj
 					}//if
 
 					$return .= "<td class=\"control-icons\" id='controls-row-".$id."' style='white-space: nowrap'>";
+
+					$return .= ((method_exists($obj, 'getControlIcons'))?($obj->getControlIcons()):(''));
 
 					//checa se o modulo permite edição e exclusão dos dados
 					if ($this->__module_scheme->update === true) {
@@ -4947,9 +4989,12 @@ class Dbo extends Obj
 						$nome_arquivo = '';
 						if($_FILES[$campo->coluna]['size'] > 0)
 						{
+							//pegando a extesão e definindo o tipo de imagem
+							$ext = strtolower(dboGetExtension($_FILES[$campo->coluna]['name']));
+							
 							include_once(DBO_PATH."/core/classes/simpleimage.php"); //classe para fazer resize das imagens
 
-							$nome_arquivo = time().rand(1,100).".jpg"; //criando um nome randomico para o arquivo
+							$nome_arquivo = time().rand(1,100).$ext; //criando um nome randomico para o arquivo
 
 							foreach($campo->image as $chave2 => $valor2) //processando o resize para todos os tamanhos das imagens
 							{

@@ -25,8 +25,14 @@ class SimpleImage {
    var $image_type;
 
    function load($filename) {
+	
+		define(IMAGETYPE_GIF, 1);
+		define(IMAGETYPE_JPEG, 2);
+		define(IMAGETYPE_JPEG, 3);
+
       $image_info = getimagesize($filename);
       $this->image_type = $image_info[2];
+	  
       if( $this->image_type == IMAGETYPE_JPEG ) {
          $this->image = imagecreatefromjpeg($filename);
       } elseif( $this->image_type == IMAGETYPE_GIF ) {
@@ -35,12 +41,12 @@ class SimpleImage {
          $this->image = imagecreatefrompng($filename);
       }
    }
-   function save($filename, $image_type=IMAGETYPE_JPEG, $compression=100, $permissions=null) {
-      if( $image_type == IMAGETYPE_JPEG ) {
+   function save($filename, $compression=100, $permissions=null) {
+      if( $this->image_type == IMAGETYPE_JPEG ) {
          imagejpeg($this->image,$filename,$compression);
-      } elseif( $image_type == IMAGETYPE_GIF ) {
+      } elseif( $this->image_type == IMAGETYPE_GIF ) {
          imagegif($this->image,$filename);
-      } elseif( $image_type == IMAGETYPE_PNG ) {
+      } elseif( $this->image_type == IMAGETYPE_PNG ) {
          imagepng($this->image,$filename);
       }
       if( $permissions != null) {
@@ -77,10 +83,20 @@ class SimpleImage {
       $height = $this->getheight() * $scale/100;
       $this->resize($width,$height);
    }
-   function resize($width,$height) {
-      $new_image = imagecreatetruecolor($width, $height);
-      imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $width, $height, $this->getWidth(), $this->getHeight());
-      $this->image = $new_image;
+   function resize($n_width, $n_height) {
+		$new_image = imagecreatetruecolor($n_width, $n_height);
+
+		//transparencia do PNG
+		if($this->image_type == IMAGETYPE_PNG)
+		{
+			imagealphablending($new_image, false);
+			imagesavealpha($new_image,true);
+			$transparent = imagecolorallocatealpha($new_image, 255, 255, 255, 127);
+			imagefilledrectangle($new_image, 0, 0, $n_width, $n_height, $transparent);
+		}
+
+		imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $n_width, $n_height, $this->getWidth(), $this->getHeight());
+		$this->image = $new_image;
    }
    function resizeToBigger($dim)
    {

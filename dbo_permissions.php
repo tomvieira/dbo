@@ -181,7 +181,7 @@
 			}
 
 			$obj = new dbo('permissao');
-			$obj->loadAll();
+			$obj->loadAll('ORDER BY nome');
 			if($obj->size())
 			{
 				?>

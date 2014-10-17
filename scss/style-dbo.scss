@@ -153,7 +153,7 @@ table.responsive {
 	thead { display: none; }
 	tbody { 
 		tr { display: block; border-top: 4px solid #ccc;
-			td { display: block; padding-left: 40%; position: relative; min-height: emCalc(39);
+			td { display: block; padding-left: 40% !important; position: relative; min-height: emCalc(39);
 				&:before { content: attr(data-title); position: absolute; font-weight: bold; top: emCalc(10); left: emCalc(10); }
 			}
 		}
@@ -319,6 +319,16 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 	&:hover { color: #fff; }
 }
 
+/* cores para uso diverso */
+.color {
+	&.primary { color: $primary-color; 
+		&.pointer:hover { color: darken($primary-color, 15%); }
+	}
+	&.secondary { color: $secondary-color; 
+		&.pointer:hover { color: darken($secondary-color, 15%); }
+	}
+}
+
 /* estilos para integração com wordpress */
 body.wordpress { 
 		
@@ -438,10 +448,19 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 
 	table {
 		&.responsive {
+			&.full {
+				tbody {
+					tr {
+						td {
+							&:first-child { padding-left: 0 !important; } 
+						}
+					}
+				}
+			}
 			thead { display: table-header-group; }
 			tbody { 
 				tr { display: table-row; border-top: 4px solid #ccc;
-					td { display: table-cell; padding-left: emCalc(10); position: relative; min-height: auto;
+					td { display: table-cell; padding-left: emCalc(10) !important; position: relative; min-height: auto;
 						&:before { content: ''; position: absolute; font-weight: bold; top: 0; left: 0; display: none; }
 					}
 				}

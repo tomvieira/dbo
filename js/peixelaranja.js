@@ -53,8 +53,13 @@ function peixeJSON(action, args, callback, log) {
 			}
 			if(result.callback){
 				result.callback.forEach(function(value) {
-					window[value]();
+					if (typeof window[value] == 'function') {
+						window[value]();
+					}
 				});
+			}
+			if(result.redirect){
+				window.location = result.redirect;
 			}
 		}
 	)
