@@ -43,7 +43,13 @@ function peixeJSON(action, args, callback, log) {
 				showPeixeMessage();
 			}
 			if(result.reload){
-				//nao pode ser o primeiro no depois do <body>
+				var html = '';
+				peixeGet(document.URL, function(d) {
+					html = $.parseHTML(d);
+					result.reload.forEach(function(value) {
+						peixeReload(value, html);
+					});
+				})
 			}
 			if(result.html){
 				for(var key in result.html)

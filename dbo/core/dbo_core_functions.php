@@ -1756,24 +1756,37 @@
 
 	function includeClasses()
 	{
-		$d = dir(DBO_PATH);
-		while (false !== ($entry = $d->read())) {
-			if(strpos($entry, "_class_") === 0)
-			{
-				$arq_classes[] = $entry;
-			}
-		}
-		$d->close();
-		if(is_array($arq_classes))
+		if(DBO_AUTOLOAD_CLASSES === true)
 		{
-			sort($arq_classes);
-			foreach($arq_classes as $key => $value)
+			spl_autoload_register("dboAutoload");
+		}
+		else
+		{
+			$d = dir(DBO_PATH);
+			while (false !== ($entry = $d->read())) {
+				if(strpos($entry, "_class_") === 0)
+				{
+					$arq_classes[] = $entry;
+				}
+			}
+			$d->close();
+			if(is_array($arq_classes))
 			{
-				require_once(DBO_PATH."/".$value);
+				sort($arq_classes);
+				foreach($arq_classes as $key => $value)
+				{
+					require_once(DBO_PATH."/".$value);
+				}
 			}
 		}
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAutoload ($class) {
+		include_once(DBO_PATH."/_class_".$class.".php");
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function removeDuplicates($sSearch, $sReplace, $sSubject)
