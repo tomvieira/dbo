@@ -78,6 +78,14 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function thisPage()
+	{
+		$parts = explode("/", $_SERVER['PHP_SELF']);
+		return str_replace(".php", "", $parts[sizeof($parts)-1]);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function fileSQL($file_name, $file_on_server)
 	{
 		if(strlen(trim($file_on_server)) && strlen(trim($file_name)))
@@ -949,8 +957,7 @@
 	//limpa o MID
 	function dumpMid()
 	{
-		global $_SESSION;
-		unset($_SESSION['dbo_mid']);
+		unset($_SESSION[sysId()]['dbo_mid']);
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -2288,7 +2295,7 @@
 			$pagina = $obj->keepUrl(array("!dbo_new&!dbo_view&!dbo_delete", "dbo_update=".$obj->id));
 		}
 
-		setMessage('<div class="success">Sucesso!</div>');
+		//setMessage('<div class="success">Sucesso!</div>');
 
 		header("Location: ".$pagina);
 		exit();
@@ -2313,6 +2320,50 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function getPerfisPessoa($pessoa_id)
+	{
+		global $_sys;
+		return array_keys($_sys[sysId()]['perfis_pessoa'][loggedUser()]);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function getItemsSidebar()
+	{
+		global $_sys;
+		//checando se os perfis estão carregados
+		if(!is_array($_sys[sysId()]['perfis_permissoes']))
+		{
+			loadAllPerfis();
+		}
+		
+		$perfis_pessoa = getPerfisPessoa(loggedUser());
+
+		if(is_array($_sys[sysId()]['perfis_permissoes']))
+		{
+			$total = 0;
+			foreach($_sys[sysId()]['perfis_permissoes'] as $perfil_id => $perfil)
+			{
+				if(in_array($perfil_id, $perfis_pessoa))
+				{
+					foreach($perfil as $modulo)
+					{
+						if(is_array($modulo))
+						{
+							if(array_key_exists('sidebar', $modulo))
+							{
+								$total++;
+							}
+						}
+					}
+				}
+			}
+			return $total;
+		}
+		return false;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
 	function dboDate($d, $timestamp = false)
 	{
 		/* meses completo */

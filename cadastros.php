@@ -6,6 +6,9 @@
 		header("Location: index.php");
 		exit();
 	}
+
+	$nro_itens_sidebar = getItemsSidebar();
+
 ?>
 
 <div class="row">
@@ -32,15 +35,22 @@
 </div><!-- row -->
 
 <div class='row'>
-	<div class='large-9 columns'>
-		<ul class="large-block-grid-4 small-block-grid-2" id='cockpit-big-buttons'>
+	<div class='large-<?= (($nro_itens_sidebar)?(9):(12)) ?> columns'>
+		<ul class="large-block-grid-<?= (($nro_itens_sidebar)?(4):(5)) ?> small-block-grid-2" id='cockpit-big-buttons'>
 			<? makeDboButtons('dbo_admin.php'); ?>
 		</ul>
 	</div>
-	<hr class="show-for-small">
-	<div class='large-3 columns'>
-		<? include('sidebar.php'); ?>
-	</div><!-- col -->
+	<?
+		if($nro_itens_sidebar)
+		{
+			?>
+			<hr class="show-for-small">
+			<div class='large-3 columns'>
+				<? include('sidebar.php'); ?>
+			</div><!-- col -->
+			<?
+		}
+	?>
 </div><!-- row -->
 
 <script>

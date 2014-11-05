@@ -34,6 +34,7 @@ function peixeJSON(action, args, callback, log) {
 		action,
 		args,
 		function(data) {
+			//mostrando log
 			if(log == true){
 				console.log(data);
 			}
@@ -66,6 +67,13 @@ function peixeJSON(action, args, callback, log) {
 			}
 			if(result.redirect){
 				window.location = result.redirect;
+			}
+			if(result.eval){
+				eval(result.eval)
+			}
+			//tratando o callback customizado
+			if(typeof callback == 'function'){
+				callback(result);
 			}
 		}
 	)
@@ -434,6 +442,12 @@ $(document).ready(function(){
 
 	$(document).on('click', '.stop-propagation', function(e){
 		e.stopPropagation();
+	});
+
+	$(document).on('submit', 'form.peixe-json', function(){
+		form = $(this);
+		peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)));
+		return false;
 	});
 
 	//colcando ajax loader e screen freezer

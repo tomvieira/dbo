@@ -4,6 +4,7 @@
 @import "foundation/variables", "foundation/components/global", "foundation/components/buttons", "foundation/components/forms";
 @import "peixe-laranja";
 @import "project";
+@import "compass/css3/border-radius";
 
 /* ------------------------------------------------------------------------------------------------------------------------- */
 /* STYLES DBO BACK END ----------------------------------------------------------------------------------------------------- */
@@ -22,15 +23,45 @@ a {
 /* acertando a cor do header */
 #main-header .nome-sistema { background-color: $primary-color; }
 
+/* estilos diversos */
+.section.subheader { font-size: 14px; text-transform: uppercase; color: #aaa; position: relative; margin: 0 0 -21px 0; line-height: 30px;
+	span { display: inline-block; background: #fff; border-bottom: 1px solid #fff; padding: 0px 15px; @include border-radius(5px 5px 0 0); position: relative; top: 15px; left: -15px; margin-top: -15px; }
+}
+
 /* modal */
-body.dbo.modal { padding: 1em; overflow-y: auto;
-	#main-header { display: none; }
-	#main-footer { display: none; }
-	#super-admin-bar { display: none; }
-	.wrapper-dbo-auto-admin .wrapper-module-id,
-	.wrapper-dbo-auto-admin .wrapper-module-button-new { display: none; }
-	&.no-fixos {
-		.wrapper-dbo-auto-admin .wrapper-module-fixos { display: none; }
+body {
+	&.dbo.modal { 
+		padding: 1em; overflow-y: auto;
+		#main-header { display: none; }
+		#main-footer { display: none; }
+		#super-admin-bar { display: none !important; }
+		.wrapper-dbo-auto-admin .wrapper-module-id,
+		.wrapper-dbo-auto-admin .wrapper-module-button-new { display: none; }
+		&.no-fixos {
+			.wrapper-dbo-auto-admin .wrapper-module-fixos { display: none; }
+		}
+	}
+	&.dbo.section {
+		#main-header { display: none; }
+		#main-footer { display: none; }
+		#super-admin-bar { display: none !important; }
+		.wrapper-dbo-auto-admin {
+			form { margin-bottom: 0; }		
+			#main-submit { margin-bottom: 0; }
+			.pagination { margin-bottom: 0; }
+		}
+	}
+	&.dbo.hide-breadcrumb { 
+		#auto-admin-header {
+			.breadcrumb { display: none; }
+			hr { display: none; }
+			.button-new { display: inline-block; padding-top: 7px; margin-bottom: 10px; }
+		}
+	}
+	&.dbo.hide-insert-button { 
+		#auto-admin-header {
+			.button-new { display: none !important; }
+		}
 	}
 }
 
@@ -328,6 +359,10 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 		&.pointer:hover { color: darken($secondary-color, 15%); }
 	}
 }
+
+/* classes de visibilidade */
+.form-insert .hfi { display: none; }
+.form-update .hfu { display: none; }
 
 /* estilos para integração com wordpress */
 body.wordpress { 

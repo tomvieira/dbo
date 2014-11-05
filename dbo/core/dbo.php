@@ -83,6 +83,7 @@ class Dbo extends Obj
 	var $__custom_query = false;
 	var $__total = false;
 	var $__update_id = false;
+	var $__iterator = 0;
 
 	//construtor -------------------------------------------------------------------------------------------------------------------------------
 
@@ -109,6 +110,7 @@ class Dbo extends Obj
 		$this->__black_list[] = '__ok';
 		$this->__black_list[] = '__class';
 		$this->__black_list[] = '__fixos';
+		$this->__black_list[] = '__iterator';
 
 		$this->__pag = $_GET['pag'] ? $_GET['pag'] : $this->__pag;
 		$this->__size = 0;
@@ -271,9 +273,12 @@ class Dbo extends Obj
 		}
     }
 
-	//verifica se o atributo é um join --------------------------------------------------------------------------------------------------------------
+	//pega o iterador --------------------------------------------------------------------------------------------------------------
 
-
+	function getIterator()
+	{
+		return $this->__iterator;
+	}
 	
 	//cria uma nova instancia de si mesmo -----------------------------------------------------------------------------------------------------------
 
@@ -550,6 +555,7 @@ class Dbo extends Obj
 		if(mysql_affected_rows())
 		{
 			$this->__size = mysql_affected_rows();
+			$this->__iterator = 1;
 			$lin = mysql_fetch_assoc($this->__res);
 			foreach($lin as $chave => $valor)
 			{
@@ -726,6 +732,7 @@ class Dbo extends Obj
 		{
 			/* salvando o total com LIMIT */
 			$this->__size = mysql_affected_rows();
+			$this->__iterator = 1;
 
 			/* salvando o total de registros sem o LIMIT no objeto */
 			$sql = "select FOUND_ROWS()";
@@ -791,6 +798,7 @@ class Dbo extends Obj
 		if(mysql_affected_rows())
 		{
 			$this->__size = mysql_affected_rows();
+			$this->__iterator = 1;
 			$lin = mysql_fetch_assoc($this->__res);
 			foreach($lin as $chave => $valor)
 			{
@@ -849,6 +857,7 @@ class Dbo extends Obj
 	function fetch ()
 	{
 		if($lin = mysql_fetch_assoc($this->__res)) {
+			$this->__iterator++;
 			foreach($lin as $chave => $valor)
 			{
 				$this->__joins = array();
@@ -1466,86 +1475,86 @@ class Dbo extends Obj
 						
 						<h3>Filtros</h3>
 						<form method='POST' action='<?= $this->keepUrl('!pag') ?>' id='form-dbo-filter' class="no-margin">
-							<div class='row'>
-							<?
-								foreach($this->__filter_scheme as $chave => $campo)
-								{
-									if($campo->tipo == 'text' || $campo->tipo == 'textarea' || $campo->tipo == 'textarea-rich' || $campo->tipo == 'price' || $campo->tipo == 'pk')
+							<ul class="large-block-grid-4">
+								<?
+									foreach($this->__filter_scheme as $chave => $campo)
 									{
-										?>
-										<div class='item columns large-3'>
-											<label><?= $campo->titulo ?></label>
-											<div class='input'><input type='text' name='<?= $campo->coluna ?>' value="<?= htmlspecialchars($this->getFilterValue($campo->coluna)) ?>"></div>
-										</div><!-- item -->
-										<?
-									} elseif ($campo->tipo == 'select' || $campo->tipo == 'radio') {
-										?>
-										<div class='item columns large-3'>
-											<label><?= $campo->titulo ?></label>
-											<div class='input'>
-												<select name='<?= $campo->coluna ?>'>
-												<option value=''></option>
-												<?
-													foreach($campo->valores as $key => $value)
-													{
-														$key = (string)$key;
-														?><option value='<?= $key ?>' <?= (($this->getFilterValue($campo->coluna) === $key)?('SELECTED'):('')) ?>><?= $value ?></option><?
-													}
-												?>
-												</select>
-											</div>
-										</div><!-- item -->
-										<?
-									} elseif ($campo->tipo == 'join') {
-										if(!$this->isFixo($campo->coluna))
+										if($campo->tipo == 'text' || $campo->tipo == 'textarea' || $campo->tipo == 'textarea-rich' || $campo->tipo == 'price' || $campo->tipo == 'pk')
 										{
 											?>
-											<div class='item columns large-3'>
+											<li>
+												<label><?= $campo->titulo ?></label>
+												<div class='input'><input type='text' name='<?= $campo->coluna ?>' value="<?= htmlspecialchars($this->getFilterValue($campo->coluna)) ?>"></div>
+											</li>
+											<?
+										} elseif ($campo->tipo == 'select' || $campo->tipo == 'radio') {
+											?>
+											<li>
 												<label><?= $campo->titulo ?></label>
 												<div class='input'>
-													<?
-														$jobj = new dbo($campo->join->modulo);
-														$rest = '';
-														if($campo->restricao) { eval($campo->restricao.";"); }
-														$rest .= " ORDER BY ".(($campo->join->order_by)?($campo->join->order_by):($campo->join->valor))." ";
-														$jobj->loadAll($rest);
-					
-													?>
 													<select name='<?= $campo->coluna ?>'>
 													<option value=''></option>
 													<?
-														do {
-															$key = $jobj->{$campo->join->chave};
-															?><option value='<?= $key ?>' <?= (($this->getFilterValue($campo->coluna) === $key)?('SELECTED'):('')) ?>><?= $jobj->{$campo->join->valor} ?></option><?
-														}while($jobj->fetch());
+														foreach($campo->valores as $key => $value)
+														{
+															$key = (string)$key;
+															?><option value='<?= $key ?>' <?= (($this->getFilterValue($campo->coluna) === $key)?('SELECTED'):('')) ?>><?= $value ?></option><?
+														}
 													?>
 													</select>
 												</div>
-											</div><!-- item -->
+											</li>
+											<?
+										} elseif ($campo->tipo == 'join') {
+											if(!$this->isFixo($campo->coluna))
+											{
+												?>
+												<li>
+													<label><?= $campo->titulo ?></label>
+													<div class='input'>
+														<?
+															$jobj = new dbo($campo->join->modulo);
+															$rest = '';
+															if($campo->restricao) { eval($campo->restricao.";"); }
+															$rest .= " ORDER BY ".(($campo->join->order_by)?($campo->join->order_by):($campo->join->valor))." ";
+															$jobj->loadAll($rest);
+						
+														?>
+														<select name='<?= $campo->coluna ?>'>
+														<option value=''></option>
+														<?
+															do {
+																$key = $jobj->{$campo->join->chave};
+																?><option value='<?= $key ?>' <?= (($this->getFilterValue($campo->coluna) === $key)?('SELECTED'):('')) ?>><?= $jobj->{$campo->join->valor} ?></option><?
+															}while($jobj->fetch());
+														?>
+														</select>
+													</div>
+												</li>
+												<?
+											}
+										} elseif ($campo->tipo == 'date') {
+											$data_aux = '';
+											$data_inicial = '';
+											$data_final = '';
+											$data_aux = $this->getFilterValue($campo->coluna);
+											$data_aux = explode('|---|', $data_aux);
+											$data_inicial = ((strlen($data_aux[0]))?($data_aux[0]):(''));
+											$data_final = ((strlen($data_aux[1]))?($data_aux[1]):(''));
+											?>
+											<li>
+												<label><?= $campo->titulo ?></label>
+												<div class='input filter-type-data'>
+													<div><input type='text' placeholder="de" class='data-inicial datepick' name='<?= $campo->coluna ?>_dbo_inicial' value='<?= $data_inicial ?>'></div>
+													<div><input type='text' placeholder="até" class='data-final datepick' name='<?= $campo->coluna ?>_dbo_final' value='<?= $data_final ?>'></div>
+													<input type='hidden' class='data-montada clear-field' name='<?= $campo->coluna ?>' value='<?= $this->getFilterValue($campo->coluna) ?>'>
+												</div>
+											</li>
 											<?
 										}
-									} elseif ($campo->tipo == 'date') {
-										$data_aux = '';
-										$data_inicial = '';
-										$data_final = '';
-										$data_aux = $this->getFilterValue($campo->coluna);
-										$data_aux = explode('|---|', $data_aux);
-										$data_inicial = ((strlen($data_aux[0]))?($data_aux[0]):(''));
-										$data_final = ((strlen($data_aux[1]))?($data_aux[1]):(''));
-										?>
-										<div class='columns large-3'>
-											<label><?= $campo->titulo ?></label>
-											<div class='input filter-type-data'>
-												<div><input type='text' placeholder="de" class='data-inicial datepick' name='<?= $campo->coluna ?>_dbo_inicial' value='<?= $data_inicial ?>'></div>
-												<div><input type='text' placeholder="até" class='data-final datepick' name='<?= $campo->coluna ?>_dbo_final' value='<?= $data_final ?>'></div>
-												<input type='hidden' class='data-montada clear-field' name='<?= $campo->coluna ?>' value='<?= $this->getFilterValue($campo->coluna) ?>'>
-											</div>
-										</div><!-- item -->
-										<?
 									}
-								}
-							?>
-							</div><!-- row -->
+								?>
+							</ul>
 					
 							<div class='row'>
 								<div class='item columns large-12 text-right'>
@@ -1629,6 +1638,13 @@ class Dbo extends Obj
 	function getFixos()
 	{
 		return $this->__fixos;
+	}
+
+	//retorna os itens fixos em forma de array -------------------------------------------------------------------------------------------
+
+	function getFixo($coluna)
+	{
+		return $this->__fixos[$coluna];
 	}
 
 	//retorna o total de itens de uma tabela segundo a query, usado para comparações que venham a ser necessarias -------------------------
@@ -1792,6 +1808,7 @@ class Dbo extends Obj
 	function clearData ()
 	{
 		$this->__data = array();
+		$this->__iterator = 0;
 		$this->clearJoins();
 	}
 
@@ -1971,10 +1988,25 @@ class Dbo extends Obj
 		exit();
 	}
 
+	//forces the pagination, even for auto ordered. -----------------------------------------------------------------------------------------
+
+	function forcePagination($num = false)
+	{
+		$this->force_pagination = true;
+		if($num)
+		{
+			$this->pagination($num);
+		}
+	}
+	
 	//checks if the module has auto-orderer field -----------------------------------------------------------------------------------------
 
 	function isAutoOrdered()
 	{
+		if($this->force_pagination == true)
+		{
+			return false;
+		}
 		if(is_array($this->__module_scheme->campo))
 		{
 			foreach($this->__module_scheme->campo as $field)
@@ -2356,7 +2388,7 @@ class Dbo extends Obj
 
 				$return = "<span class='dbo-element'><div class='fieldset' style='clear: both;'><div class='content'>";
 
-				$return .= "<form method='POST' enctype='multipart/form-data' action='".$this->keepUrl('!dbo_delete&!dbo_update&!dbo_new')."' id='".$id_formulario."'>";
+				$return .= "<form method='POST' enctype='multipart/form-data' action='".$this->keepUrl('!dbo_delete&!dbo_update&!dbo_new')."' id='".$id_formulario."' class=\"form-insert\">";
 
 				//checando se há grid de exibição de dados customizado... e setando variaveis para seu uso.
 				if($this->hasGrid('insert')) { $gc = 0; $hasgrid = true; $grid = $this->hasGrid('insert'); }
@@ -2389,8 +2421,9 @@ class Dbo extends Obj
 							//inserts the section separator, if exists.
 							if(intval($grid[$gc]) == 0 && $grid[$gc] != '|-' && $grid[$gc] != '-|' )
 							{
-								$return .= "<div class='large-12 columns'><h5 class='section subheader'>".$grid[$gc]."</h5><hr></div>\n"; $gc++;
-								$return .= "</div> <!-- row -->\n\n"; $gc++;
+								$grid_cell = $this->parseGridCell($grid[$gc]);
+								$return .= "<div class='large-12 columns ".$this->getGridCellPart($grid_cell, 'item-classes')."'><div class='section subheader'><span>".$this->getGridCellPart($grid_cell, 'item-size')."</span></div></div>\n"; $gc++;
+								$return .= "</div> <!-- row -->\n\n<hr style=\"margin-bottom: 2em;\" class=\"".$this->getGridCellPart($grid_cell, 'item-classes')."\">\n"; $gc++;
 								$return .= "<div class='row'>\n"; $gc++;
 							}
 						}
@@ -2408,7 +2441,7 @@ class Dbo extends Obj
 							//checando se existe uma subgrid para exibicao do elemento filho
 							$return .= $this->getGridCellPart($grid_cell, 'field-start');
 
-							$return .= "<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>";
+							$return .= "<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'><i class=\"fa-question-circle\"></i></span>"):(''))."</label>";
 							$return .= "<span class='input input-".$valor->tipo."'>";
 
 							//checando se existe uma subgrid para exibicao do elemento filho
@@ -2536,101 +2569,98 @@ class Dbo extends Obj
 									$join = $valor->join;
 									$mod_aux = $join->modulo;
 									$obj = new $mod_aux();
-
-									//se for ajax, muda tudo!
-									if($join->ajax)
-									{
-										$mod_selected = $join->modulo;
-										$mod_selected = new $mod_selected();
 									
-										//handler para o ID do campo
-										$id_handler = uniqid();
-
-										//variaveis necessárias para o javascript
-										$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
-										$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
-										
-										ob_start();
-										?>
-											<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-											<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-											<script>
-												$(document).ready(function(){
-
-													//pegando responsavels por ajax
-													$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
-														placeholder: "...",
-														minimumInputLength: <?= $tamanho_minimo ?>,
-														allowClear: true,
-														ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-															url: "<?= $url_dbo_ui_joins_ajax ?>",
-															dataType: 'json',
-															data: function (term, page) {
-																return {
-																	module: '<?= $this->getModule(); ?>',
-																	field: '<?= $valor->coluna; ?>',
-																	term: term
-																};
-															},
-															results: function (data, page) {
-																return { results: data };
-															}
-														},
-														formatResult: function (data) {
-															return data.valor;
-														},
-														formatSelection: function (data, container) {
-															return data.valor;
-														},
-														initSelection: function (element, callback) {
-															callback({ valor: element.val() });
-														}
-													});
-													$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
-														target = $($(this).data('target'));
-														if(e.val > 0){
-															target.val(e.val).closest('.item').addClass('ok');
-														}
-														else {
-															target.val('').closest('.item').removeClass('ok');
-														}
-													}).on('select2-opening', function(){
-														//$(window).scrollTo($(this).closest('.item'), 500);
-													})
-												}) //doc.ready
+									//se for fixo, nada do resto da logica precisa ser feita.
+									if($this->isFixo($valor->coluna))
+									{
+										$return .= "<input type='hidden' name='".$valor->coluna."' value='".$this->getFixo($valor->coluna)."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
+										$return .= "
+											<script type='text/javascript' charset='utf-8'>
+												$('input[name=".$valor->coluna."]').closest('.item').hide();
 											</script>
-										<?
-										$return .= ob_get_clean();
+										";
 									}
 									else
 									{
-										//setando restricoes...
-										$rest = '';
-										if($valor->restricao) { eval($valor->restricao.";"); }
-
-										//seta deleted_by = 0, se for o caso
-										$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
-
-										//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
-										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
-
-										$obj->loadAll($rest);
-										if($this->isFixo($valor->coluna))
+										//se for ajax, muda tudo!
+										if($join->ajax)
 										{
-											do {
-												if($obj->{$join->chave} == $this->isFixo($valor->coluna))
-												{
-													$return .= "<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
-												}
-											}while($obj->fetch());
-											$return .= "
-												<script type='text/javascript' charset='utf-8'>
-													$('input[name=".$valor->coluna."]').closest('.item').hide();
+
+											$mod_selected = $join->modulo;
+											$mod_selected = new $mod_selected();
+										
+											//handler para o ID do campo
+											$id_handler = uniqid();
+
+											//variaveis necessárias para o javascript
+											$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
+											$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
+											
+											ob_start();
+											?>
+												<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<script>
+													$(document).ready(function(){
+
+														//pegando responsavels por ajax
+														$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
+															placeholder: "...",
+															minimumInputLength: <?= $tamanho_minimo ?>,
+															allowClear: true,
+															ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+																url: "<?= $url_dbo_ui_joins_ajax ?>",
+																dataType: 'json',
+																data: function (term, page) {
+																	return {
+																		module: '<?= $this->getModule(); ?>',
+																		field: '<?= $valor->coluna; ?>',
+																		term: term
+																	};
+																},
+																results: function (data, page) {
+																	return { results: data };
+																}
+															},
+															formatResult: function (data) {
+																return data.valor;
+															},
+															formatSelection: function (data, container) {
+																return data.valor;
+															},
+															initSelection: function (element, callback) {
+																callback({ valor: element.val() });
+															}
+														});
+														$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
+															target = $($(this).data('target'));
+															if(e.val > 0){
+																target.val(e.val).closest('.item').addClass('ok');
+															}
+															else {
+																target.val('').closest('.item').removeClass('ok');
+															}
+														}).on('select2-opening', function(){
+															//$(window).scrollTo($(this).closest('.item'), 500);
+														})
+													}) //doc.ready
 												</script>
-											";
+											<?
+											$return .= ob_get_clean();
 										}
 										else
 										{
+											//setando restricoes...
+											$rest = '';
+											if($valor->restricao) { eval($valor->restricao.";"); }
+
+											//seta deleted_by = 0, se for o caso
+											$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
+											//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
+											$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
+
+											$obj->loadAll($rest);
 											if($custom_field)
 											{
 												$return .= $custom_field;
@@ -2811,7 +2841,7 @@ class Dbo extends Obj
 
 				$return = "<span class='dbo-element'><div class='fieldset' style='clear: both;'><div class='content'>\n";
 
-				$return .= "<form method='POST' enctype='multipart/form-data' id='".$id_formulario."'>\n\n";
+				$return .= "<form method='POST' enctype='multipart/form-data' id='".$id_formulario."' class=\"form-update\">\n\n";
 
 				//checando se há grid de exibição de dados customizado... e setando variaveis para seu uso.
 				if($this->hasGrid('update')) { $gc = 0; $hasgrid = true; $grid = $this->hasGrid('update'); }
@@ -2843,8 +2873,9 @@ class Dbo extends Obj
 							//inserts the section separator, if exists.
 							if(intval($grid[$gc]) == 0 && $grid[$gc] != '|-' && $grid[$gc] != '-|' )
 							{
-								$return .= "<div class='large-12 columns'><h5 class='section subheader'>".$grid[$gc]."</h5><hr></div>\n"; $gc++;
-								$return .= "</div> <!-- row -->\n\n"; $gc++;
+								$grid_cell = $this->parseGridCell($grid[$gc]);
+								$return .= "<div class='large-12 columns ".$this->getGridCellPart($grid_cell, 'item-classes')."'><div class='section subheader'><span>".$this->getGridCellPart($grid_cell, 'item-size')."</span></div></div>\n"; $gc++;
+								$return .= "</div> <!-- row -->\n\n<hr style=\"margin-bottom: 2em;\" class=\"".$this->getGridCellPart($grid_cell, 'item-classes')."\">\n"; $gc++;
 								$return .= "<div class='row'>\n"; $gc++;
 							}
 						}
@@ -2865,7 +2896,7 @@ class Dbo extends Obj
 
 							$return .= $this->getGridCellPart($grid_cell, 'field-start');
 							
-							$return .= "\t\t<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'>(?)</span>"):(''))."</label>\n";
+							$return .= "\t\t<label>".$valor->titulo.(($valor->valida)?(" <span class='required'></span>"):('')).(($valor->dica)?(" <span data-tooltip class='has-tip tip-top' title='".$valor->dica."'><i class=\"fa-question-circle\"></i></span>"):(''))."</label>\n";
 							$return .= "\t\t<span class='input input-".$valor->tipo."'>\n";
 
 							$return .= $this->getGridCellPart($grid_cell, 'field-middle');
@@ -3007,137 +3038,132 @@ class Dbo extends Obj
 									$mod_aux = $join->modulo;
 									$obj = new $mod_aux();
 
-									if($join->ajax)
+									if($this->isFixo($valor->coluna))
 									{
-
-										$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
-
-										//pegando o item "selected"
-										$join_key_2 = '';
-										$join_key_2 = (($join->chave2_pk)?($join->chave2_pk):('id'));
-										$obj->$join_key_2 = $modulo->{$valor->coluna};
-										$obj->loadAll();
-
-										$join_retorno = '';
-										$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
-
-										$mod_selected = $join->modulo;
-										$mod_selected = new $mod_selected();
-									
-										//handler para o ID do campo
-										$id_handler = uniqid();
-
-										//variaveis necessárias para o javascript
-										$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
-										$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
-										
-										ob_start();
-										?>
-											<input type="text" name="<?= $valor->coluna ?>_select2_aux" value="<?= htmlSpecialChars($join_retorno) ?>" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-											<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="<?= $modulo->{$valor->coluna} ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-											<script>
-												$(document).ready(function(){
-
-													//pegando responsavels por ajax
-													$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
-														placeholder: "...",
-														minimumInputLength: <?= $tamanho_minimo ?>,
-														allowClear: true,
-														ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-															url: "<?= $url_dbo_ui_joins_ajax ?>",
-															dataType: 'json',
-															data: function (term, page) {
-																return {
-																	module: '<?= $this->getModule(); ?>',
-																	field: '<?= $valor->coluna; ?>',
-																	term: term
-																};
-															},
-															results: function (data, page) {
-																return { results: data };
-															}
-														},
-														formatResult: function (data) {
-															return data.valor;
-														},
-														formatSelection: function (data, container) {
-															return data.valor;
-														},
-														initSelection: function (element, callback) {
-															callback({ valor: element.val() });
-														}
-													});
-													$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
-														target = $($(this).data('target'));
-														if(e.val > 0){
-															target.val(e.val).closest('.item').addClass('ok');
-														}
-														else {
-															target.val('').closest('.item').removeClass('ok');
-														}
-													}).on('select2-opening', function(){
-														//$(window).scrollTo($(this).closest('.item'), 500);
-													})
-
-													<?
-														if($obj->size()) {
-															?>
-															$('input[name=<?= $valor->coluna ?>_select2_aux]').closest('.item').addClass('ok');
-															<?
-														}
-													?>
-
-												}) //doc.ready
+										$return .= "<input type='hidden' name='".$valor->coluna."' value='".$this->getFixo($valor->coluna)."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>";
+										$return .= "
+											<script type='text/javascript' charset='utf-8'>
+												$('input[name=".$valor->coluna."]').closest('.item').hide();
 											</script>
-										<?
-										$return .= ob_get_clean();
+										";
 									}
 									else
 									{
-										//setando restricoes...
-										$rest = '';
-										if($valor->restricao) { eval($valor->restricao.";"); }
-
-										//seta deleted_by = 0, se for o caso
-										$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
-
-										//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
-										$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
-
-										//caso o modulo externo tenha inativos, precisamos certificar que o valor previamente existente não é um inativo.
-										//deverá ser adicionado à listagem em caso positivo.
-										$inativo_atual = false;
-										if($obj->hasInativo())
+										if($join->ajax)
 										{
-											$obj_inativo = new Dbo($join->modulo);
-											$obj_inativo->{$join->chave} = $modulo->{$valor->coluna};
-											$obj_inativo->load();
-											if($obj_inativo->inativo > 0)
-											{
-												$inativo_atual[chave] = $modulo->{$valor->coluna};
-												$inativo_atual[valor] = $obj_inativo->{$join->valor};
-											}
-										}
 
-										//depois de descobrirmos se era inativo, fazemos um loadAll.
-										$obj->loadAll($rest);
+											$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 
-										if($this->isFixo($valor->coluna))
-										{
-											do {
-												if($obj->{$join->chave} == $this->isFixo($valor->coluna))
-												{
-													$return .= "\t\t\t<input type='hidden' name='".$valor->coluna."' value='".$obj->{$join->chave}."'><span class='dbo_fixo'>".$obj->{$join->valor}."</span>\n";
-												}
-											}while($obj->fetch());
-											$return .= "
-												<script type='text/javascript' charset='utf-8'>
-													$('input[name=".$valor->coluna."]').closest('.row').hide();
+											//pegando o item "selected"
+											$join_key_2 = '';
+											$join_key_2 = (($join->chave2_pk)?($join->chave2_pk):('id'));
+											$obj->$join_key_2 = $modulo->{$valor->coluna};
+											$obj->loadAll();
+
+											$join_retorno = '';
+											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
+
+											$mod_selected = $join->modulo;
+											$mod_selected = new $mod_selected();
+										
+											//handler para o ID do campo
+											$id_handler = uniqid();
+
+											//variaveis necessárias para o javascript
+											$url_dbo_ui_joins_ajax = DBO_URL."/core/dbo-ui-joins-ajax.php";
+											$tamanho_minimo = (($join->tamanho_minimo)?($join->tamanho_minimo):(3));
+											
+											ob_start();
+											?>
+												<input type="text" name="<?= $valor->coluna ?>_select2_aux" value="<?= htmlSpecialChars($join_retorno) ?>" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="<?= $modulo->{$valor->coluna} ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<script>
+													$(document).ready(function(){
+
+														//pegando responsavels por ajax
+														$('input[name=<?= $valor->coluna ?>_select2_aux]').select2({
+															placeholder: "...",
+															minimumInputLength: <?= $tamanho_minimo ?>,
+															allowClear: true,
+															ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+																url: "<?= $url_dbo_ui_joins_ajax ?>",
+																dataType: 'json',
+																data: function (term, page) {
+																	return {
+																		module: '<?= $this->getModule(); ?>',
+																		field: '<?= $valor->coluna; ?>',
+																		term: term
+																	};
+																},
+																results: function (data, page) {
+																	return { results: data };
+																}
+															},
+															formatResult: function (data) {
+																return data.valor;
+															},
+															formatSelection: function (data, container) {
+																return data.valor;
+															},
+															initSelection: function (element, callback) {
+																callback({ valor: element.val() });
+															}
+														});
+														$('input[name=<?= $valor->coluna ?>_select2_aux]').on('change', function(e){
+															target = $($(this).data('target'));
+															if(e.val > 0){
+																target.val(e.val).closest('.item').addClass('ok');
+															}
+															else {
+																target.val('').closest('.item').removeClass('ok');
+															}
+														}).on('select2-opening', function(){
+															//$(window).scrollTo($(this).closest('.item'), 500);
+														})
+
+														<?
+															if($obj->size()) {
+																?>
+																$('input[name=<?= $valor->coluna ?>_select2_aux]').closest('.item').addClass('ok');
+																<?
+															}
+														?>
+
+													}) //doc.ready
 												</script>
-											";
+											<?
+											$return .= ob_get_clean();
 										}
 										else
 										{
+											//setando restricoes...
+											$rest = '';
+											if($valor->restricao) { eval($valor->restricao.";"); }
+
+											//seta deleted_by = 0, se for o caso
+											$rest .= (($obj->hasDeletionEngine())?(((strlen($rest))?(" AND "):(" WHERE "))." deleted_by = 0 "):(''));
+
+											//seta inativo = 0 caso o modulo externo se enquadre, e depois o order by
+											$rest .= (($obj->hasInativo())?(((strlen($rest))?(" AND "):(" WHERE "))." inativo = 0 "):(''))." ORDER BY ".(($valor->join->order_by)?($valor->join->order_by):($valor->join->valor))." ";
+
+											//caso o modulo externo tenha inativos, precisamos certificar que o valor previamente existente não é um inativo.
+											//deverá ser adicionado à listagem em caso positivo.
+											$inativo_atual = false;
+											if($obj->hasInativo())
+											{
+												$obj_inativo = new Dbo($join->modulo);
+												$obj_inativo->{$join->chave} = $modulo->{$valor->coluna};
+												$obj_inativo->load();
+												if($obj_inativo->inativo > 0)
+												{
+													$inativo_atual[chave] = $modulo->{$valor->coluna};
+													$inativo_atual[valor] = $obj_inativo->{$join->valor};
+												}
+											}
+
+											//depois de descobrirmos se era inativo, fazemos um loadAll.
+											$obj->loadAll($rest);
+
 											//checando para ver se há metodo de retorno
 											$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 											if($join->tipo == 'select') //se o join for do tipo select
