@@ -358,6 +358,27 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 	&.secondary { color: $secondary-color; 
 		&.pointer:hover { color: darken($secondary-color, 15%); }
 	}
+	&.light { color: #ccc; 
+		&.pointer:hover { color: darken(#ccc, 15%); }
+	}
+	&.medium { color: #999; 
+		&.pointer:hover { color: darken(#999, 15%); }
+	}
+	&.ok { color: $status-color-ok; 
+		&.pointer:hover { color: darken($status-color-ok, 15%); }
+	}
+	&.alert { color: $status-color-alert; 
+		&.pointer:hover { color: darken($status-color-alert, 15%); }
+	}
+	&.warning { color: $status-color-warning; 
+		&.pointer:hover { color: darken($status-color-warning, 15%); }
+	}
+	&.ongoing { color: $status-color-ongoing; 
+		&.pointer:hover { color: darken($status-color-ongoing, 15%); }
+	}
+	&.cancel { color: $status-color-cancel; 
+		&.pointer:hover { color: darken($status-color-cancel, 15%); }
+	}
 }
 
 /* classes de visibilidade */

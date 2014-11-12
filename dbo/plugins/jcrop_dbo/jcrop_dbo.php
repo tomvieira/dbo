@@ -84,7 +84,7 @@ class dbo_jcrop_dbo
 	function getInsertForm ($coluna = '')
 	{
 
-		$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."'><img src='' class='thumb-lista' style='display: none;'></div>";
+		$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."'><img src='' class='thumb-lista' style='display: none; width: 100%; max-width: 100%;'></div>";
 		$result .= "<a href='".DBO_URL."/plugins/jcrop_dbo/cropper.php?data=".base64_encode(serialize($this))."&coluna=".$coluna."' data-width='1050' data-height='98%' rel='modal' class='button secondary radius small'>Selecione a foto para tratamento</a>";
 		$result .= "<input type='hidden' name='".$coluna."[image]' id='jcrop-dbo-field-".$coluna."'>";
 		$result .= '<script>function closeBox(coluna, filename) { $(\'#jcrop-dbo-field-\'+coluna).val(filename); $(\'#jcrop-dbo-preview-\'+coluna+\' img\').attr(\'src\', \''.DBO_URL.'/plugins/jcrop_dbo/temp/c1_\'+filename).fadeIn(); $.colorbox.close(); }</script>';
@@ -99,7 +99,7 @@ class dbo_jcrop_dbo
 		$result .= "<input type='hidden' name='".$coluna."[image]' id='jcrop-dbo-field-".$coluna."' value='".$this->image."' rel='".$this->image."'>";
 		if(strlen($this->image)) //if there is a picture in the db
 		{
-			$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."'><img src='".DBO_URL."/upload/images/c1_".$this->image."' class='thumb-lista'></div>";
+			$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."'><img src='".DBO_URL."/upload/images/c1_".$this->image."' class='thumb-lista' style=\"width: 100%; max-width: 100%;\"></div>";
 			$result .=
 			'<script>
 				$(document).on(\'click\', \'#jcrop-dbo-keep-'.$coluna.'\', function(){
@@ -115,10 +115,20 @@ class dbo_jcrop_dbo
 		}
 		else
 		{
-			$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."'><img src='' style='padding: 3px; border: 1px solid #CCC; display: none; margin-top: 5px; max-width: 90%;'></div>";
+			$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."' style=\"min-height: 60px;\"><img src='' class='thumb-lista' style='display: none; width: 100%; max-width: 100%;'></div>";
 		}
-		$result .= "<a href='".DBO_URL."/plugins/jcrop_dbo/cropper.php?data=".base64_encode(serialize($this))."&coluna=".$coluna."' data-width='1050' data-height='98%' rel='modal' class='button small secondary radius' id='jcrop-dbo-trigger-cropper-".$coluna."'>Selecione a foto para tratamento</a> ".((strlen($this->image))?("<span style='white-space: nowrap;'><input style='display: inline' type='checkbox' CHECKED name='".$coluna."[keep]' value='1' id='jcrop-dbo-keep-".$coluna."'> Manter a foto atual</span>"):(''));
+		$result .= "<a href='".DBO_URL."/plugins/jcrop_dbo/cropper.php?data=".base64_encode(serialize($this))."&coluna=".$coluna."' data-width='1050' data-height='98%' rel='modal' class='jcrop-alterar-foto' id='jcrop-dbo-trigger-cropper-".$coluna."'>Alterar foto</a> ".((strlen($this->image))?("<span style='white-space: nowrap; display: none;'><input style='display: inline' type='checkbox' CHECKED name='".$coluna."[keep]' value='1' id='jcrop-dbo-keep-".$coluna."'> Manter a foto atual</span>"):(''));
 		$result .= '<script>function closeBox(coluna, filename) { $(\'#jcrop-dbo-field-\'+coluna).val(filename); $(\'#jcrop-dbo-preview-\'+coluna+\' img\').attr(\'src\', \''.DBO_URL.'/plugins/jcrop_dbo/temp/c1_\'+filename).fadeIn(); $.colorbox.close(); $(\'#jcrop-dbo-keep-\'+coluna).removeAttr(\'checked\'); }</script>';
+		ob_start();
+		?>
+		<style>
+			.jcrop-alterar-foto {
+				display: block; padding: 1em; background: rgba(1,1,1,.5); z-index: 10; position: relative; color: #fff; font-size: 12px; text-transform: uppercase; text-align: center; margin: -56px auto 20px auto; width: calc(100% - 8px);
+			}
+			.jcrop-alterar-foto:hover { color: #fff; background: rgba(1,1,1,.7); }
+		</style>
+		<?
+		$result .= ob_get_clean();
 		return $result;
 	}
 

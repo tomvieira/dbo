@@ -1010,6 +1010,14 @@ function getFieldForm ($mod,$field)
 					</div>
 				</div><!-- row -->
 
+				<div class='row'>
+					<div class='item'>
+						<div class='dica'>Classes que serão exibidas na criação do formulário. Separadas por espaço</div>
+						<label>Classes</label>
+						<div class='input'><input type='text' name='classes' value="<?= htmlspecialchars($campo->classes) ?>"></div>
+					</div>
+				</div><!-- row -->
+
 			</div><!-- anchor -->
 
 		</div><!-- field-functions -->
@@ -1689,6 +1697,7 @@ function runUpdateField($post_data)
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->edit_function = $post_data['edit_function'];
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->default_value = stripslashes($post_data['default_value']);
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->mask = stripslashes($post_data['mask']);
+	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->classes = stripslashes($post_data['classes']);
 	$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->tipo = $post_data['tipo'];
 
 	//now checking all the specific data for the types.
@@ -1998,6 +2007,7 @@ function runNewField($post_data)
 	{
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "TEXT";
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'textarea-rich';
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->classes = 'tinymce';
 		$_SESSION['dbomaker_controls']['show_field_type'] = TRUE;
 	}
 	//Password
@@ -2055,6 +2065,7 @@ function runNewField($post_data)
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->order = true;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->filter = true;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->classes = 'datepick';
 	}
 	//Datetime
 	elseif($post_data['tipo'] == 'datetime')
@@ -2065,6 +2076,7 @@ function runNewField($post_data)
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->order = true;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->filter = true;
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->isnull = true;
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->classes = 'datetimepick';
 	}
 	//Datetime
 	elseif($post_data['tipo'] == 'price')
@@ -2754,6 +2766,10 @@ function writeModuleFile($mod)
 						{
 							fwrite($fh, "\$field->mask = '".singleScape($field->mask)."';\n");
 						}
+					}
+					if(strlen($field->classes))
+					{
+						fwrite($fh, "\$field->classes = '".singleScape($field->classes)."';\n");
 					}
 					fwrite($fh, "\$field->tipo = '".$field->tipo."';\n");
 

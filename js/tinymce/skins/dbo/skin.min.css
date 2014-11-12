@@ -1267,7 +1267,7 @@ i.mce-i-resize {
 	background:#e3e3e3;
 	padding:8px;
 	text-shadow:0 1px 1px rgba(255,255,255,0.75);
-	height:13px;
+	height:auto;
 	cursor:pointer
 }
 .mce-tab:hover {
@@ -1277,7 +1277,7 @@ i.mce-i-resize {
 	background:#fdfdfd;
 	border-bottom-color:transparent;
 	margin-bottom:-1px;
-	height:14px
+	height:auto;
 }
 .mce-textbox {
 	background:#FFF;

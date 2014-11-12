@@ -736,7 +736,7 @@ class Dbo extends Obj
 
 			/* salvando o total de registros sem o LIMIT no objeto */
 			$sql = "select FOUND_ROWS()";
-			$res = mysql_query($sql);
+			$res = dboQuery($sql);
 			$this->__total = mysql_result($res, 0);
 			
 			$lin = mysql_fetch_assoc($this->__res);
@@ -2462,23 +2462,23 @@ class Dbo extends Obj
 									}
 									else
 									{
-										$return .= "<input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
+										$return .= "<input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'/>";
 									}
 								}
 								// PASSWORD ==================================================================================
 								if($valor->tipo == 'password')
 								{
-									$return .= "<input type='password' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'/>";
+									$return .= "<input type='password' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'/>";
 								}
 								// TEXTAREA ==================================================================================
 								if($valor->tipo == 'textarea')
 								{
-									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'></textarea>";
+									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'></textarea>";
 								}
 								// TEXTAREA-RICH ==================================================================================
 								if($valor->tipo == 'textarea-rich')
 								{
-									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='tinymce ".(($valor->valida)?('required'):(''))."' id='insert-".$valor->coluna."' data-name='".$valor->titulo."'></textarea>";
+									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('tinymce'))."' id='insert-".$valor->coluna."' data-name='".$valor->titulo."'></textarea>";
 
 									//getting the settings for tinymce
 									/*$file_code = '';
@@ -2493,7 +2493,7 @@ class Dbo extends Obj
 									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
+										$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
 									$return .= "</span>";
 								}
@@ -2503,7 +2503,7 @@ class Dbo extends Obj
 									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
+										$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
 									$return .= "</span>";
 								}
@@ -2511,7 +2511,7 @@ class Dbo extends Obj
 								elseif ($valor->tipo == 'price')
 								{
 									$return .= "<div class=\"row collapse\">";
-									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right'/></div>";
+									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right ".$valor->classes."'/></div>";
 									$return .= "	<div class=\"small-2 columns\">";
 									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fa-times\"></i></span>";
 									$return .= "	</div>";
@@ -2520,7 +2520,7 @@ class Dbo extends Obj
 								// SELECT ====================================================================================
 								elseif ($valor->tipo == 'select')
 								{
-									$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+									$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'>";
 									$return .= "<option value='-1'>...</option>";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
@@ -2531,7 +2531,7 @@ class Dbo extends Obj
 								// DATA ======================================================================================
 								elseif($valor->tipo == 'date')
 								{
-									$return .= (($custom_field)?($custom_field):("<input type='text' class='datepick ".(($valor->valida)?('required'):(''))."' name='".$valor->coluna."' data-name='".$valor->titulo."'/>"));
+									$return .= (($custom_field)?($custom_field):("<input type='text' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('datepick'))."' name='".$valor->coluna."' data-name='".$valor->titulo."'/>"));
 								}
 								// DATA E HORA ================================================================================
 								elseif($valor->tipo == 'datetime')
@@ -2539,7 +2539,7 @@ class Dbo extends Obj
 									ob_start();
 									?>
 									<div class="row collapse">
-										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='datetimepick <?= (($valor->valida)?('required'):('')) ?>' data-name="<?= $valor->titulo ?>"/></div>
+										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='<?= (($valor->valida)?('required'):('')) ?> <?= (($valor->classes)?:('datetimepick')) ?>' data-name="<?= $valor->titulo ?>"/></div>
 										<div class="small-2 columns"><a href="#" class="button secondary postfix radius trigger-clear-closest-input" title="Limpar data e hora" style="background-image: url('<?= DBO_URL ?>/../images/cross.png'); background-repeat: no-repeat; background-position: center center;">&nbsp;</a></div>
 									</div>
 									<?
@@ -2598,8 +2598,8 @@ class Dbo extends Obj
 											
 											ob_start();
 											?>
-												<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<input type="text" name="<?= $valor->coluna ?>_select2_aux" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?> <?= $valor->classes ?>"/>
+												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="" class="<?= (($valor->valida)?('required'):('')) ?> <?= $valor->classes ?>"/>
 												<script>
 													$(document).ready(function(){
 
@@ -2670,7 +2670,7 @@ class Dbo extends Obj
 												$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 												if($join->tipo == 'select') //se o join for do tipo select
 												{
-													$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">";
+													$return .= "<select name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))." ".$valor->classes."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">";
 													$return .= "<option value='-1'>...</option>";
 													do {
 														$join_retorno = '';
@@ -2685,7 +2685,7 @@ class Dbo extends Obj
 													do {
 														$join_retorno = '';
 														$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
-														$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n";
+														$return .= "<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."' value='".$obj->{$join->chave}."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n";
 													}while($obj->fetch());
 													$return .= "</span>";
 												}
@@ -2716,7 +2716,7 @@ class Dbo extends Obj
 									$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 									if($join->tipo == 'select') //se o join for do tipo select
 									{
-										$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>";
+										$return .= "<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))." ".$valor->classes."' size='5' data-name='".$valor->titulo."'>";
 										do {
 											$join_retorno = '';
 											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
@@ -2734,7 +2734,7 @@ class Dbo extends Obj
 											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
 											$join_key_2 = '';
 											$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
-											$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."[]' value='".$join_key_2."' data-name='".$valor->titulo."' class ".(($valor->valida)?('required'):(''))."><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></spam>";
+											$return .= "<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' name='".$valor->coluna."[]' value='".$join_key_2."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>";
 										}while($obj->fetch());
 										$return .= "</span>";
 									}
@@ -2742,12 +2742,12 @@ class Dbo extends Obj
 								// IMAGE ============================================================================
 								elseif($valor->tipo == 'image')
 								{
-									$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+									$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'>";
 								}
 								// FILES ============================================================================
 								elseif($valor->tipo == 'file')
 								{
-									$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'>";
+									$return .= "<input type='file' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'>";
 								}
 							} //if custom_field
 
@@ -2916,23 +2916,23 @@ class Dbo extends Obj
 									}
 									else
 									{
-										$return .= "\t\t\t<input type='text' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
+										$return .= "\t\t\t<input type='text' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'/>\n";
 									}
 								}
 								// PASSWORD ==================================================================================
 								if($valor->tipo == 'password')
 								{
-									$return .= "\t\t\t<input type='password' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'/>\n";
+									$return .= "\t\t\t<input type='password' name='".$valor->coluna."' value=\"".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."\" class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'/>\n";
 								}
 								// TEXTAREA ==================================================================================
 								if($valor->tipo == 'textarea')
 								{
-									$return .= "\t\t\t<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."</textarea>\n";
+									$return .= "\t\t\t<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($this->clearValue($modulo->{$valor->coluna}))):($this->clearValue($modulo->{$valor->coluna})))."</textarea>\n";
 								}
 								// TEXTAREA-RICH ==================================================================================
 								if($valor->tipo == 'textarea-rich')
 								{
-									$return .= "\t\t\t<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='tinymce ".(($valor->valida)?('required'):(''))."' id='update-".$valor->coluna."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($modulo->{$valor->coluna})):($modulo->{$valor->coluna}))."</textarea>\n";
+									$return .= "\t\t\t<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('tinymce'))."' id='update-".$valor->coluna."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($modulo->{$valor->coluna})):($modulo->{$valor->coluna}))."</textarea>\n";
 
 									//getting the settings for tinymce
 									/*$file_code = '';
@@ -2947,7 +2947,7 @@ class Dbo extends Obj
 									$return .= "<span class='form-height-fix list-radio-checkbox' style='display: block'>";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' ".(($modulo->{$valor->coluna} == $chave2)?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
+										$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."' value='".$chave2."' ".(($modulo->{$valor->coluna} == $chave2)?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
 									$return .= "</span>";
 								}
@@ -2958,7 +2958,7 @@ class Dbo extends Obj
 									$database_checkbox_values = explode("\n", $modulo->{$valor->coluna});
 									foreach($valor->valores as $chave2 => $valor2)
 									{
-										$return .= "<span style='display: block; white-space: nowrap'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."' ".((in_array($chave2, $database_checkbox_values))?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
+										$return .= "<span style='display: block; white-space: nowrap'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($chave2)."' name='".$valor->coluna."[]' value='".$chave2."' ".((in_array($chave2, $database_checkbox_values))?('CHECKED'):(''))." class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($chave2)."'>".$valor2."</label></span>\n";
 									}
 									$return .= "</span>";
 								}
@@ -2969,7 +2969,7 @@ class Dbo extends Obj
 									$valor_price = number_format($valor_price, 2, '', '.');
 
 									$return .= "<div class=\"row collapse\">";
-									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right' value=\"".(($edit_function)?($edit_function($this->clearValue($valor_price))):($this->clearValue($valor_price)))."\"/></div>";
+									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right ".$valor->classes."' value=\"".(($edit_function)?($edit_function($this->clearValue($valor_price))):($this->clearValue($valor_price)))."\"/></div>";
 									$return .= "	<div class=\"small-2 columns\">";
 									$return .= "		<span class=\"postfix radius pointer trigger-clear-price\" title=\"Limpar o valor do preço\"><i class=\"fa-times\"></i></span>";
 									$return .= "	</div>";
@@ -2980,7 +2980,7 @@ class Dbo extends Obj
 								// SELECT ====================================================================================
 								elseif ($valor->tipo == 'select')
 								{
-									$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
+									$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'>\n";
 									$return .= "\t\t\t\t<option value='-1'>...</option>\n";
 									foreach($valor->valores as $chave2 => $valor2)
 									{
@@ -2994,7 +2994,7 @@ class Dbo extends Obj
 									list($ano,$mes,$dia) = explode("-", $this->clearValue($modulo->{$valor->coluna}));
 									if($dia == '00') { $val = ''; }
 									else { $val = $dia."/".$mes."/".$ano; }
-									$return .= "\t\t\t<input type='text' class='datepick ".(($valor->valida)?('required'):(''))."' name='".$valor->coluna."' value='".$val."'  data-name='".$valor->titulo."'/>\n";
+									$return .= "\t\t\t<input type='text' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('datepick'))."' name='".$valor->coluna."' value='".$val."'  data-name='".$valor->titulo."'/>\n";
 								}
 								// DATA E HORA ===============================================================================
 								elseif($valor->tipo == 'datetime')
@@ -3007,7 +3007,7 @@ class Dbo extends Obj
 									ob_start();
 									?>
 									<div class="row collapse">
-										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='datetimepick <?= (($valor->valida)?('required'):('')) ?>' data-name="<?= $valor->titulo ?>" value="<?= $datetime_valor ?>"/></div>
+										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='<?= (($valor->valida)?('required'):('')) ?> <?= (($valor->classes)?:('datetimepick')) ?>' data-name="<?= $valor->titulo ?>" value="<?= $datetime_valor ?>"/></div>
 										<div class="small-2 columns"><a href="#" class="button secondary postfix radius trigger-clear-closest-input" title="Limpar data e hora" style="background-image: url('<?= DBO_URL ?>/../images/cross.png'); background-repeat: no-repeat; background-position: center center;">&nbsp;</a></div>
 									</div>
 									<?
@@ -3075,8 +3075,8 @@ class Dbo extends Obj
 											
 											ob_start();
 											?>
-												<input type="text" name="<?= $valor->coluna ?>_select2_aux" value="<?= htmlSpecialChars($join_retorno) ?>" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
-												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="<?= $modulo->{$valor->coluna} ?>" class="<?= (($valor->valida)?('required'):('')) ?>"/>
+												<input type="text" name="<?= $valor->coluna ?>_select2_aux" value="<?= htmlSpecialChars($join_retorno) ?>" data-name="<?= $valor->titulo ?>" data-target="#<?= $id_handler ?>" class="<?= (($valor->valida)?('required'):('')) ?> <?= $valor->classes ?>"/>
+												<input type="hidden" name="<?= $valor->coluna ?>" id="<?= $id_handler ?>" value="<?= $modulo->{$valor->coluna} ?>" class="<?= (($valor->valida)?('required'):('')) ?> <?= $valor->classes ?>"/>
 												<script>
 													$(document).ready(function(){
 
@@ -3168,7 +3168,7 @@ class Dbo extends Obj
 											$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 											if($join->tipo == 'select') //se o join for do tipo select
 											{
-												$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))."' data-name='".$valor->titulo."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">\n";
+												$return .= "\t\t\t<select name='".$valor->coluna."' class='".(($valor->valida)?(' required '):('')).(($join->select2)?('select2'):(''))." ".$valor->classes."' data-name='".$valor->titulo."' ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):('')).">\n";
 												$return .= "\t\t\t\t<option value='-1'>...</option>\n";
 												//se o atual for inativo, colocar no começo, e em destaque...
 												if($inativo_atual)
@@ -3192,7 +3192,7 @@ class Dbo extends Obj
 													{
 														$return .= "\t\t\t<span style='white-space: nowrap'><input id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."' type='radio' name='".$valor->coluna."' CHECKED value='".$inativo_atual[chave]."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor])))."'  class='flag-inativo'>".(($edit_function)?($edit_function($inativo_atual[valor])):($inativo_atual[valor]))." (Inativo)</label></span>\n";
 													}
-													$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($join_retorno)):($join_retorno)))."' name='".$valor->coluna."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" CHECKED "):(''))." value='".$obj->{$join->chave}."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($join_retorno)):($join_retorno)))."'>".(($edit_function)?($edit_function($join_retorno)):($join_retorno))."</label></span>\n";
+													$return .= "\t\t\t<span style='white-space: nowrap'><input type='radio' id='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($join_retorno)):($join_retorno)))."' name='".$valor->coluna."' ".(($obj->{$join->chave} == $modulo->{$valor->coluna})?(" CHECKED "):(''))." value='".$obj->{$join->chave}."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug((($edit_function)?($edit_function($join_retorno)):($join_retorno)))."'>".(($edit_function)?($edit_function($join_retorno)):($join_retorno))."</label></span>\n";
 												}while($obj->fetch());
 												$return .= "</span>";
 											}
@@ -3248,7 +3248,7 @@ class Dbo extends Obj
 									$metodo_retorno = (($join->metodo_retorno)?($join->metodo_retorno):(false));
 									if($join->tipo == 'select') //se o join for do tipo select
 									{
-										$return .= "\t\t\t<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))."' size='5' data-name='".$valor->titulo."'>\n";
+										$return .= "\t\t\t<select name='".$valor->coluna."[]' multiple ".(($join->tamanho_minimo)?(' data-tamanho_minimo="'.$join->tamanho_minimo.'" '):(''))." class='".(($join->select2)?('select2'):('multiselect'))." ".(($valor->valida)?('required'):(''))." ".$valor->classes."' size='5' data-name='".$valor->titulo."'>\n";
 										if($inativo_atual)
 										{
 											foreach($inativo_atual as $inativo_value)
@@ -3272,7 +3272,7 @@ class Dbo extends Obj
 										{
 											foreach($inativo_atual as $key => $inativo_value)
 											{
-												$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."[]' CHECKED value='".$inativo_value[chave]."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' class='flag-inativo'>".(($edit_function)?($edit_function($inativo_value[valor])):($inativo_value[valor]))." (Inativo)</label></span>\n";
+												$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><input type='checkbox' id='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' name='".$valor->coluna."[]' CHECKED value='".$inativo_value[chave]."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'><label for='radio-".$valor->coluna."-".makeSlug($obj->{$join->valor})."' class='flag-inativo'>".(($edit_function)?($edit_function($inativo_value[valor])):($inativo_value[valor]))." (Inativo)</label></span>\n";
 											}
 										}
 										do {
@@ -3280,7 +3280,7 @@ class Dbo extends Obj
 											$join_retorno = (($metodo_retorno)?($obj->$metodo_retorno()):($obj->{$join->valor}));
 											$join_key_2 = '';
 											$join_key_2 = (($join->chave2_pk)?($obj->{$join->chave2_pk}):($obj->{$join->chave}));
-											$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))."'><input id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' ".((in_array($join_key_2, $cadastrados_array))?('CHECKED'):(''))." type='checkbox' name='".$valor->coluna."[]' value='".$join_key_2."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n ";
+											$return .= "\t\t\t<span style='display: block; white-space: nowrap' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."'><input id='radio-".$valor->coluna."-".makeSlug($join_retorno)."' ".((in_array($join_key_2, $cadastrados_array))?('CHECKED'):(''))." type='checkbox' name='".$valor->coluna."[]' value='".$join_key_2."'><label for='radio-".$valor->coluna."-".makeSlug($join_retorno)."'>".$join_retorno."</label></span>\n ";
 										}while($obj->fetch());
 										$return .= "</span>";
 									}
@@ -3312,7 +3312,7 @@ class Dbo extends Obj
 										$ob_result = ob_get_clean();
 										$return .= $ob_result;
 									}
-									$return .= "\t\t\t<input type='file' id='input-imagem-".$valor->coluna."' name='".$valor->coluna."' class='".(($file_exists)?('hidden'):(''))." ".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
+									$return .= "\t\t\t<input type='file' id='input-imagem-".$valor->coluna."' name='".$valor->coluna."' class='".(($file_exists)?('hidden'):(''))." ".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'>\n";
 								}
 								// FILE ============================================================================
 								elseif($valor->tipo == 'file')
@@ -3321,7 +3321,7 @@ class Dbo extends Obj
 									{
 										$return .= "\t\t\t".$this->getDownloadLink($modulo->{$valor->coluna})." <input type='checkbox' name='manter_atual_".$valor->coluna."' CHECKED> Manter arquivo atual<br>\n";
 									}
-									$return .= "\t\t\t<input type='file' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))."' data-name='".$valor->titulo."'>\n";
+									$return .= "\t\t\t<input type='file' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".$valor->classes."' data-name='".$valor->titulo."'>\n";
 								}
 							} //if custom field
 
@@ -4024,13 +4024,6 @@ class Dbo extends Obj
 						$('.wrapper-auto-admin-view').hide();
 
 						//tinymce rendering bug correction - basically, disables and re-enables tinyMCE to force match the text-area size.
-						$('textarea.tinymce').each(function(){
-							/*tinymce.editors[$(this).attr('id')].hide();
-							tinymce.editors[$(this).attr('id')].show();*/
-							/*tinymce.execCommand('mceRemoveControl', false, $(this).attr('id'));
-							tinymce.execCommand('mceAddControl', false, $(this).attr('id'));*/
-						})
-
 					} else {
 						$('.trigger-dbo-auto-admin-cancelar-insercao-edicao').fadeOut('fast', function(){
 							$('.trigger-dbo-auto-admin-inserir').fadeIn('fast');
@@ -4078,19 +4071,25 @@ class Dbo extends Obj
 					$(this).multiselect({sortable: false, searchable: true});
 				})
 
-				tinymce.init({
-					selector: 'textarea.tinymce',
-					height: '300',
-					theme: 'dbo',
-					plugins: [
-						"advlist autolink lists link image charmap preview hr anchor pagebreak",
-						"searchreplace wordcount visualblocks visualchars code fullscreen",
-						"media nonbreaking save table contextmenu directionality",
-						"emoticons template paste textcolor"
-					],
-					toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | fullscreen | code",
-					image_advtab: true
-				});
+				$("textarea.tinymce").each(function(){
+					$(this).tinymce({
+						height: (($(this).attr('rows'))?($(this).attr('rows')*19):('300')),
+						theme: 'dbo',
+						resize: false,
+						/*autoresize: true,
+						autoresize_min_height: '100',
+						autoresize_max_height: '600',*/
+						language: 'pt_BR',
+						plugins: [
+							"advlist autolink lists link image charmap preview hr anchor pagebreak",
+							"searchreplace wordcount visualblocks visualchars code fullscreen",
+							"media nonbreaking save table contextmenu directionality",
+							"emoticons template paste textcolor"
+						],
+						toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | code | fullscreen",
+						image_advtab: true
+					})
+				})
 
 				//precos
 				$('.price.price-real').priceFormat({

@@ -389,6 +389,8 @@ if($_POST['time2crop'])
 
 	?>
 	<script>
+		window.parent.setPeixeMessage('<div class="success">Atenção: Salve as alterações para finalizar a alteração da foto!</div>');
+		window.parent.showPeixeMessage();
 		window.parent.closeBox('<?= $coluna ?>', '<?= str_replace("orig_", "", $filename) ?>');
 	</script>
 	<?
@@ -560,11 +562,11 @@ if($_POST['time2crop'])
 		if(!$step2)
 		{
 			?>
-				<form enctype="multipart/form-data" method='POST' action='<?= $dbo->keepUrl(); ?>'>
+				<form enctype="multipart/form-data" method='POST' action='<?= $dbo->keepUrl(); ?>' id="form-cropper">
 				<div class='row'>
 					<div class='item'>
 						<label>Selecione a Imagem para tratamento (somente formato JPEG)</label>
-						<div style='padding: 20px 0;'><input type='file' name='image'></div>
+						<div style='padding: 20px 0;'><input type='file' name='image' onChange="document.getElementById('form-cropper').submit();"></div>
 						<input type='submit' value='enviar' class='button'>
 					</div><!-- item -->
 				</div><!-- row -->
