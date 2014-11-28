@@ -4076,18 +4076,19 @@ class Dbo extends Obj
 						height: (($(this).attr('rows'))?($(this).attr('rows')*19):('300')),
 						theme: 'dbo',
 						resize: false,
-						/*autoresize: true,
-						autoresize_min_height: '100',
-						autoresize_max_height: '600',*/
+						object_resizing: false,
+						autoresize: true,
+						autoresize_max_height: 700,
 						language: 'pt_BR',
+						autofocus: false,
+						extended_valid_elements: 'div[media-manager-element|class|id],img[media-manager-element|src|alt|class|id]',
 						plugins: [
 							"advlist autolink lists link image charmap preview hr anchor pagebreak",
 							"searchreplace wordcount visualblocks visualchars code fullscreen",
 							"media nonbreaking save table contextmenu directionality",
-							"emoticons template paste textcolor"
+							"emoticons template paste textcolor dbo_media_manager autoresize"
 						],
-						toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media | code | fullscreen",
-						image_advtab: true
+						toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link media dbo_media_manager | code | fullscreen"
 					})
 				})
 

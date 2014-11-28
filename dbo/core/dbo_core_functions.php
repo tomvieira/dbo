@@ -1,4 +1,27 @@
 <?
+	$dbo_media_manager_image_sizes_default = array(
+		'small' => array(
+			'name' => 'Pequeno',
+			'max_width' => '180',
+			'max_height' => '180',
+			'quality' => '90'
+		),
+		'medium' => array(
+			'name' => 'Médio',
+			'max_width' => '400',
+			'max_height' => '400',
+			'quality' => '90'
+		),
+		'large' => array(
+			'name' => 'Grande',
+			'max_width' => '1200',
+			'max_height' => '1200',
+			'quality' => '90'
+		)
+	);
+
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function marca ($hailshack, $needle)
 	{
 		return str_replace($needle, "<span class='marca'>".$needle."</span>", $hailshack);
@@ -214,6 +237,43 @@
 		}
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboFileName($file_name, $params = array())
+	{
+		extract($params);
+		$file_path = $file_path?:DBO_PATH."/upload/images/";
+		$overwrite = $overwrite?:false;
+
+		//primeiro quebrando o nome do arquivo em nome e extensao
+		$ext = dboGetExtension($file_name);
+		$file = ereg_replace('\\'.$ext.'$', '', $file_name);
+
+		//se o overwrite for false, vamos retornar o nome padrão
+		if($overwrite)
+		{
+			return makeSlug($file).$ext;
+		}
+		//aqui vem a complicação... precisamos ver se o arquivo existe, e se sim, colocar um incremento no final do nome.
+		else
+		{
+			//vamos ver se o arquivo existe
+			if(file_exists($file_path.makeSlug($file).$ext))
+			{
+				$parts = explode("-", $file);
+				$count = intval($parts[sizeof($parts)-1]);
+				$file = ereg_replace('\-'.$count.'$', '', $file);
+				return dboFileName($file."-".($count+1).$ext, $params);
+			}
+			//se não existe, beleza. Só retornar o nome do arquivo
+			else
+			{
+				return makeSlug($file).$ext;
+			}
+		}
+		
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function dboFileUploaded($file_name)
@@ -1547,6 +1607,9 @@
 	{
 		global $dbo;
 		?>
+			<script>
+				var DBO_URL = '<?= DBO_URL ?>';
+			</script>
  			<script type="text/javascript" charset='utf-8' src="js/jquery.maskedinput.js"></script>
 			<script type="text/javascript" charset='utf-8' src="js/jquery-ui/jquery-ui.js"></script>
 			<script type="text/javascript" charset='utf-8' src="js/jquery-ui/ui.datepicker-pt-BR.js"></script>
@@ -1585,7 +1648,7 @@
 	{
 		global $start_time;
 		global $dbo_query_counter;
-		if(!$_GET['dbo_mod']) { dumpMid(); }
+		if(!$_GET['dbo_mod'] && !$_GET['dbo_modal']) { dumpMid(); }
 		$end_time = (float) array_sum(explode(' ',microtime()));
 		echo "<span class='processing-time' style='color: #FFF;' class='no-print'>Processing time: ". sprintf("%.4f", ($end_time-$start_time))." seconds</span>";
 		echo " <span class='dbo-queries-number' style='color: #FFF;'>Queries: ".$dbo_query_counter."</span>";

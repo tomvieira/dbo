@@ -320,6 +320,8 @@ function step2()
 					$needed_folders = array(
 						'../module_backups',
 						'../upload',
+						'../upload/dbo-media-manager',
+						'../upload/dbo-media-manager/thumbs',
 						'../upload/files',
 						'../upload/images',
 						'../plugins/jcrop_dbo/temp',

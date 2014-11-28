@@ -102,7 +102,7 @@
 				</div><!-- col -->
 			</div><!-- row -->
 			
-			<form method='POST' action='?perfil=<?= $_GET['perfil'] ?>'>
+			<form method='POST' action='dbo_permissions.php?perfil=<?= $_GET['perfil'] ?>'>
 				<div class='row full'>
 					<div class='large-12 columns'>
 						<table>

@@ -76,6 +76,19 @@ html > object { display: none !important; }
 .peixe-screen-freezer { position: fixed; z-index: 10000; width: 100%; height: 100%; background: transparent; display: none; }
 .peixe-ajax-loader { position: fixed; z-index: 10001; background: #333; padding: 5px 10px; color: #FFF; border-radius: 3px; top: 10px; left: 10px; box-shadow: 0px 1px 2px rgba(1,1,1,.2); text-shadow: 0px -1px 0px rgba(1,1,1,.99); display: none; }
 
+/* esitlos para o media manager */
+
+div[media-manager-element="image-container"] {
+	&.float-left { float: left; margin-right: 1.5em; margin-bottom: 1em; }
+	&.float-right { float: right; margin-left: 1.5em; margin-bottom: 1em; } 
+	dl { display: inline-block; margin: 0; 
+		dt { margin: 0; 
+			img { display: block; }
+		}
+		dd { color: #999; font-style: italic; margin: 0; padding-top: 5px; font-size: 12px; }
+	}
+}
+
 input, a, select {
 	&:focus { outline: 0; }
 	&.auto { width: auto !important; display: inline-block !important; }
