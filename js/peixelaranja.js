@@ -237,7 +237,7 @@ function supportAjaxUploadWithProgress() {
 
 function peixeAjaxFileUploadSingleFile(input_id, action) {
 
-	console.log(action);
+	//console.log(action);
 	input = $('#'+input_id);
 	var formData = new FormData();
 
@@ -308,7 +308,7 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 	}
 
 	if (readyState == 4 && status == '200' && evt.target.responseText) {
-		console.log(evt.target.responseText);
+		//console.log(evt.target.responseText);
 		var data = $.parseJSON(evt.target.responseText);
 		if(data.error){
 			//erro de qualquer natureza na hora do upload
@@ -318,7 +318,11 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 			});
 		}
 		else {
-			//tudo ok
+			//tudo ok, disparar evento
+			//var event = new CustomEvent('upload-done', { 'detail': { 'old_file_name': data.old_name, 'new_file_name': data.name } });
+			//$("#"+evt.target.input_id)[0].dispatchEvent(event);
+			$("#"+evt.target.input_id).trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name });
+
 			container.find('input[type="text"]').val(data.name);
 			container.find('.upload-sending').hide();
 			container.find('.upload-success').show();
@@ -451,7 +455,7 @@ $(document).ready(function(){
 	});
 
 	//colcando ajax loader e screen freezer
-	$('body:not(:has(.peixe-ajax-loader))').prepend('<div class="peixe-ajax-loader">Carregando...</div>');
+	$('body:not(:has(.peixe-ajax-loader))').prepend('<div class="peixe-ajax-loader"><i class="fa-spinner fa-spin"></i> <span>Carregando...</span></div>');
 	$('body:not(:has(.peixe-screen-freezer))').prepend('<div class="peixe-screen-freezer"></div>');
 	$('body:not(:has(.wrapper-message))').prepend('<div class="wrapper-message closed"></div>');
 
