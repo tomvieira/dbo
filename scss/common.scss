@@ -94,6 +94,11 @@ input, a, select {
 	&.auto { width: auto !important; display: inline-block !important; }
 }
 
+/* estilos para os content blocks */
+.wrapper-bloco-conteudo {
+	&:hover { outline: 1px solid $primary-color; }
+}
+
 /* --------------------------------------------------------------------------------------------------------*/
 /* ALGUNS RESETS PARA O FOUNDATION ------------------------------------------------------------------------*/
 /* --------------------------------------------------------------------------------------------------------*/

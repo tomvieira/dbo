@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'pessoa' ====================================== AUTO-CREATED ON 30/09/2011 11:32:16 */
+/* DBO DEFINITION FILE FOR MODULE 'pessoa' ====================================== AUTO-CREATED ON 07/12/2014 13:50:35 */
 /* ================================================================================================================== */
 
 
@@ -19,6 +19,7 @@ $module->update = true;
 $module->delete = true;
 $module->insert = 'Nova Pessoa';
 $module->preload_insert_form = false;
+$module->auto_view = true;
 $module->order_by = '0';
 
 /* FIELDS =========================================================================================================== */
@@ -27,6 +28,7 @@ $field = new Obj();
 $field->titulo = 'Id';
 $field->coluna = 'id';
 $field->pk = true;
+$field->isnull = false;
 $field->add = false;
 $field->valida = false;
 $field->edit = false;
@@ -35,6 +37,7 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'INT NOT NULL auto_increment';
+$field->interaction = '';
 $field->tipo = 'pk';
 $module->campo[$field->coluna] = $field;
 
@@ -45,6 +48,7 @@ $field->titulo = 'Nome';
 $field->coluna = 'nome';
 $field->default = 'ASC';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = true;
 $field->edit = true;
@@ -53,6 +57,7 @@ $field->lista = true;
 $field->filter = true;
 $field->order = true;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
@@ -62,6 +67,7 @@ $field = new Obj();
 $field->titulo = 'E-mail';
 $field->coluna = 'email';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = false;
 $field->edit = true;
@@ -70,6 +76,7 @@ $field->lista = true;
 $field->filter = true;
 $field->order = true;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
@@ -80,6 +87,7 @@ $field->titulo = 'Usuário';
 $field->coluna = 'user';
 $field->dica = 'Usuário de acesso ao sistema';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = true;
 $field->edit = true;
@@ -88,6 +96,7 @@ $field->lista = true;
 $field->filter = true;
 $field->order = true;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
@@ -97,6 +106,7 @@ $field = new Obj();
 $field->titulo = 'Senha';
 $field->coluna = 'pass';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = true;
 $field->edit = true;
@@ -105,6 +115,7 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
 $field->tipo = 'password';
 $module->campo[$field->coluna] = $field;
 
@@ -115,6 +126,7 @@ $field->titulo = 'Perfil';
 $field->coluna = 'perfil';
 $field->dica = 'Perfil de acesso ao sistema, pode-se usar mais de 1';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = false;
 $field->edit = true;
@@ -123,21 +135,33 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'INT(11)';
+$field->interaction = '';
 $field->tipo = 'joinNN';
 	$join = new Obj();
 	$join->modulo = 'perfil';
 	$join->chave = 'id';
 	$join->valor = 'nome';
+	$join->ajax = true;
+	$join->select2 = true;
 	$join->tabela_ligacao = 'pessoa_perfil';
 	$join->chave1 = 'pessoa';
 	$join->chave2 = 'perfil';
 	$join->tipo = 'select';
+	$join->order_by = 'id';
 $field->join = $join;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
 
 /* GRID FOR THE FORM LAYOUT ========================================================================================= */
+
+$grid = array();
+
+$grid[] = array('12');
+$grid[] = array('4','4','4');
+$grid[] = array('12');
+
+$module->grid = $grid;
 
 /* MODULE LIST BUTTONS ============================================================================================== */
 
@@ -157,11 +181,16 @@ if(!function_exists('pessoa_pre_insert'))
 
 if(!function_exists('pessoa_pos_insert'))
 {
-	function pessoa_pos_insert ($id) // id of the just inserted element
+	function pessoa_pos_insert ($obj) // active just inserted object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
-
+		if(!empty($_POST[pass])) {
+			if(strlen($_POST[pass]) != 128) {
+				$obj->pass = $obj->cryptPassword($_POST[pass]);
+				$obj->update();
+			}
+		}
 
 	// ----------------------------------------------------------------------------------------------------------
 	}
@@ -169,7 +198,7 @@ if(!function_exists('pessoa_pos_insert'))
 
 if(!function_exists('pessoa_pre_update'))
 {
-	function pessoa_pre_update ($id) // id of the active element
+	function pessoa_pre_update ($obj) // active object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -181,11 +210,16 @@ if(!function_exists('pessoa_pre_update'))
 
 if(!function_exists('pessoa_pos_update'))
 {
-	function pessoa_pos_update ($id) // id of the active element
+	function pessoa_pos_update ($obj) // active updated object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
-
+		if(!empty($_POST[pass])) {
+			if(strlen($_POST[pass]) != 128) {
+				$obj->pass = $obj->cryptPassword($_POST[pass]);
+				$obj->update();
+			}
+		}
 
 	// ----------------------------------------------------------------------------------------------------------
 	}
@@ -193,7 +227,7 @@ if(!function_exists('pessoa_pos_update'))
 
 if(!function_exists('pessoa_pre_delete'))
 {
-	function pessoa_pre_delete ($id) // id of the active element
+	function pessoa_pre_delete ($obj) // active object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -205,7 +239,7 @@ if(!function_exists('pessoa_pre_delete'))
 
 if(!function_exists('pessoa_pos_delete'))
 {
-	function pessoa_pos_delete ($id) // id of the active element
+	function pessoa_pos_delete ($obj) // active deleted object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -230,6 +264,30 @@ if(!function_exists('pessoa_pre_list'))
 if(!function_exists('pessoa_pos_list'))
 {
 	function pessoa_pos_list ($ids) // ids of the listed elements
+	{ global $dbo;
+	// ----------------------------------------------------------------------------------------------------------
+
+
+
+	// ----------------------------------------------------------------------------------------------------------
+	}
+}
+
+if(!function_exists('pessoa_notifications'))
+{
+	function pessoa_notifications ($type = '')
+	{ global $dbo;
+	// ----------------------------------------------------------------------------------------------------------
+
+
+
+	// ----------------------------------------------------------------------------------------------------------
+	}
+}
+
+if(!function_exists('pessoa_overview'))
+{
+	function pessoa_overview ($foo)
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@
 	<title><?= SYSTEM_NAME ?> - <?= SYSTEM_DESCRIPTION ?></title>
 	<meta name="description" content="">
 	<meta name="author" content="Peixe Laranja">
-	<base href="<?= ereg_replace('/dbo$', '', DBO_URL) ?>">
+	<base href="<?= @ereg_replace('/dbo$', '', DBO_URL) ?>/">
 
 	<link rel="shortcut icon" href="images/favicon.ico"><!-- 16x16 -->
 	<!-- <link rel="icon" href="images/icon.png" sizes="32x32">

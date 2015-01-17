@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'perfil' ====================================== AUTO-CREATED ON 16/04/2013 09:53:21 */
+/* DBO DEFINITION FILE FOR MODULE 'perfil' ====================================== AUTO-CREATED ON 07/12/2014 13:53:24 */
 /* ================================================================================================================== */
 
 
@@ -28,6 +28,7 @@ $field = new Obj();
 $field->titulo = 'Id';
 $field->coluna = 'id';
 $field->pk = true;
+$field->isnull = false;
 $field->add = false;
 $field->valida = false;
 $field->edit = false;
@@ -36,6 +37,7 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'INT NOT NULL auto_increment';
+$field->interaction = '';
 $field->tipo = 'pk';
 $module->campo[$field->coluna] = $field;
 
@@ -45,6 +47,7 @@ $field = new Obj();
 $field->titulo = 'Nome';
 $field->coluna = 'nome';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = false;
 $field->edit = true;
@@ -53,6 +56,7 @@ $field->lista = true;
 $field->filter = false;
 $field->order = false;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
@@ -62,6 +66,7 @@ $field = new Obj();
 $field->titulo = 'Permissão';
 $field->coluna = 'permissao';
 $field->pk = false;
+$field->isnull = false;
 $field->add = false;
 $field->valida = false;
 $field->edit = false;
@@ -70,6 +75,7 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'TEXT';
+$field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
@@ -79,6 +85,7 @@ $field = new Obj();
 $field->titulo = 'Pessoa';
 $field->coluna = 'pessoa';
 $field->pk = false;
+$field->isnull = false;
 $field->add = true;
 $field->valida = false;
 $field->edit = true;
@@ -87,15 +94,20 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'INT(11)';
+$field->interaction = '';
 $field->tipo = 'joinNN';
 	$join = new Obj();
 	$join->modulo = 'pessoa';
 	$join->chave = 'id';
 	$join->valor = 'nome';
+	$join->ajax = true;
+	$join->select2 = true;
 	$join->tabela_ligacao = 'pessoa_perfil';
 	$join->chave1 = 'perfil';
 	$join->chave2 = 'pessoa';
+	$join->tamanho_minimo = '3';
 	$join->tipo = 'select';
+	$join->order_by = 'id';
 $field->join = $join;
 $module->campo[$field->coluna] = $field;
 
@@ -129,7 +141,7 @@ if(!function_exists('perfil_pre_insert'))
 
 if(!function_exists('perfil_pos_insert'))
 {
-	function perfil_pos_insert ($id) // id of the just inserted element
+	function perfil_pos_insert ($obj) // active just inserted object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -141,7 +153,7 @@ if(!function_exists('perfil_pos_insert'))
 
 if(!function_exists('perfil_pre_update'))
 {
-	function perfil_pre_update ($id) // id of the active element
+	function perfil_pre_update ($obj) // active object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -153,7 +165,7 @@ if(!function_exists('perfil_pre_update'))
 
 if(!function_exists('perfil_pos_update'))
 {
-	function perfil_pos_update ($id) // id of the active element
+	function perfil_pos_update ($obj) // active updated object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -165,7 +177,7 @@ if(!function_exists('perfil_pos_update'))
 
 if(!function_exists('perfil_pre_delete'))
 {
-	function perfil_pre_delete ($id) // id of the active element
+	function perfil_pre_delete ($obj) // active object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
@@ -177,7 +189,7 @@ if(!function_exists('perfil_pre_delete'))
 
 if(!function_exists('perfil_pos_delete'))
 {
-	function perfil_pos_delete ($id) // id of the active element
+	function perfil_pos_delete ($obj) // active deleted object
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
