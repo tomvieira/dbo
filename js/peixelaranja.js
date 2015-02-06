@@ -454,6 +454,28 @@ $(document).ready(function(){
 		return false;
 	});
 
+	//controlando seções de conteudo (tipo accordion)
+	$(document).on('click', '.trigger-peixe-section', function(){
+		clicado = $(this);
+		section = clicado.closest('.peixe-section');
+		if(section.hasClass('open')){
+			section.removeClass('open').addClass('closed');
+		} else {
+			section.removeClass('closed').addClass('open');
+		}
+	});
+
+	//controlando os small toggles
+	$(document).on('click', '.trigger-small-toggle', function(){
+		clicado = $(this);
+		section = clicado.closest('.section-small-toggle');
+		if(section.hasClass('shown')){
+			section.removeClass('shown').addClass('closed');
+		} else {
+			section.removeClass('closed').addClass('shown');
+		}
+	});
+
 	//colcando ajax loader e screen freezer
 	$('body:not(:has(.peixe-ajax-loader))').prepend('<div class="peixe-ajax-loader"><i class="fa-spinner fa-spin"></i> <span>Carregando...</span></div>');
 	$('body:not(:has(.peixe-screen-freezer))').prepend('<div class="peixe-screen-freezer"></div>');

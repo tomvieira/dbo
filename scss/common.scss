@@ -64,6 +64,27 @@ html > object { display: none !important; }
 .fleft { float: left; }
 .fright { float: right; }
 
+/* estilos peixe laranja */
+
+//section (like accordions)
+.peixe-section {
+	&.open {
+		.icon-open { display: inline-block; }
+		.icon-closed { display: none; }
+	}
+	&.closed {
+		.icon-closed { display: inline-block; }
+		.icon-open { display: none; }
+		.peixe-section-content { display: none; }
+	}
+	.trigger-peixe-section { cursor: pointer;
+		-webkit-user-select: none;  
+		-moz-user-select: none;    
+		-ms-user-select: none;      
+		user-select: none;	
+	}
+}
+
 /* messages */
 .wrapper-message { font-family: "Museo Sans web", Sans-serif; max-height: 100px; position: fixed; top: 0; left: 0px; width: 100%; line-height: 1.2; overflow: hidden; font-size: 19px; z-index: 10000; opacity: 0.95; text-align: center; @include transition(all 1.5s ease);
 	&.closed { max-height: 0; }
@@ -161,7 +182,7 @@ fieldset { -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5
 }
 
 /* corrigindo probleminhas de formulario */
-textarea { height: auto; }
+textarea { height: auto; resize: vertical; }
 
 /* dando uma melhorada na tipografia dos Hs */
 h2 { letter-spacing: -1px; }
@@ -247,7 +268,11 @@ hr.tiny { margin: 0.50em 0; }
 	.font-15-for-medium-up { font-size: 15px; }
 	.font-16-for-medium-up { font-size: 16px; }
 
-	.text-right-for-medium-up { text-align: right !important; }
+	.text-left-for-medium-up,
+	.text-center.text-left-for-medium-up { text-align: left !important; }
+	.text-center-for-medium-up { text-align: center !important; }
+	.text-right-for-medium-up,
+	.text-center.text-right-for-medium-up { text-align: right !important; }
 
 	.narrow-for-medium-up { width: 1px; }
 	.text-center-for-medium-up { text-align: center; }
@@ -296,10 +321,52 @@ hr.tiny { margin: 0.50em 0; }
 	.top-19 { position: relative; top: 19px; }
 	.top-20 { position: relative; top: 20px; }
 
+	.top-minus-1  { position: relative; top:  -1px; }
+	.top-minus-2  { position: relative; top:  -2px; }
+	.top-minus-3  { position: relative; top:  -3px; }
+	.top-minus-4  { position: relative; top:  -4px; }
+	.top-minus-5  { position: relative; top:  -5px; }
+	.top-minus-6  { position: relative; top:  -6px; }
+	.top-minus-7  { position: relative; top:  -7px; }
+	.top-minus-8  { position: relative; top:  -8px; }
+	.top-minus-9  { position: relative; top:  -9px; }
+	.top-minus-10 { position: relative; top: -10px; }
+	.top-minus-11 { position: relative; top: -11px; }
+	.top-minus-12 { position: relative; top: -12px; }
+	.top-minus-13 { position: relative; top: -13px; }
+	.top-minus-14 { position: relative; top: -14px; }
+	.top-minus-15 { position: relative; top: -15px; }
+	.top-minus-16 { position: relative; top: -16px; }
+	.top-minus-17 { position: relative; top: -17px; }
+	.top-minus-18 { position: relative; top: -18px; }
+	.top-minus-19 { position: relative; top: -19px; }
+	.top-minus-20 { position: relative; top: -20px; }
+
+	div.dinamic-item { display: inline-block; 
+		label { display: inline-block; margin-right: .5em; }
+		input, select, textarea { width: auto; display: inline-block; }
+	}
+
 }
 
 //media query especifica para situações small que tem que seguir a abordagem "mobile last (not...)"
 
 @media only screen and (max-width: $small-screen) {
 	.text-center-for-small { text-align: center !important; }
+
+	.section-small-toggle { 
+		.trigger-small-toggle { cursor: pointer;
+			.icon-show { display: inline-block; }
+			.icon-hide { display: none; }
+		}
+		&.shown { 
+			.small-toggle { display: inherit; }
+			.trigger-small-toggle {
+				.icon-show { display: none; }
+				.icon-hide { display: inline-block; }
+			}
+		}
+		.small-toggle { display: none; }
+	}
+
 } 
