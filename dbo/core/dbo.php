@@ -5050,7 +5050,7 @@ class Dbo extends Obj
 								}
 
 								$caminho_arquivo = DBO_PATH."/upload/images/".$prefix.$nome_arquivo;
-								$image->save($caminho_arquivo); //salvando o arquivo no server
+								$image->save($caminho_arquivo, $q); //salvando o arquivo no server
 							}
 						}
 						$this->{$campo->coluna} = $nome_arquivo; //salvando o nome do arquivo no banco.

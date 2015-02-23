@@ -644,7 +644,9 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 	.thumb-lista { max-width: 50%; }
 
 	/* icones do menu */
-	.top-bar li i { display: inline-block; width: 16px; height: 16px; background-repeat: no-repeat; background-position: center center; opacity: .8; position: relative; top: 3px; } 
+	.top-bar ul.left li i { display: inline-block; opacity: .7; position: relative; top: 1px; } 
+	.top-bar ul.right li i { display: inline-block; width: 16px; height: 16px; background-repeat: no-repeat; background-position: center center; opacity: .8; position: relative; top: 3px; } 
+	.top-bar ul.right li a i { top: 0; }
 
 }
 
