@@ -29,6 +29,23 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function dboContent($content)
+	{
+		global $hooks;
+		$hooks->apply_filters('dbo_content', &$content);
+		return $content;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function filterMediaManagerUrl($content)
+	{
+		return str_replace("dbo/upload/dbo-media-manager/", DBO_URL."/upload/dbo-media-manager/", $content);
+	}
+	$hooks->add_filter('dbo_content', 'filterMediaManagerUrl');
+
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dboAuth($tipo = '')
 	{
 		if($tipo == '')
@@ -1605,7 +1622,7 @@
 
 	function dboHead()
 	{
-		global $dbo;
+		global $hooks;
 		?>
 			<script>
 				var DBO_URL = '<?= DBO_URL ?>';
@@ -1621,6 +1638,7 @@
 			<link href="js/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css">
 			<link href="js/multiselect/css/ui.multiselect.css" rel="stylesheet" type="text/css">
 		<?
+		$hooks->do_action('dbo_head');
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1648,6 +1666,8 @@
 	{
 		global $start_time;
 		global $dbo_query_counter;
+		global $hooks;
+		$hooks->do_action('dbo_footer');
 		if(!$_GET['dbo_mod'] && !$_GET['dbo_modal']) { dumpMid(); }
 		$end_time = (float) array_sum(explode(' ',microtime()));
 		echo "<span class='processing-time' style='color: #FFF;' class='no-print'>Processing time: ". sprintf("%.4f", ($end_time-$start_time))." seconds</span>";

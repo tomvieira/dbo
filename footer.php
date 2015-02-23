@@ -6,6 +6,7 @@
 		<script>$(document).foundation();</script>
 		<?= getMessage(); ?>
 		<? dboFooter(); ?>
+		<? $hooks->do_action('footer'); ?>
 		</body>
 		</html>
 		<?

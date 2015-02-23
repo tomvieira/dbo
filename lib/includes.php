@@ -35,6 +35,9 @@ if(function_exists(mb_internal_encoding))
 
 @include_once(INCLUDE_PATH.'/../dbo/core/dbo_install_validation.php');
 
+//utilizing wordpress hooks on the system
+@include_once(INCLUDE_PATH.'/../dbo/core/classes/php-hooks.php');
+
 /* at this point the system is sure the installation is valid. Will start instanciating the classes and stuff. */
 require_once(INCLUDE_PATH.'/connection.php');
 

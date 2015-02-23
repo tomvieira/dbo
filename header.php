@@ -70,6 +70,8 @@
 	<script src='js/jquery.autosize.js'></script>
 	<script src='js/jquery.scrollto.js'></script>
 
+	<? $hooks->do_action('head') ?>
+
 	<style>
 		<?
 			if(!logadoNoPerfil('Desenv')) {
@@ -122,7 +124,6 @@
 	</div><!-- main-header -->
 
 	<div id="main-wrap">
-
 		<?
 	}
 	else
