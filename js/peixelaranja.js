@@ -450,7 +450,18 @@ $(document).ready(function(){
 
 	$(document).on('submit', 'form.peixe-json', function(){
 		form = $(this);
-		peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)));
+		error = false;
+		if(typeof form.data('confirm') != 'undefined' && $.trim(form.data('confirm')) != ''){
+			var ans = confirm(form.data('confirm'));
+			if (ans==true) {
+				error = false;
+			} else {
+				error = true;
+			}
+		}
+		if(!error){
+			peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)));
+		}
 		return false;
 	});
 

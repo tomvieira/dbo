@@ -12,6 +12,21 @@
 
 body { overflow-y: scroll; overflow-x: hidden; } 
 
+label { text-transform: uppercase; cursor: default; 
+	i { font-size: 14px; margin-top: -3px; }
+}
+input + label { font-size: $input-font-size; text-transform: none; color: $input-font-color; cursor: pointer; 
+	i { margin-top: 0; }
+} 
+
+//fix para a possivel alteração nas labels
+.prefix, .postfix { height: 39px; line-height: 37px; font-size: 16px; 
+	&.connect { border-right: 0; border-left: 0; }
+	&.single { border-right-width: 1px; border-left-width: 1px; border-color: inherit; border-style: solid; 
+		&.radius { border-radius: $global-radius; }
+	}
+}
+
 textarea { height: auto; }
 
 a {
@@ -442,6 +457,10 @@ body.wordpress {
 	&.ongoing { background-color: $status-color-ongoing; }
 	&.cancel { background-color: $status-color-cancel; color: #999; }
 	&.alt { padding: 3px 5px; } 
+}
+a.label {
+	&:hover { color: transparentize(#fff, .2); }
+	&.cancel:hover { color: transparentize(#999, .2); }
 }
 
 #dbo-media-manager {

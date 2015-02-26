@@ -32,7 +32,7 @@
 	function dboContent($content)
 	{
 		global $hooks;
-		$hooks->apply_filters('dbo_content', &$content);
+		$content = $hooks->apply_filters('dbo_content', $content);
 		return $content;
 	}
 	
@@ -75,6 +75,13 @@
 		$dbo_query_counter++;
 		//dboLog('query', $sql);
 		return mysql_query($sql);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAffectedRows()
+	{
+		return mysql_affected_rows();
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1958,6 +1965,14 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function maxString($string, $max_size)
+	{
+		$max = min($max_size, strlen($string));
+		return iconv('UTF-8', "UTF-8//IGNORE", substr($string, 0, $max)).((strlen($string) > $max_size)?("..."):(''));
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function getDboContext()
 	{
 
@@ -2085,18 +2100,74 @@
 
 	function getUsersPerfil($perfil_name)
 	{
+
+		//tratando grupos
+		if(class_exists('grupo') && !sizeof($_sys[sysId()]['modulos']['grupo']))
+		{
+			$grp = new grupo();
+			$perf = new perfil();
+
+			$_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'] = $grp->__module_scheme->campo[pessoa]->join->tabela_ligacao;
+			$_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'] = $perf->__module_scheme->campo[grupo]->join->tabela_ligacao;
+		}
+		if(strlen(trim($_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'])) && strlen(trim($_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'])))
+		{
+			$tem_grupo = true;
+			$tabela_ligacao_grupo = $_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'];
+			$tabela_ligacao_perfil = $_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'];
+		}
+		else
+		{
+			$tem_grupo = false;
+		}
+
 		$perf = new perfil("WHERE nome = '".$perfil_name."'");
+
+		//tratando as pessoas
 		$sql = "SELECT pessoa FROM pessoa_perfil WHERE perfil = '".$perf->id."'";
 		$res = dboQuery($sql);
+
+		$result = array();
+
 		if(mysql_affected_rows())
 		{
-			$result = array();
 			while($lin = mysql_fetch_object($res))
 			{
-				$result[] = $lin->pessoa;
+				$result[$lin->pessoa] = $lin->pessoa;
 			}
 		}
+
+		//tratando os grupos
+		if($tem_grupo)
+		{
+			$sql = "
+				SELECT 
+					".$tabela_ligacao_grupo.".pessoa AS pessoa
+				FROM
+					".$tabela_ligacao_grupo.",
+					".$tabela_ligacao_perfil."
+				WHERE
+					".$tabela_ligacao_perfil.".perfil = '".$perf->id."' AND
+					".$tabela_ligacao_perfil.".grupo = ".$tabela_ligacao_grupo.".grupo
+			";
+			$res = dboQuery($sql);
+			if(dboAffectedRows())
+			{
+				while($lin = mysql_fetch_object($res))
+				{
+					$result[$lin->pessoa] = $lin->pessoa;
+				}
+			}
+		}		
+
 		return $result;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function getPessoasPerfil($perfil_name)
+	{
+		return getUsersPerfil($perfil_name);
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
