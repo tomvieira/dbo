@@ -29,6 +29,17 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function safeArrayKey($key, $array)
+	{
+		if(@array_key_exists($key, $array))
+		{
+			return safeArrayKey($key+100, $array);
+		}
+		return $key;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dboContent($content)
 	{
 		global $hooks;
@@ -687,15 +698,17 @@
 			eval("?>".$file_code."<?");
 			$output = ob_get_clean();
 
+			$key = safeArrayKey($module->order_by, $modulos);
+			
 			//testando icones do modulo... tem que ser png e minúsculo, e ter o mesmo nome do modulo, evidentemente.
 			if(file_exists(DBO_PATH."/../images/module_icons/".$module->modulo.".png"))
 			{
-				$modulos[$module->order_by]['icon'] = $module->modulo.".png";
+				$modulos[$key]['icon'] = $module->modulo.".png";
 			} else {
-				$modulos[$module->order_by]['icon'] = "_icone_generico.png";
+				$modulos[$key]['icon'] = "_icone_generico.png";
 			}
-			$modulos[$module->order_by]['titulo'] = $module->titulo_plural;
-			$modulos[$module->order_by]['var'] = $module->modulo;
+			$modulos[$key]['titulo'] = $module->titulo_plural;
+			$modulos[$key]['var'] = $module->modulo;
 		}
 
 		ksort($modulos);
@@ -748,15 +761,17 @@
 			eval("?>".$file_code."<?");
 			$output = ob_get_clean();
 
+			$key = safeArrayKey($module->order_by, $modulos);
+
 			//testando icones do modulo... tem que ser png e minúsculo, e ter o mesmo nome do modulo, evidentemente.
 			if(file_exists(DBO_PATH."/../images/module_icons/".$module->modulo.".png"))
 			{
-				$modulos[$module->order_by]['icon'] = $module->modulo.".png";
+				$modulos[$key]['icon'] = $module->modulo.".png";
 			} else {
-				$modulos[$module->order_by]['icon'] = "_icone_generico.png";
+				$modulos[$key]['icon'] = "_icone_generico.png";
 			}
-			$modulos[$module->order_by]['titulo'] = $module->titulo_plural;
-			$modulos[$module->order_by]['var'] = $module->modulo;
+			$modulos[$key]['titulo'] = $module->titulo_plural;
+			$modulos[$key]['var'] = $module->modulo;
 		}
 
 		ksort($modulos);

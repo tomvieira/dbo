@@ -134,6 +134,15 @@ elseif($_GET['syncDatabase'])
 
 /* FUNCTIONS ===================================================================================================== */
 
+function safeArrayKey($key, $array)
+{
+	if(@array_key_exists($key, $array))
+	{
+		return safeArrayKey($key+100, $array);
+	}
+	return $key;
+}
+
 function getDiskModules ()
 {
 
@@ -222,7 +231,7 @@ function getDiskModules ()
 		$module->notifications = $notifications;
 		$module->overview      = $overview;
 
-		$module_keys[$module->order_by] = $module;
+		$module_keys[safeArrayKey($module->order_by, $module_keys)] = $module;
 
 	}//foreach
 
@@ -395,10 +404,30 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
+							<div class='dica'>Texto que será mostrado no botão de inserção do módulo.</div>
+							<label>Botão de inserção</label>
+							<div class='input'>
+								<input type='text' name='insert_button_text' value="<?= htmlspecialchars($module->insert_button_text) ?>"/>
+							</div>
+						</div>
+					</div><!-- row -->
+
+					<div class='row standard'>
+						<div class='item'>
 							<div class='dica'>Título que será mostrado na listagem. Se omitido, gera um título automárico.</div>
 							<label>Titulo da Listagem</label>
 							<div class='input'>
 								<input type='text' name='titulo_listagem' value="<?= htmlspecialchars($module->titulo_listagem) ?>"/>
+							</div>
+						</div>
+					</div><!-- row -->
+
+					<div class='row standard'>
+						<div class='item'>
+							<div class='dica'>Classes CSS que serão aplicadas na listagem desta foto</div>
+							<label>Classes CSS da list.</label>
+							<div class='input'>
+								<input type='text' name='classes_listagem' value="<?= htmlspecialchars($module->classes_listagem) ?>"/>
 							</div>
 						</div>
 					</div><!-- row -->
@@ -565,13 +594,37 @@ function getModuleForm ($module)
 													</div><!-- item -->
 												</div><!-- row -->
 
-												<div class='row standard'>
+												<div class='row standard' style="display: none;">
 													<div class='item'>
 														<label>View Recursiva</label>
 														<div class='input'>
 															<select name='button[<?= $key ?>][view]'>
 																<option value='1' <?= (($button->view)?('SELECTED'):('')) ?>>Sim</option>
 																<option value='0' <?= ((!$button->view)?('SELECTED'):('')) ?>>Não</option>
+															</select>
+														</div>
+													</div><!-- item -->
+												</div><!-- row -->
+
+												<div class='row standard'>
+													<div class='item'>
+														<label>Exibir botão</label>
+														<div class='input'>
+															<select name='button[<?= $key ?>][show]'>
+																<option value='1' <?= (($button->show)?('SELECTED'):('')) ?>>Sim</option>
+																<option value='0' <?= ((!$button->show)?('SELECTED'):('')) ?>>Não</option>
+															</select>
+														</div>
+													</div><!-- item -->
+												</div><!-- row -->
+
+												<div class='row standard'>
+													<div class='item'>
+														<label>Subsessão</label>
+														<div class='input'>
+															<select name='button[<?= $key ?>][subsection]'>
+																<option value='1' <?= (($button->subsection)?('SELECTED'):('')) ?>>Sim</option>
+																<option value='0' <?= ((!$button->subsection)?('SELECTED'):('')) ?>>Não</option>
 															</select>
 														</div>
 													</div><!-- item -->
@@ -2286,13 +2339,37 @@ function getModuleButtonForm($key)
 			</div><!-- item -->
 		</div><!-- row -->
 
-		<div class='row standard'>
+		<div class='row standard' style="display: none;">
 			<div class='item'>
 				<label>View Recursiva</label>
 				<div class='input'>
 					<select name='button[<?= $key ?>][view]'>
 						<option value='1'>Sim</option>
 						<option value='0' SELECTED>Não</option>
+					</select>
+				</div>
+			</div><!-- item -->
+		</div><!-- row -->
+
+		<div class='row standard'>
+			<div class='item'>
+				<label>Exibir botão</label>
+				<div class='input'>
+					<select name='button[<?= $key ?>][show]'>
+						<option value='1' <?= (($button->show)?('SELECTED'):('')) ?>>Sim</option>
+						<option value='0' <?= ((!$button->show)?('SELECTED'):('')) ?>>Não</option>
+					</select>
+				</div>
+			</div><!-- item -->
+		</div><!-- row -->
+
+		<div class='row standard'>
+			<div class='item'>
+				<label>Subsessão</label>
+				<div class='input'>
+					<select name='button[<?= $key ?>][subsection]'>
+						<option value='1' <?= (($button->subsection)?('SELECTED'):('')) ?>>Sim</option>
+						<option value='0' <?= ((!$button->subsection)?('SELECTED'):('')) ?>>Não</option>
 					</select>
 				</div>
 			</div><!-- item -->
@@ -2412,6 +2489,8 @@ function runUpdateModule($post_data)
 	$_SESSION['dbomaker_modulos'][$mod]->auto_view = (($post_data['auto_view'])?(true):(false));
 
 	$_SESSION['dbomaker_modulos'][$mod]->titulo_listagem = stripslashes($post_data['titulo_listagem']);
+	$_SESSION['dbomaker_modulos'][$mod]->classes_listagem = stripslashes($post_data['classes_listagem']);
+	$_SESSION['dbomaker_modulos'][$mod]->insert_button_text = stripslashes($post_data['insert_button_text']);
 
 	if(strlen(trim($post_data['restricao'])))
 	{
@@ -2455,6 +2534,8 @@ function runUpdateModule($post_data)
 				$but->modulo_fk = $button['modulo_fk'];
 				$but->key = $button['key'];
 				$but->view = (($button['view'] == 1)?(true):(false));
+				$but->show = (($button['show'] == 1)?(true):(false));
+				$but->subsection = (($button['subsection'] == 1)?(true):(false));
 			}
 			$_SESSION['dbomaker_modulos'][$mod]->button[] = $but;
 		}
@@ -2685,6 +2766,14 @@ function writeModuleFile($mod)
 		if(strlen($module->titulo_listagem))
 		{
 			fwrite($fh, "\$module->titulo_listagem = '".singleScape($module->titulo_listagem)."';\n");
+		}
+		if(strlen($module->classes_listagem))
+		{
+			fwrite($fh, "\$module->classes_listagem = '".singleScape($module->classes_listagem)."';\n");
+		}
+		if(strlen($module->insert_button_text))
+		{
+			fwrite($fh, "\$module->insert_button_text = '".singleScape($module->insert_button_text)."';\n");
 		}
 		fwrite($fh, "\$module->genero = '".$module->genero."';\n");
 		fwrite($fh, "\$module->paginacao = '".singleScape($module->paginacao)."';\n");
@@ -2992,6 +3081,8 @@ function writeModuleFile($mod)
 					fwrite($fh, "\$button->modulo_fk = '".$button->modulo_fk."';\n");
 					fwrite($fh, "\$button->key = '".$button->key."';\n");
 					fwrite($fh, "\$button->view = ".(($button->view === true)?('true'):('false')).";\n");
+					fwrite($fh, "\$button->show = ".(($button->show === true)?('true'):('false')).";\n");
+					fwrite($fh, "\$button->subsection = ".(($button->subsection === true)?('true'):('false')).";\n");
 				}
 				fwrite($fh, "\$module->button[] = \$button;\n");
 				fwrite($fh, "\n");

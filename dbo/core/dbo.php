@@ -628,12 +628,15 @@ class Dbo extends Obj
 							'codigo' => $code
 						);
 					} else {
-						$posicao = (($botao->posicao)?($botao->posicao):('breadcrumb'));
-						$retorno[$posicao][] = array(
-							'tipo' => 'data',
-							'titulo' => $botao->value, 
-							'url' => $modulo->keepUrl(array("dbo_mod=".$botao->modulo."&dbo_fixo=".$modulo->encodeFixos($botao->modulo_fk."=".$modulo->{$botao->key}), "!pag&!dbo_insert&!dbo_update&!dbo_delete&!dbo_view"))
-						);
+						if($botao->show)
+						{
+							$posicao = (($botao->posicao)?($botao->posicao):('breadcrumb'));
+							$retorno[$posicao][] = array(
+								'tipo' => 'data',
+								'titulo' => $botao->value, 
+								'url' => $modulo->keepUrl(array("dbo_mod=".$botao->modulo."&dbo_fixo=".$modulo->encodeFixos($botao->modulo_fk."=".$modulo->{$botao->key}), "!pag&!dbo_insert&!dbo_update&!dbo_delete&!dbo_view"))
+							);
+						}
 					}
 				}
 			}//foreach
@@ -2303,7 +2306,10 @@ class Dbo extends Obj
 									eval(str_replace("[VALUE]", $botao->value, $botao->code));
 									$return .= "<td>".$code."</td>";
 								} else {
-									$return .= "<td><a class='button tiny radius large-no-wrap no-margin' href='".$this->keepUrl(array("dbo_mod=".$botao->modulo."&dbo_fixo=".$this->encodeFixos($botao->modulo_fk."=".$obj->{$botao->key}), "!pag&!dbo_insert&!dbo_update&!dbo_delete&!dbo_view"))."'>".$botao->value."</a></td>";
+									if($botao->show)
+									{
+										$return .= "<td><a class='button tiny radius large-no-wrap no-margin' href='".$this->keepUrl(array("dbo_mod=".$botao->modulo."&dbo_fixo=".$this->encodeFixos($botao->modulo_fk."=".$obj->{$botao->key}), "!pag&!dbo_insert&!dbo_update&!dbo_delete&!dbo_view"))."'>".$botao->value."</a></td>";
+									}
 								}
 							}
 						}//foreach
@@ -2350,7 +2356,7 @@ class Dbo extends Obj
 			{
 				echo $this->splitter($this->getModuleRestriction().$this->getSQLfixos().$this->getSQLFilters().$this->getSQLInativo().$this->getSQLOrder());
 			}
-			else
+			elseif($obj->size())
 			{
 				?>
 				<div class="helper arrow-top hide-for-small">Clique e arraste os itens para reordenar</div>
@@ -2794,7 +2800,7 @@ class Dbo extends Obj
 				}
 
 			}
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Inserir ".dboStrToLower($this->__module_scheme->titulo)."'></div></div></div>";
+			$return .= '<div class="row"><div class="item large-12 columns text-right"><div class="input"><input class="button radius" id="main-submit" type="submit" accesskey="s" value="'.((!$this->__module_scheme->insert_button_text)?('Inserir '.dboStrToLower($this->__module_scheme->titulo)):($this->__module_scheme->insert_button_text)).'"></div></div></div>';
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
@@ -3360,6 +3366,40 @@ class Dbo extends Obj
 					}
 				} //foreach
 
+				//aqui inserimos as subsections
+
+				//checa se exitem botoes customizados no modulo
+				if(is_array($this->__module_scheme->button))
+				{
+					//pegando as permissoes
+					foreach($this->__module_scheme->button as $chave => $botao)
+					{
+						$dbo_permission_button[$botao->value] = hasPermission($botao->value, $_GET['dbo_mod']);
+					}
+
+					//pegando os botoes
+					foreach($this->__module_scheme->button as $chave => $botao)
+					{
+						if(!DBO_PERMISSIONS || $dbo_permission_button[$botao->value])
+						{
+							if($botao->subsection)
+							{
+								ob_start();
+								?>
+								<div class="row">
+									<div class="large-12 columns">
+										<div class="section subheader"><span><?= $botao->value ?></span></div>
+									</div>
+								</div>
+								<hr>
+								<iframe id="<?= $modulo->getModule() ?>-<?= $botao->modulo ?>-iframe" src="dbo_admin.php?dbo_mod=<?= $botao->modulo ?>&body_class=section hide-breadcrumb&dbo_subsection=<?= $modulo->getModule() ?>-<?= $botao->modulo ?>&dbo_fixo=<?= $obj->encodeFixos($botao->modulo_fk.'='.$modulo->{$botao->key}) ?>" frameborder="0" style="width: 100%; overflow-y: hidden; height: 0;" scrolling='no'></iframe><!-- row -->
+								<?
+								$return .= ob_get_clean();
+							}
+						}
+					}//foreach
+				}
+
 				//checando se há algo a se colocar depois do formulario (campos por exemplo)
 				$function_name = 'form_'.$this->__module_scheme->modulo."_append";
 				if(function_exists($function_name))
@@ -3734,7 +3774,7 @@ class Dbo extends Obj
 								}
 
 								?>
-								<div class='row' id='list-<?= $meta->modulo ?>'>
+								<div class='row <?= $meta->classes_listagem ?>' id='list-<?= $meta->modulo ?>'>
 									<div class='large-12 columns'>
 										<div class='row'>
 											<div class='large-12 columns text-right'>
@@ -3768,6 +3808,29 @@ class Dbo extends Obj
 						if(function_exists($function_name))
 						{
 							echo $function_name();
+						}
+						//subsection update iframe do parent
+						if($_GET['dbo_subsection'])
+						{
+							?>
+							<style>
+								html, body { padding: 0 !important; }
+							</style>
+							<script>
+								function resizeIframe() {
+									var height = document.body.clientHeight
+									$(parent.document).find('#<?= $_GET[dbo_subsection] ?>-iframe:not(:animated)').animate({
+										height: height+'px'
+									}, 300);
+								}
+								$(document).ready(function(){
+									resizeIframe();
+									setInterval(function(){ 
+										resizeIframe();
+									}, 500);
+								}) //doc.ready
+							</script>							
+							<?
 						}
 					?>
 				</div><!-- wrapper-dbo-auto-admin -->

@@ -80,6 +80,29 @@ body {
 	}
 }
 
+/* classes custom para a listagem */
+
+div[id^="list-"] {
+	&.gallery { 
+		table.list {
+			thead { display: none; }
+			tbody {
+				tr { width: 20%; float: left; display: block; border-top: 0; position: relative; overflow: hidden;
+					&:hover {
+						td.control-icons { top: 5px; }
+					}
+					td { border-bottom: 0; border: 0 !important;
+						&.control-icons { position: absolute; display: block; top: -35px; right: 5px; background: #fff; border-radius: 0 0 0 15px; transition: all .15s ease; }
+						&:nth-child(1) { padding: 2px !important;
+							img { max-width: 100%; }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 /* super-admin-bar */
 #super-admin-bar { width: 100%; 
 	.wrapper-controls { position: relative; 
