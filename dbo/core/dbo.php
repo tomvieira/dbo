@@ -628,7 +628,7 @@ class Dbo extends Obj
 							'codigo' => $code
 						);
 					} else {
-						if($botao->show)
+						if($botao->show !== false)
 						{
 							$posicao = (($botao->posicao)?($botao->posicao):('breadcrumb'));
 							$retorno[$posicao][] = array(
@@ -2306,7 +2306,7 @@ class Dbo extends Obj
 									eval(str_replace("[VALUE]", $botao->value, $botao->code));
 									$return .= "<td>".$code."</td>";
 								} else {
-									if($botao->show)
+									if($botao->show !== false)
 									{
 										$return .= "<td><a class='button tiny radius large-no-wrap no-margin' href='".$this->keepUrl(array("dbo_mod=".$botao->modulo."&dbo_fixo=".$this->encodeFixos($botao->modulo_fk."=".$obj->{$botao->key}), "!pag&!dbo_insert&!dbo_update&!dbo_delete&!dbo_view"))."'>".$botao->value."</a></td>";
 									}
@@ -3392,7 +3392,7 @@ class Dbo extends Obj
 									</div>
 								</div>
 								<hr>
-								<iframe id="<?= $modulo->getModule() ?>-<?= $botao->modulo ?>-iframe" src="dbo_admin.php?dbo_mod=<?= $botao->modulo ?>&body_class=section hide-breadcrumb&dbo_subsection=<?= $modulo->getModule() ?>-<?= $botao->modulo ?>&dbo_fixo=<?= $obj->encodeFixos($botao->modulo_fk.'='.$modulo->{$botao->key}) ?>" frameborder="0" style="width: 100%; overflow-y: hidden; height: 0;" scrolling='no'></iframe><!-- row -->
+								<iframe id="<?= $modulo->getModule() ?>-<?= $botao->modulo ?>-iframe" src="dbo_admin.php?dbo_mod=<?= $botao->modulo ?>&body_class=section hide-breadcrumb&dbo_subsection=<?= $modulo->getModule() ?>-<?= $botao->modulo ?>&dbo_fixo=<?= $modulo->encodeFixos($botao->modulo_fk.'='.$modulo->{$botao->key}) ?>" frameborder="0" style="width: 100%; overflow-y: hidden; height: 0;" scrolling='no'></iframe><!-- row -->
 								<?
 								$return .= ob_get_clean();
 							}
