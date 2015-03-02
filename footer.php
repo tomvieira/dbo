@@ -5,6 +5,7 @@
 		</div><!-- main-wrap -->
 		<script>$(document).foundation();</script>
 		<?= getMessage(); ?>
+		<div id="modal-change-password" class="reveal-modal smart small" data-reveal></div>
 		<? dboFooter(); ?>
 		<? $hooks->do_action('footer'); ?>
 		</body>

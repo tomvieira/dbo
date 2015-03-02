@@ -9,10 +9,11 @@
 	{
 		?>
 		<li class="has-dropdown">
-			<a>Olá, <?= $_pes->user; ?>.</a>
+			<a>Olá, <?= $_pes->nome; ?>.</a>
 			<ul class="dropdown">
 				<li><label>Opções</label></li>
-				<li><a href='logout.php'>Sair</a></li>
+				<li><a href="#" class="trigger-change-password"><i class="fa-key"></i> Alterar senha</a></li>
+				<li><a href='logout.php'><i class="fa-sign-out"></i> Sair</a></li>
 			</ul>
 		</li>
 		<?

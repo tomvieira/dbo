@@ -51,29 +51,12 @@ $(document).ready(function(){
 		});
 	});
 
-	//password change
-	$(document).on('click', ".trigger-user-box", function(e){
+	//change password
+	$(document).on('click', '.trigger-change-password', function(e){
 		e.preventDefault();
-		$(".user-box").fadeToggle('fast');
-	})
-
-	$(document).on('submit', "#form-change-password", function(){
-		$.post(
-			$(this).attr('action'),
-			$(this).serialize(),
-			function(data) {
-				var result = $.parseJSON(data);
-				if(result.message){
-					setMessage(result.message);
-					showDboMessage();
-				}
-				if(result.success){
-					$(".user-box").fadeToggle('fast');
-					$("#form-change-password input[type=password]").val('');
-				}
-			}
-		)
-		return false;
-	})
+		$('#modal-change-password').foundation('reveal', 'open', {
+			url: 'modal-dbo-change-password.php'
+		});
+	});
 
 });
