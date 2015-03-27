@@ -29,8 +29,14 @@ function slidePeixeMessageUp() {
 	}, 1500);
 }
 
-function peixeJSON(action, args, callback, log) {
-	peixePost(
+function peixeJSON(action, args, callback, log, method) {
+	if(typeof method == 'undefined' || method == 'post'){
+		function_name = 'peixePost';
+	}
+	else {
+		function_name = 'peixeGet';
+	}
+	window[function_name](
 		action,
 		args,
 		function(data) {
@@ -74,6 +80,12 @@ function peixeJSON(action, args, callback, log) {
 			//tratando o callback customizado
 			if(typeof callback == 'function'){
 				callback(result);
+			}
+			else if(typeof window[callback] == 'function'){
+				window[callback]();
+			}
+			else if(typeof callback == 'string'){
+				eval(callback);
 			}
 		}
 	)
@@ -207,7 +219,7 @@ function peixeGet(url, args, callback) {
 
 function peixeAddRequiredBullets() {
 	//colocando * nos requireds
-	$('form .required, form [required]').closest('.item').find('label:not(:has(.bullet-required)):first-child').append(' <span class="bullet-required">*</span>');
+	$('form .required, form [required]').closest('.item').find('label:not(:has(.bullet-required)):first').append(' <span class="bullet-required">*</span>');
 }
 
 //funcoes para tratamento de upload de arquivos com ajax. O markup está setado para foundation
@@ -370,6 +382,15 @@ function peixeAjaxFileUploadInit() {
 	})
 }
 
+function peixeMediaQuery() {
+	if(window.innerWidth < 768){
+		return 'small';
+	}
+	else {
+		return 'large';
+	}
+}
+
 function peixeInit() {
 	peixeAddRequiredBullets();
 	peixeAjaxFileUploadInit();
@@ -378,6 +399,8 @@ function peixeInit() {
 $(document).ready(function(){
 
 	peixeInit();
+
+	console.log(peixeMediaQuery());
 
 	//mostra mensagens
 	showPeixeMessage();
@@ -436,7 +459,7 @@ $(document).ready(function(){
 	$(document).on('click', '.peixe-confirm', function(e){
 		//e.preventDefault();
 		clicado = $(this);
-		var ans = confirm(clicado.data('confirm'));
+		var ans = confirm(clicado.data('confirm').replace(/\\n/g, '\n'));
 		if (ans==true) {
 			return true;
 		} else {
@@ -452,7 +475,7 @@ $(document).ready(function(){
 		form = $(this);
 		error = false;
 		if(typeof form.data('confirm') != 'undefined' && $.trim(form.data('confirm')) != ''){
-			var ans = confirm(form.data('confirm'));
+			var ans = confirm(form.data('confirm').replace(/\\n/g, '\n'));
 			if (ans==true) {
 				error = false;
 			} else {
@@ -461,6 +484,24 @@ $(document).ready(function(){
 		}
 		if(!error){
 			peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)));
+		}
+		return false;
+	});
+
+	$(document).on('click', 'a.peixe-json', function(e){
+		e.preventDefault();
+		clicado = $(this);
+		error = false;
+		if(typeof clicado.data('confirm') != 'undefined' && $.trim(clicado.data('confirm')) != ''){
+			var ans = confirm(clicado.data('confirm').replace(/\\n/g, '\n'));
+			if (ans==true) {
+				error = false;
+			} else {
+				error = true;
+			}
+		}
+		if(!error){
+			peixeJSON(clicado.attr('href'), '', ((typeof clicado.data('callback') != 'undefined')?(clicado.data('callback')):('')), ((typeof clicado.attr('peixe-log') != 'undefined')?(true):(false)), 'get');
 		}
 		return false;
 	});

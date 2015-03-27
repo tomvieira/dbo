@@ -58,6 +58,7 @@ class Dbo extends Obj
 	var $__ipp_start = '0';
 	var $__pag = '1';
 	var $__data = array();
+	var $__pocket = array();
 	var $__joins = array();
 	var $__black_list = array();
 	var $__table;
@@ -204,57 +205,67 @@ class Dbo extends Obj
 
 	public function __get ($name)
 	{
-		
-		if($name == 'id')
+		if(!$this->isDbo())
 		{
-			return $this->__data[$this->getPK()];
-		}
-		elseif($name[0] == '_' && $name[1] == '_' && $name[2] == '_')
-		{
-			$partes_aux = explode("___", $name);
-
-			foreach($partes_aux as $chave => $valor)
+			if($name == 'id')
 			{
-				if(strlen($valor))
-				{
-					$partes[] = $valor;
-				}
+				return $this->__data[$this->getPK()];
 			}
-
-			$atual = $this;
-
-			foreach($partes as $chave => $valor)
+			elseif($name[0] == '_' && $name[1] == '_' && $name[2] == '_')
 			{
-				if($valor == end($partes))
+				$partes_aux = explode("___", $name);
+
+				foreach($partes_aux as $chave => $valor)
 				{
-					return $obj->{$valor};
+					if(strlen($valor))
+					{
+						$partes[] = $valor;
+					}
 				}
-				else
+
+				$atual = $this;
+
+				foreach($partes as $chave => $valor)
 				{
-					$obj = $atual->getJoinModule($valor);
-					$obj->{$atual->getJoinKey($valor)} = $atual->{$valor};
-					$obj->load();
-					$atual = $obj;
+					if($valor == end($partes))
+					{
+						return $obj->{$valor};
+					}
+					else
+					{
+						$obj = $atual->getJoinModule($valor);
+						$obj->{$atual->getJoinKey($valor)} = $atual->{$valor};
+						$obj->load();
+						$atual = $obj;
+					}
 				}
+
 			}
-
-		}
-		elseif($name[0] == '_' && $name[1] != '_')
-		{
-			//removendo o _
-			$name = substr($name, 1);
-
-			//verificando se este join já está instanciado neste objeto.
-			if($this->__joins[$name])
+			elseif($name[0] == '_' && $name[1] != '_')
 			{
+				//removendo o _
+				$name = substr($name, 1);
+
+				//verificando se este join já está instanciado neste objeto.
+				if($this->__joins[$name])
+				{
+					return $this->__joins[$name];
+				}
+
+				//se não estava, tem que instanciar.
+				$module = $this->getJoinModule($name, false);
+				$this->__joins[$name] = new $module($this->__data[$name]);
 				return $this->__joins[$name];
+				
 			}
-
-			//se não estava, tem que instanciar.
-			$module = $this->getJoinModule($name, false);
-			$this->__joins[$name] = new $module($this->__data[$name]);
-			return $this->__joins[$name];
-			
+			elseif($this->hasField($name))
+			{
+				return $this->__data[$name];
+			}
+			else
+			{
+				return $this->__pocket[$name];
+			}
 		}
 		return $this->__data[$name];
 	}
@@ -263,9 +274,23 @@ class Dbo extends Obj
 
     public function __set($name, $attr)
 	{
-		if($name == 'id')
+		if(!$this->isDbo())
 		{
-			$this->__data[$this->getPK()] = $attr;
+			if($name == 'id')
+			{
+				$this->__data[$this->getPK()] = $attr;
+			}
+			else
+			{	
+				if($this->hasField($name))
+				{
+					$this->__data[$name] = $attr;
+				}
+				else
+				{
+					$this->__pocket[$name] = $attr;
+				}
+			}
 		}
 		else
 		{
@@ -273,11 +298,36 @@ class Dbo extends Obj
 		}
     }
 
+	//salva uma variavel para uso posterior ----------------------------------------------------------------------------------------
+
+	function pocket($name, $value = null)
+	{
+		if($value !== null)
+		{
+			$this->__pocket[$name] = $value;
+		}
+		else
+		{
+			return $this->__pocket[$name];
+		}
+	}
+	
 	//pega o iterador --------------------------------------------------------------------------------------------------------------
 
 	function getIterator()
 	{
 		return $this->__iterator;
+	}
+	
+	//retorna se deve ou não esconder o breadcrumb ---------------------------------------------------------------------------------
+
+	function hideComponent($comp)
+	{
+		if(strstr($_GET['body_class'], 'hide-'.$comp))
+		{
+			return true;
+		}
+		return false;
 	}
 	
 	//cria uma nova instancia de si mesmo -----------------------------------------------------------------------------------------------------------
@@ -443,6 +493,20 @@ class Dbo extends Obj
 		return $this->__module_scheme->modulo;
 	}
 
+	//pega o nome da classes instanciada -------------------------------------------------------------------------------------------------------
+
+	function getClass ()
+	{
+		return get_class($this);
+	}
+
+	//pega o nome da classes instanciada -------------------------------------------------------------------------------------------------------
+
+	function isDbo()
+	{
+		return $this->getClass() == 'Dbo';
+	}
+
 	//pega uma instancia do modulo do join do campo passado para o objeto atual----------------------------------------------------------------------
 
 	public function getJoinModule ($campo, $instance = true)
@@ -469,76 +533,78 @@ class Dbo extends Obj
 
 	function makeBreadCrumb()
 	{
-		global $_SESSION;
-		$parents = array();
-
-		$mid = $this->getMid();
-		$fixo = $_GET['dbo_fixo'];
-
-		while($this->getModuleParent($mid, $fixo))
+		if(!$this->hideComponent('breadcrumb'))
 		{
-			$parent_id = $this->getModuleParent($mid, $fixo);
-			$mid = $parent_id;
-			$fixo = $_SESSION[sysId()]['dbo_mid'][$parent_id][fixo];
-			$parents[] = $this->getModuleParentData($mid);
-		}
+			$parents = array();
 
-		//preparando para gerar o bread_crumb
-		$fixo = $this->decodeFixos($_GET['dbo_fixo']);
-		foreach($fixo as $key => $value)
-		{
-			$fixo_campo = $key;
-			$fixo_valor = $value;
-		}
-		$bread_crumb = array();
-		$obj = $this;
-		$atual = $this;
-		$i = 0;
+			$mid = $this->getMid();
+			$fixo = $_GET['dbo_fixo'];
 
-		foreach($parents as $mid => $module_data)
-		{
-			$obj = $obj->getJoinModule($fixo_campo);
-			$obj->{$atual->getJoinKey($fixo_campo)} = $fixo_valor;
-			$obj->load();
+			while($this->getModuleParent($mid, $fixo))
+			{
+				$parent_id = $this->getModuleParent($mid, $fixo);
+				$mid = $parent_id;
+				$fixo = $_SESSION[sysId()]['dbo_mid'][$parent_id][fixo];
+				$parents[] = $this->getModuleParentData($mid);
+			}
 
-			$bread_crumb[$i]['label'] = $obj->__module_scheme->titulo_plural;
-			$bread_crumb[$i]['valor'] = ((method_exists($obj, 'getBreadcrumbIdentifier'))?($obj->getBreadcrumbIdentifier()):($obj->{$atual->__module_scheme->campo[$fixo_campo]->join->valor}));
-			$bread_crumb[$i]['key'] = $fixo_valor;
-			$bread_crumb[$i]['modulo'] = $obj->__module_scheme->modulo;
-			$bread_crumb[$i]['fixo'] = $module_data[fixo];
-			$bread_crumb[$i]['mid'] = $module_data[mid];
-
-			$fixo = $this->decodeFixos($module_data[fixo]);
+			//preparando para gerar o bread_crumb
+			$fixo = $this->decodeFixos($_GET['dbo_fixo']);
 			foreach($fixo as $key => $value)
 			{
 				$fixo_campo = $key;
 				$fixo_valor = $value;
 			}
+			$bread_crumb = array();
+			$obj = $this;
+			$atual = $this;
+			$i = 0;
 
-			$atual = $obj;
+			foreach($parents as $mid => $module_data)
+			{
+				$obj = $obj->getJoinModule($fixo_campo);
+				$obj->{$atual->getJoinKey($fixo_campo)} = $fixo_valor;
+				$obj->load();
 
-			$i++;
-		}
+				$bread_crumb[$i]['label'] = (($obj->__module_scheme->titulo_big_button)?($obj->__module_scheme->titulo_big_button):($obj->__module_scheme->titulo_plural));
+				$bread_crumb[$i]['valor'] = ((method_exists($obj, 'getBreadcrumbIdentifier'))?($obj->getBreadcrumbIdentifier()):($obj->{$atual->__module_scheme->campo[$fixo_campo]->join->valor}));
+				$bread_crumb[$i]['key'] = $fixo_valor;
+				$bread_crumb[$i]['modulo'] = $obj->__module_scheme->modulo;
+				$bread_crumb[$i]['fixo'] = $module_data[fixo];
+				$bread_crumb[$i]['mid'] = $module_data[mid];
 
-		$bread_crumb = array_reverse($bread_crumb);
-		echo "<ul class=\"no-margin\">";
-		echo '<li><a href="cadastros.php">Cadastros</a></li>';
-		foreach($bread_crumb as $chave => $obj)
-		{
-			?>
-			<li><a href='<?= $this->keepUrl(array('dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_update&!dbo_delete&!dbo_view")) ?>'><?= $obj['label'] ?></a></li>
-			<li><a class='valor' href='<?= $this->keepUrl(array('dbo_update='.$obj['key'].'&dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_delete")) ?>'><?= $obj['valor'] ?></a></li>
-			<?
+				$fixo = $this->decodeFixos($module_data[fixo]);
+				foreach($fixo as $key => $value)
+				{
+					$fixo_campo = $key;
+					$fixo_valor = $value;
+				}
+
+				$atual = $obj;
+
+				$i++;
+			}
+
+			$bread_crumb = array_reverse($bread_crumb);
+			echo "<ul class=\"no-margin\">";
+			echo '<li><a href="cadastros.php">Cadastros</a></li>';
+			foreach($bread_crumb as $chave => $obj)
+			{
+				?>
+				<li><a href='<?= $this->keepUrl(array('dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_update&!dbo_delete&!dbo_view")) ?>'><?= $obj['label'] ?></a></li>
+				<li><a class='valor' href='<?= $this->keepUrl(array('dbo_update='.$obj['key'].'&dbo_mod='.$obj['modulo']."&mid=".$obj[mid]."&dbo_fixo=".$obj[fixo], "!pag&!dbo_new!&!dbo_delete")) ?>'><?= $obj['valor'] ?></a></li>
+				<?
+			}
+			echo '<li><a href="'.$this->keepUrl('!dbo_update&!dbo_view').'">'.(($this->__module_scheme->titulo_big_button)?($this->__module_scheme->titulo_big_button):($this->__module_scheme->titulo_plural)).'</a></li>';
+			if($_GET['dbo_update'])
+			{
+				$obj = $this->newSelf();
+				$obj->id = $_GET['dbo_update'];
+				$obj->load();
+				echo '<li><a href="#">'.$obj->getBreadcrumbIdentifier().'</a></li>';
+			}
+			echo "</ul><!-- breadcrumbs -->";
 		}
-		echo '<li><a href="'.$this->keepUrl('!dbo_update&!dbo_view').'">'.$this->__module_scheme->titulo_plural.'</a></li>';
-		if($_GET['dbo_update'])
-		{
-			$obj = $this->newSelf();
-			$obj->id = $_GET['dbo_update'];
-			$obj->load();
-			echo '<li><a href="#">'.$obj->getBreadcrumbIdentifier().'</a></li>';
-		}
-		echo "</ul><!-- breadcrumbs -->";
 	}
 
 	//carrega os dados -------------------------------------------------------------------------------------------------------------------------------
@@ -549,14 +615,14 @@ class Dbo extends Obj
 		$sql = "SELECT * FROM ".$this->__table." WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
 
 		if(!$this->__res = dboQuery($sql)) {
-			echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
+			echo "<div class='mysql-error'>MYSQL ERROR: ".dboQueryError()."<br>SQL: ".$sql."</div>";
 		}
 
-		if(mysql_affected_rows())
+		if(dboAffectedRows())
 		{
-			$this->__size = mysql_affected_rows();
+			$this->__size = dboAffectedRows();
 			$this->__iterator = 1;
-			$lin = mysql_fetch_assoc($this->__res);
+			$lin = dboFetchAssoc($this->__res);
 			foreach($lin as $chave => $valor)
 			{
 				$this->$chave = $valor;
@@ -597,7 +663,7 @@ class Dbo extends Obj
 		}
 		else
 		{
-			return $this->__module_scheme->titulo_plural;
+			return (($this->__module_scheme->titulo_big_button)?($this->__module_scheme->titulo_big_button):($this->__module_scheme->titulo_plural));
 		}
 	}
 	
@@ -649,7 +715,7 @@ class Dbo extends Obj
 
 	function getBarraAcoesUpdate($buttons)
 	{
-		if(sizeof($buttons['acoes']))
+		if(sizeof($buttons['acoes']) && !$this->hideComponent('acoes'))
 		{
 			ob_start();
 			?>
@@ -673,7 +739,6 @@ class Dbo extends Obj
 				$(document).ready(function(){
 					codigo = $.parseHTML('<?= $retorno ?>');
 					$(codigo).find('.button').removeClass('tiny').removeClass('primary').addClass('small').addClass('secondary').addClass('top-3');
-					console.log(codigo);
 					target = $('#acoes-update-<?= $this->getModule() ?> .wrapper-buttons-acao');
 					target.append(codigo);
 				}) //doc.ready				
@@ -729,20 +794,20 @@ class Dbo extends Obj
 		}
 		if(!$this->__res = dboQuery($sql))
 		{
-			echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
+			echo "<div class='mysql-error'>MYSQL ERROR: ".dboQueryError()."<br>SQL: ".$sql."</div>";
 		}
-		if(mysql_affected_rows())
+		if(dboAffectedRows())
 		{
 			/* salvando o total com LIMIT */
-			$this->__size = mysql_affected_rows();
+			$this->__size = dboAffectedRows();
 			$this->__iterator = 1;
 
 			/* salvando o total de registros sem o LIMIT no objeto */
 			$sql = "select FOUND_ROWS()";
 			$res = dboQuery($sql);
-			$this->__total = mysql_result($res, 0);
+			$this->__total = dboQueryResult($res, 0);
 			
-			$lin = mysql_fetch_assoc($this->__res);
+			$lin = dboFetchAssoc($this->__res);
 			foreach($lin as $chave => $valor)
 			{
 				$this->$chave = $valor;
@@ -796,13 +861,13 @@ class Dbo extends Obj
 
 		if(!$this->__res = dboQuery($sql))
 		{
-			echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
+			echo "<div class='mysql-error'>MYSQL ERROR: ".dboQueryError()."<br>SQL: ".$sql."</div>";
 		}
-		if(mysql_affected_rows())
+		if(dboAffectedRows())
 		{
-			$this->__size = mysql_affected_rows();
+			$this->__size = dboAffectedRows();
 			$this->__iterator = 1;
-			$lin = mysql_fetch_assoc($this->__res);
+			$lin = dboFetchAssoc($this->__res);
 			foreach($lin as $chave => $valor)
 			{
 				$this->$chave = $valor;
@@ -859,7 +924,7 @@ class Dbo extends Obj
 
 	function fetch ()
 	{
-		if($lin = mysql_fetch_assoc($this->__res)) {
+		if($lin = dboFetchAssoc($this->__res)) {
 			$this->__iterator++;
 			foreach($lin as $chave => $valor)
 			{
@@ -912,13 +977,13 @@ class Dbo extends Obj
 		{
 			if($this->getPKType() == 'AUTO_INCREMENT')
 			{
-				$this->id = mysql_insert_id();
+				$this->id = dboInsertId();
 			}
 			return $this->id;
 		}
 		else
 		{
-			echo mysql_error();
+			echo dboQueryError();
 			return false;
 		}
 	}
@@ -947,7 +1012,7 @@ class Dbo extends Obj
 			{
 				return $this->id;
 			} else {
-				echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
+				echo "<div class='mysql-error'>MYSQL ERROR: ".dboQueryError()."<br>SQL: ".$sql."</div>";
 			}
 		}
 		else
@@ -975,7 +1040,7 @@ class Dbo extends Obj
 			//senão, verifica se a chave primaria já existe no banco
 			$sql = "SELECT ".$this->getPK()." FROM ".$this->getTable()." WHERE ".$this->getPK()." = '".$this->id."'";
 			dboQuery($sql);
-			if(mysql_affected_rows())
+			if(dboAffectedRows())
 			{
 				return $this->update();
 			}
@@ -1019,7 +1084,17 @@ class Dbo extends Obj
 			$sql = "DELETE FROM ".$this->__table." WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
 		}
 		if(dboQuery($sql)) { return $this->id; }
-		echo "<div class='mysql-error'>MYSQL ERROR: ".mysql_error()."<br>SQL: ".$sql."</div>";
+		echo "<div class='mysql-error'>MYSQL ERROR: ".dboQueryError()."<br>SQL: ".$sql."</div>";
+		return false;
+	}
+
+	//delete forcado -----------------------------------------------------------------------------------------------------------------------
+
+	function forceDelete ()
+	{
+		$sql = "DELETE FROM ".$this->__table." WHERE ".$this->getPK()." = '".dboEscape($this->id)."'";
+		if(dboQuery($sql)) { return $this->id; }
+		echo "<div class='mysql-error'>MYSQL ERROR: ".dboQueryError()."<br>SQL: ".$sql."</div>";
 		return false;
 	}
 
@@ -1421,7 +1496,7 @@ class Dbo extends Obj
 	{
 		$sql = "SELECT MAX(order_by) as max FROM ".$this->__module_scheme->tabela;
 		$res = dboQuery($sql);
-		$lin = mysql_fetch_object($res);
+		$lin = dboFetchObject($res);
 		return $lin->max;
 	}
 
@@ -1660,11 +1735,11 @@ class Dbo extends Obj
 		}
 		$sql = "SELECT COUNT(*) as total FROM ".$this->__table." ".$restricoes;
 		$res = dboQuery($sql);
-		$lin = mysql_fetch_object($res);
+		$lin = dboFetchObject($res);
 		return $lin->total;
 	}
 
-	//equivalente ao mysql_affected_rows() ------------------------------------------------------------------------------------------------
+	//equivalente ao dboAffectedRows() ------------------------------------------------------------------------------------------------
 
 	function size()
 	{
@@ -2276,9 +2351,9 @@ class Dbo extends Obj
 								$query = '';
 								eval($valor->query);
 								$res_query = dboQuery($query);
-								if(mysql_affected_rows())
+								if(dboAffectedRows())
 								{
-									$lin_query = mysql_fetch_object($res_query);
+									$lin_query = dboFetchObject($res_query);
 									$val = $lin_query->val;
 								}
 								if($val !== false)
@@ -2391,6 +2466,13 @@ class Dbo extends Obj
 			{
 				//setando um id para o formulario, usado na validacao e mascaras.
 				$id_formulario = "form-".time().rand(1,100);
+
+				//checando se há algo a se colocar depois do formulario (campos por exemplo)
+				$function_name = 'form_'.$this->__module_scheme->modulo."_before";
+				if(function_exists($function_name))
+				{
+					$return .= $function_name('insert', $this);
+				}
 
 				$return = "<span class='dbo-element'><div class='fieldset' style='clear: both;'><div class='content'>";
 
@@ -2800,10 +2882,17 @@ class Dbo extends Obj
 				}
 
 			}
-			$return .= '<div class="row"><div class="item large-12 columns text-right"><div class="input"><input class="button radius" id="main-submit" type="submit" accesskey="s" value="'.((!$this->__module_scheme->insert_button_text)?('Inserir '.dboStrToLower($this->__module_scheme->titulo)):($this->__module_scheme->insert_button_text)).'"></div></div></div>';
+			$return .= '<div class="row"><div class="item large-12 columns text-right"><div class="input"><button class="button radius" id="main-submit" accesskey="s">'.((!$this->__module_scheme->insert_button_text)?('Inserir '.dboStrToLower($this->__module_scheme->titulo)):($this->__module_scheme->insert_button_text)).'</button></div></div></div>';
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
+
+			//checando se há algo a se colocar depois do formulario (campos por exemplo)
+			$function_name = 'form_'.$this->__module_scheme->modulo."_after";
+			if(function_exists($function_name))
+			{
+				$return .= $function_name('insert', $this);
+			}
 
 			echo $return;
 
@@ -2845,9 +2934,16 @@ class Dbo extends Obj
 				//setando um id para o formulario, usado na validacao e mascaras.
 				$id_formulario = "form-".time().rand(1,100);
 
+				//checando se há algo a se colocar depois do formulario (campos por exemplo)
+				$function_name = 'form_'.$this->__module_scheme->modulo."_before";
+				if(function_exists($function_name))
+				{
+					$return .= $function_name('update', $modulo);
+				}
+
 				$return = "<span class='dbo-element'><div class='fieldset' style='clear: both;'><div class='content'>\n";
 
-				$return .= "<form method='POST' enctype='multipart/form-data' id='".$id_formulario."' class=\"form-update\">\n\n";
+				$return .= "<form method='POST' enctype='multipart/form-data' id='".$id_formulario."' class=\"form-update no-margin\">\n\n";
 
 				//checando se há grid de exibição de dados customizado... e setando variaveis para seu uso.
 				if($this->hasGrid('update')) { $gc = 0; $hasgrid = true; $grid = $this->hasGrid('update'); }
@@ -2972,7 +3068,7 @@ class Dbo extends Obj
 								elseif ($valor->tipo == 'price')
 								{
 									$valor_price = $modulo->{$valor->coluna};
-									$valor_price = number_format($valor_price, 2, '', '.');
+									$valor_price = (($valor_price != null)?(number_format($valor_price, 2, '', '.')):(null));
 
 									$return .= "<div class=\"row collapse\">";
 									$return .= "	<div class=\"small-10 columns\"><input type='text' name='".$valor->coluna."' data-name='".$valor->titulo."' class='".(($valor->valida)?('required'):(''))." price price-".$valor->formato." text-right ".$valor->classes."' value=\"".(($edit_function)?($edit_function($this->clearValue($valor_price))):($this->clearValue($valor_price)))."\"/></div>";
@@ -3366,40 +3462,6 @@ class Dbo extends Obj
 					}
 				} //foreach
 
-				//aqui inserimos as subsections
-
-				//checa se exitem botoes customizados no modulo
-				if(is_array($this->__module_scheme->button))
-				{
-					//pegando as permissoes
-					foreach($this->__module_scheme->button as $chave => $botao)
-					{
-						$dbo_permission_button[$botao->value] = hasPermission($botao->value, $_GET['dbo_mod']);
-					}
-
-					//pegando os botoes
-					foreach($this->__module_scheme->button as $chave => $botao)
-					{
-						if(!DBO_PERMISSIONS || $dbo_permission_button[$botao->value])
-						{
-							if($botao->subsection)
-							{
-								ob_start();
-								?>
-								<div class="row">
-									<div class="large-12 columns">
-										<div class="section subheader"><span><?= $botao->value ?></span></div>
-									</div>
-								</div>
-								<hr>
-								<iframe id="<?= $modulo->getModule() ?>-<?= $botao->modulo ?>-iframe" src="dbo_admin.php?dbo_mod=<?= $botao->modulo ?>&body_class=section hide-breadcrumb&dbo_subsection=<?= $modulo->getModule() ?>-<?= $botao->modulo ?>&dbo_fixo=<?= $modulo->encodeFixos($botao->modulo_fk.'='.$modulo->{$botao->key}) ?>" frameborder="0" style="width: 100%; overflow-y: hidden; height: 0;" scrolling='no'></iframe><!-- row -->
-								<?
-								$return .= ob_get_clean();
-							}
-						}
-					}//foreach
-				}
-
 				//checando se há algo a se colocar depois do formulario (campos por exemplo)
 				$function_name = 'form_'.$this->__module_scheme->modulo."_append";
 				if(function_exists($function_name))
@@ -3408,10 +3470,55 @@ class Dbo extends Obj
 				}
 			}
 
-			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><input class='button radius' id=\"main-submit\" type='submit' accesskey='s' value='Salvar alterações n".$this->__module_scheme->genero." ".dboStrToLower($this->__module_scheme->titulo)."'></div></div></div>";
+			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><button class='button radius' id=\"main-submit\" accesskey='s'>Salvar alterações n".$this->__module_scheme->genero." ".dboStrToLower($this->__module_scheme->titulo)."</button></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
 			$return .= CSRFInput();
 			$return .= "</form></div></div></span>"; //.dbo-element
+
+			//aqui inserimos as subsections
+
+			//checa se exitem botoes customizados no modulo
+			if(is_array($this->__module_scheme->button))
+			{
+				//pegando as permissoes
+				foreach($this->__module_scheme->button as $chave => $botao)
+				{
+					$dbo_permission_button[$botao->value] = hasPermission($botao->value, $_GET['dbo_mod']);
+				}
+
+				//pegando os botoes
+				foreach($this->__module_scheme->button as $chave => $botao)
+				{
+					if(!DBO_PERMISSIONS || $dbo_permission_button[$botao->value])
+					{
+						if($botao->subsection)
+						{
+							$section_id = uniqid();
+							$url = 'dbo_admin.php?dbo_mod='.$botao->modulo.'&body_class=section hide-breadcrumb&dbo_subsection='.$modulo->getModule().'-'.$botao->modulo.'&dbo_fixo='.$modulo->encodeFixos($botao->modulo_fk.'='.$modulo->{$botao->key}).'&section_id='.$section_id;
+							ob_start();
+							?>
+							<div class="wrapper-dbo-auto-admin-subsection" id="<?= $section_id ?>">
+								<div class="row">
+									<div class="large-12 columns">
+										<div class="section subheader"><span class="<?= ((!$botao->autoload)?('trigger-load-subsection-iframe pointer'):('')) ?>" data-url="<?= ((!$botao->autoload)?($url):('')) ?>"><?= $botao->value ?> <i class="fa-<?= (($botao->autoload)?('chevron-down'):('chevron-up')) ?>"></i></span></div>
+									</div>
+								</div>
+								<hr>
+								<iframe id="<?= $modulo->getModule() ?>-<?= $botao->modulo ?>-iframe" src="<?= (($botao->autoload)?($url):('about:blank')) ?>" frameborder="0" style="width: 100%; overflow: hidden !important; height: 0;" scrolling='no'></iframe><!-- row -->
+							</div>
+							<?
+							$return .= ob_get_clean();
+						}
+					}
+				}//foreach
+			}
+
+			//checando se há algo a se colocar depois do formulario (campos por exemplo)
+			$function_name = 'form_'.$this->__module_scheme->modulo."_after";
+			if(function_exists($function_name))
+			{
+				$return .= $function_name('update', $modulo);
+			}
 
 			echo $return;
 
@@ -3429,6 +3536,8 @@ class Dbo extends Obj
 	*/
 	function autoAdmin($opt = '')
 	{
+
+		dboAdminPostCode();
 
 		//se não tiver permissão de listar, fora.
 		if(DBO_PERMISSIONS)
@@ -3635,7 +3744,7 @@ class Dbo extends Obj
 											?>
 											<ul class="no-margin">
 												<li><a href="cadastros.php">Cadastros</a></li>
-												<li><a href='<?= $this->keepUrl('!dbo_view&!dbo_update&!dbo_delete&!dbo_new') ?>'><?= $meta->titulo_plural ?></a></li>
+												<li><a href='<?= $this->keepUrl('!dbo_view&!dbo_update&!dbo_delete&!dbo_new') ?>'><?= (($meta->titulo_big_button)?($meta->titulo_big_button):($meta->titulo_plural)) ?></a></li>
 												<?
 													if($_GET['dbo_update'])
 													{
@@ -3654,23 +3763,35 @@ class Dbo extends Obj
 								</div>
 							</div>
 							<div class="large-3 columns text-right">
-								<div class='wrapper-module-button-new' style="<?= (($_GET['hide_admin_header_insert_button'])?('display: none;'):('')) ?>">
-									<?
-										//checa se mostra ou não o botão de inserir
-										if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
-										{
+								<?
+									if(!$this->hideComponent('insert-button'))
+									{
 										?>
-											<span class='button-new' rel='<?= $meta->modulo ?>'>
-												<a class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fa-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
-												<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fa-times"></i> Cancelar <?= (($_GET['dbo_update'])?('alteração'):('inserção')) ?></a>
-											</span>
+										<div class='wrapper-module-button-new'>
+											<?
+												//checa se mostra ou não o botão de inserir
+												if(!DBO_PERMISSIONS || hasPermission('insert', $_GET['dbo_mod']))
+												{
+												?>
+													<span class='button-new' rel='<?= $meta->modulo ?>'>
+														<a class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius small trigger-dbo-auto-admin-inserir" href='<?= $this->keepUrl(array('dbo_new=1', '!dbo_update&!dbo_delete&!dbo_view')) ?>'  style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?('display: none;'):('')) ?>"><i class="fa-plus"></i> Cadastrar nov<?= $meta->genero ?></a>
+														<a style="<?= (($_GET['dbo_update'] || $_GET['dbo_new'])?(''):('display: none;')) ?>" class="button <?= (($_GET['hide_admin_header_separator'])?(''):('no-margin-for-small')) ?> <?= ((!$_GET['dbo_modal'])?('top-less-15'):('')) ?> radius secondary small trigger-dbo-auto-admin-cancelar-insercao-edicao" href='<?= $this->keepUrl(array('!dbo_update&!dbo_delete&!dbo_view&!dbo_new')) ?>'><i class="fa-arrow-left"></i> Voltar</a>
+													</span>
+												<?
+												}
+											?>
+										</div>
 										<?
-										}
-									?>
-								</div>
+									}
+								?>
 							</div>
 						</div>
-						<hr class="small" style="<?= (($_GET['hide_admin_header_separator'] || ($_GET['hide_admin_header_breadcrumb'] && $_GET['hide_admin_header_insert_button']))?('display: none;'):('')) ?>">
+						<?
+							if(!$this->hideComponent('breadcrumb'))
+							{
+								?><hr class="small"><?
+							}
+						?>
 					</div>
 	
 					<div class='row' style="display: none;">
@@ -3828,6 +3949,9 @@ class Dbo extends Obj
 									setInterval(function(){ 
 										resizeIframe();
 									}, 500);
+									setTimeout(function(){
+										$(parent).scrollTo('#<?= $_GET['section_id'] ?>', 500);
+									}, 550);
 								}) //doc.ready
 							</script>							
 							<?
@@ -4039,6 +4163,18 @@ class Dbo extends Obj
 					$('div.fieldset tr').removeClass('active');
 				});
 			})
+
+			//load das subsections
+			$(document).on('click', '.trigger-load-subsection-iframe', function(){
+				clicado = $(this);
+				clicado.closest('.wrapper-dbo-auto-admin-subsection').find('iframe').attr('src', clicado.data('url'));
+				clicado.removeClass('pointer trigger-load-subsection-iframe');
+				icon = clicado.find('i');
+				icon.removeClass('fa-chevron-up').addClass('fa-spinner fa-spin');
+				setTimeout(function(){
+					icon.removeClass('fa-spinner fa-spin').addClass('fa-chevron-down');
+				}, 1500);
+			});
 
 			//enabling ordering for auto ordered modules
 			<? if($this->isAutoOrdered()) { ?>
@@ -4748,9 +4884,9 @@ class Dbo extends Obj
 							$query = '';
 							eval($valor->query);
 							$res_query = dboQuery($query);
-							if(mysql_affected_rows())
+							if(dboAffectedRows())
 							{
-								$lin_query = mysql_fetch_object($res_query);
+								$lin_query = dboFetchObject($res_query);
 								$val = $lin_query->val;
 							}
 							if($val !== false)
@@ -5210,12 +5346,19 @@ class Dbo extends Obj
 			}
 		}
 
+		/* verificando se deve fazer um parse de codigo apos a operação realizada */
+		if($_GET['dbo_admin_post_code'])
+		{
+			$_SESSION[sysId()]['dbo_admin_post_code'] = $_GET['dbo_admin_post_code'];
+		}
+
 		/* verificando se deve fazer um redirect  */
 		if($_GET['dbo_return_redirect'])
 		{
-			header("Location: ".$_GET['dbo_return_redirect']);
+			header("Location: ".$_GET['dbo_return_redirect'].(($_GET['dbo_return_redirect_args'])?('?args='.$_GET['dbo_return_redirect_args']):('')));
 			exit();
 		}
+
 
 		//setando mensagens de sucesso
 		if($new)

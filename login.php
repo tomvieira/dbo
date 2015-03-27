@@ -3,7 +3,7 @@ if(!file_exists('custom-login.php'))
 {
 	require('header.php');	
 	
-	dbo_login();
+	dboLogin();
 
 	if(!loggedUser())
 	{

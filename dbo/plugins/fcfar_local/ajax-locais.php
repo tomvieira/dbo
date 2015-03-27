@@ -123,11 +123,11 @@ if(sizeof($sql_parts))
 
 	";
 
-	$res = mysql_query($sql);
+	$res = dboQuery($sql);
 
-	if(mysql_affected_rows())
+	if(dboAffectedRows())
 	{
-		while($lin = mysql_fetch_object($res))
+		while($lin = dboFetchObject($res))
 		{
 			$resultados[] = array('id' => $lin->id, 'local' => $lin->nome);
 		}

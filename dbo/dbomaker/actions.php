@@ -414,6 +414,16 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
+							<div class='dica'>Título que será mostrado no Big Button.</div>
+							<label>Titulo Big Button</label>
+							<div class='input'>
+								<input type='text' name='titulo_big_button' value="<?= htmlspecialchars($module->titulo_big_button) ?>"/>
+							</div>
+						</div>
+					</div><!-- row -->
+
+					<div class='row standard'>
+						<div class='item'>
 							<div class='dica'>Título que será mostrado na listagem. Se omitido, gera um título automárico.</div>
 							<label>Titulo da Listagem</label>
 							<div class='input'>
@@ -620,11 +630,23 @@ function getModuleForm ($module)
 
 												<div class='row standard'>
 													<div class='item'>
-														<label>Subsessão</label>
+														<label>Subseção</label>
 														<div class='input'>
 															<select name='button[<?= $key ?>][subsection]'>
 																<option value='1' <?= (($button->subsection)?('SELECTED'):('')) ?>>Sim</option>
 																<option value='0' <?= ((!$button->subsection)?('SELECTED'):('')) ?>>Não</option>
+															</select>
+														</div>
+													</div><!-- item -->
+												</div><!-- row -->
+
+												<div class='row standard'>
+													<div class='item'>
+														<label>Auto Load</label>
+														<div class='input'>
+															<select name='button[<?= $key ?>][autoload]'>
+																<option value='1' <?= (($button->autoload)?('SELECTED'):('')) ?>>Sim</option>
+																<option value='0' <?= ((!$button->autoload)?('SELECTED'):('')) ?>>Não</option>
 															</select>
 														</div>
 													</div><!-- item -->
@@ -2375,6 +2397,18 @@ function getModuleButtonForm($key)
 			</div><!-- item -->
 		</div><!-- row -->
 
+		<div class='row standard'>
+			<div class='item'>
+				<label>Auto Load</label>
+				<div class='input'>
+					<select name='button[<?= $key ?>][autoload]'>
+						<option value='1' <?= (($button->autoload)?('SELECTED'):('')) ?>>Sim</option>
+						<option value='0' <?= ((!$button->autoload)?('SELECTED'):('')) ?>>Não</option>
+					</select>
+				</div>
+			</div><!-- item -->
+		</div><!-- row -->
+
 		<div class='row'>
 			<div class='item' style='text-align: right; padding-top: 3px;'>
 				<a href='' class='button'>Padrão</a> <a href='' class='button-inactive toggle-module-button-view'>Custom</a> <a href='' class='button-inactive remove-button' title='Remover Botão'>x</a>
@@ -2488,6 +2522,7 @@ function runUpdateModule($post_data)
 	$_SESSION['dbomaker_modulos'][$mod]->preload_insert_form = (($post_data['preload_insert_form'])?(true):(false));
 	$_SESSION['dbomaker_modulos'][$mod]->auto_view = (($post_data['auto_view'])?(true):(false));
 
+	$_SESSION['dbomaker_modulos'][$mod]->titulo_big_button = stripslashes($post_data['titulo_big_button']);
 	$_SESSION['dbomaker_modulos'][$mod]->titulo_listagem = stripslashes($post_data['titulo_listagem']);
 	$_SESSION['dbomaker_modulos'][$mod]->classes_listagem = stripslashes($post_data['classes_listagem']);
 	$_SESSION['dbomaker_modulos'][$mod]->insert_button_text = stripslashes($post_data['insert_button_text']);
@@ -2536,6 +2571,7 @@ function runUpdateModule($post_data)
 				$but->view = (($button['view'] == 1)?(true):(false));
 				$but->show = (($button['show'] == 1)?(true):(false));
 				$but->subsection = (($button['subsection'] == 1)?(true):(false));
+				$but->autoload = (($button['autoload'] == 1)?(true):(false));
 			}
 			$_SESSION['dbomaker_modulos'][$mod]->button[] = $but;
 		}
@@ -2763,6 +2799,10 @@ function writeModuleFile($mod)
 		fwrite($fh, "\$module->tabela = '".singleScape($module->tabela)."';\n");
 		fwrite($fh, "\$module->titulo = '".singleScape($module->titulo)."';\n");
 		fwrite($fh, "\$module->titulo_plural = '".singleScape($module->titulo_plural)."';\n");
+		if(strlen($module->titulo_big_button))
+		{
+			fwrite($fh, "\$module->titulo_big_button = '".singleScape($module->titulo_big_button)."';\n");
+		}
 		if(strlen($module->titulo_listagem))
 		{
 			fwrite($fh, "\$module->titulo_listagem = '".singleScape($module->titulo_listagem)."';\n");
@@ -3083,6 +3123,7 @@ function writeModuleFile($mod)
 					fwrite($fh, "\$button->view = ".(($button->view === true)?('true'):('false')).";\n");
 					fwrite($fh, "\$button->show = ".(($button->show === true)?('true'):('false')).";\n");
 					fwrite($fh, "\$button->subsection = ".(($button->subsection === true)?('true'):('false')).";\n");
+					fwrite($fh, "\$button->autoload = ".(($button->autoload === true)?('true'):('false')).";\n");
 				}
 				fwrite($fh, "\$module->button[] = \$button;\n");
 				fwrite($fh, "\n");

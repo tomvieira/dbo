@@ -13,6 +13,45 @@ function activeMainNav(menu) {
 	$('#menu-'+menu).addClass('active');
 }
 
+function openDboModal(url, tamanho, callback) {
+	if(typeof tamanho == 'undefined'){
+		tamanho = 'medium';
+	}
+	$('#modal-dbo-'+tamanho).foundation('reveal', 'open', {
+		url: url,
+		success: function(){
+			setTimeout(function(){
+				if(typeof callback == 'function'){
+					callback(result);
+				}
+				else if(typeof window[callback] == 'function'){
+					window[callback]();
+				}
+				else if(typeof callback == 'string'){
+					eval(callback);
+				}
+			}, 200);
+		}
+	})
+}
+
+function openColorBoxModal(url, width, height) {
+	var width = ((typeof width != 'undefined')?(width):(1000));
+	var height = ((typeof height != 'undefined')?(height):('98%'));
+	height = (($(window).width() < 810)?('90%'):(height));
+	$.colorbox({
+		href: url,
+		iframe: true,
+		width: width,
+		height: height,
+		maxWidth: '100%',
+		maxHeight: '100%',
+		overlayClose: false,
+		escKey: false,
+		fixed: true
+	});
+}
+
 $(document).ready(function(){
 	//fade nas mensagens
 
@@ -23,21 +62,7 @@ $(document).ready(function(){
 		e.preventDefault();
 		e.stopPropagation();
 		clicado = $(this);
-		var w = ((typeof clicado.attr('data-width') != 'undefined')?(clicado.attr('data-width')):(1000));
-		var h = ((typeof clicado.attr('data-height') != 'undefined')?(clicado.attr('data-height')):('98%'));
-		h = (($(window).width() < 810)?('90%'):(h));
-		console.log($(document).width());
-		$.colorbox({
-			href:clicado.attr('href'),
-			iframe: true,
-			width: w,
-			height: h,
-			maxWidth: '100%',
-			maxHeight: '100%',
-			overlayClose: false,
-			escKey: false,
-			fixed: true
-		});
+		openColorBoxModal(clicado.attr('href'), ((typeof clicado.attr('data-width') != 'undefined')?(clicado.attr('data-width')):(1000)), ((typeof clicado.attr('data-height') != 'undefined')?(clicado.attr('data-height')):('98%')));
 	});
 
 	$(document).on('click', '[rel^="lightbox"]', function(e){
@@ -57,6 +82,19 @@ $(document).ready(function(){
 		$('#modal-change-password').foundation('reveal', 'open', {
 			url: 'modal-dbo-change-password.php'
 		});
+	});
+
+	//abrindo modais com trigger
+	$(document).on('click', '.trigger-dbo-modal', function(e){
+		e.preventDefault();
+		clicado = $(this);
+		openDboModal(clicado.data('url'), clicado.data('tamanho'), clicado.data('callback'));
+	});
+
+	$(document).on('click', '.trigger-colorbox-modal', function(e){
+		e.preventDefault();
+		clicado = $(this);
+		openColorBoxModal(clicado.data('url'), clicado.data('width'), clicado.data('height'));
 	});
 
 });

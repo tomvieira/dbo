@@ -3,10 +3,21 @@ Developed by José Eduardo Biasioli
 http://www.peixelaranja.com.br
 
 -----------------------------------------------------------------------------------------
-- Version 0.9.7 -------------------------------------------------------------------------
+- Version 0.9.8 -------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 Changelog
+
+- Version 0.9.8 ------------------------------------------------------------ 11/03/2015 -
+
+Improvements
+- Pocket data added to DBO object
+- Added several modal functions
+- peixelaranja.js now has a lot of JSON utilities
+- dboAdminRedirectCode() allows javascript callbacks in redirects.
+- dboAdminPostCode() allows javascript callbacks after DBO Admin operations.
+- dbo_login() is deprecated, use dboLogin() instead.
+- Lots and lots of improvements (seriouslly)
 
 - Version 0.9.7 -------------------------------------------------------------------------
 

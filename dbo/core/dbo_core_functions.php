@@ -97,6 +97,41 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function dboQueryError()
+	{
+		return mysql_error();
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboFetchAssoc($res)
+	{
+		return mysql_fetch_assoc($res);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboFetchObject($res)
+	{
+		return mysql_fetch_object($res);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboQueryResult($res, $pos)
+	{
+		return mysql_result($res, $pos);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboInsertId()
+	{
+		return mysql_insert_id();
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dboNow($tipo = 'datetime')
 	{
 		if(!defined('DBO_NOW'))
@@ -211,21 +246,15 @@
 			ob_start();
 			if($alerts > 0)
 			{
-				?>
-				<span class="notification-bubble alert"><?= $alerts ?></span>
-				<?
+				?><span class="notification-bubble alert"><?= $alerts ?></span><?
 			}
 			if($warnings > 0)
 			{
-				?>
-				<span class="notification-bubble warning"><?= $warnings ?></span>
-				<?
+				?><span class="notification-bubble warning"><?= $warnings ?></span><?
 			}
 			if($notes > 0)
 			{
-				?>
-				<span class="notification-bubble ok"><?= $notes ?></span>
-				<?
+				?><span class="notification-bubble ok"><?= $notes ?></span><?
 			}
 			return ob_get_clean();
 		}
@@ -707,7 +736,7 @@
 			} else {
 				$modulos[$key]['icon'] = "_icone_generico.png";
 			}
-			$modulos[$key]['titulo'] = $module->titulo_plural;
+			$modulos[$key]['titulo'] = (($module->titulo_big_button)?($module->titulo_big_button):($module->titulo_plural));
 			$modulos[$key]['var'] = $module->modulo;
 		}
 
@@ -770,7 +799,7 @@
 			} else {
 				$modulos[$key]['icon'] = "_icone_generico.png";
 			}
-			$modulos[$key]['titulo'] = $module->titulo_plural;
+			$modulos[$key]['titulo'] = (($module->titulo_big_button)?($module->titulo_big_button):($module->titulo_plural));
 			$modulos[$key]['var'] = $module->modulo;
 		}
 
@@ -798,6 +827,13 @@
 
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function priceSQL($num)
+	{
+		return str_replace(array('R$ ', '$ ', '.', ','), array('', '', '', '.'), $num);
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function insertCustomMenu($count, $permission = 'cockpit')
@@ -845,6 +881,52 @@
 		return pessoaHasPermission(loggedUser(), $perm, $modulo);
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAdminRedirectCode($code, $params = array())
+	{
+		extract($params);
+		return '&dbo_return_redirect=dbo-return-redirect-parser.php&dbo_return_redirect_args='.base64_encode($code);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAdminPostCode($code = false, $params = array())
+	{
+		if($code === false)
+		{
+			if($_SESSION[sysId()]['dbo_admin_post_code'])
+			{
+				$code = $_SESSION[sysId()]['dbo_admin_post_code'];
+				unset($_SESSION[sysId()]['dbo_admin_post_code']);
+			}
+			echo dboAdminParseUrlCode($code);
+		}
+		else
+		{
+			extract($params);
+			return '&dbo_admin_post_code='.base64_encode($code);
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboAdminParseUrlCode($code)
+	{
+		$code = trim(base64_decode($code));
+		
+		ob_start();
+		//detectando se é javascript ou outra coisa.
+		if(strpos($code, 'javascript:') === 0)
+		{
+			$code = preg_replace('/^javascript:/is', '', $code);
+			?>
+			<script><?= $code ?></script>
+			<?
+		}
+		return ob_get_clean();
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	//funcao que verifica se o usuário tem permissao. para realizar algo, segundo a tabela perfil.
@@ -1073,7 +1155,7 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
-	function init($param = '')
+	/*function init($param = '')
 	{
 		?>
 		<!-- prettyPhoto -->
@@ -1090,7 +1172,7 @@
 		</script>
 
 		<?
-	}
+	}*/
 
 	// ----------------------------------------------------------------------------------------------------------------
 
@@ -1260,7 +1342,7 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
-	function dboescape($var)
+	function dboEscape($var)
 	{
 		return mysql_real_escape_string($var);
 	}
@@ -1277,6 +1359,13 @@
 			}
 		}
 		return false;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboLogin()
+	{
+		return dbo_login();
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1692,8 +1781,11 @@
 		$hooks->do_action('dbo_footer');
 		if(!$_GET['dbo_mod'] && !$_GET['dbo_modal']) { dumpMid(); }
 		$end_time = (float) array_sum(explode(' ',microtime()));
-		echo "<span class='processing-time' style='color: #FFF;' class='no-print'>Processing time: ". sprintf("%.4f", ($end_time-$start_time))." seconds</span>";
-		echo " <span class='dbo-queries-number' style='color: #FFF;'>Queries: ".$dbo_query_counter."</span>";
+		if(!$_GET['dbo_modal'])
+		{
+			echo "<span class='processing-time' style='color: #FFF;' class='no-print'>Processing time: ". sprintf("%.4f", ($end_time-$start_time))." seconds</span>";
+			echo " <span class='dbo-queries-number' style='color: #FFF;'>Queries: ".$dbo_query_counter."</span>";
+		}
 		getMessage();
 	}
 
@@ -2448,7 +2540,7 @@
 			}
 		}
 
-		if($difference < 0) { return 'agora'; }
+		if($difference <= 0) { return 'agora'; }
 
 		return (($show_tense)?($tense." "):('')).abs($difference)." ".$periods[$j];
 	}	

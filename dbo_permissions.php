@@ -129,7 +129,7 @@
 										{
 										?>
 											<tr>
-												<td style="width: 15%;"><span class="no-margin inline header" id="<?= $chave ?>"><?= $chave ?></span></td>
+												<td style="width: 25%;"><span class="no-margin inline header" id="<?= $chave ?>"><?= $chave ?></span></td>
 												<td>
 												<?
 													foreach($valor as $item_chave => $item_permissao)
@@ -176,7 +176,7 @@
 													$perm_sidebar = perfilHasPermission($_GET["perfil"], "sidebar", $item_cm->slug);
 												?>
 												<tr>
-													<td style="width: 15%;"><span class="header no-margin inline" id="<?= $item_cm->slug ?>"><?= $item_cm->slug ?></span></td>
+													<td style="width: 25%;"><span class="header no-margin inline" id="<?= $item_cm->slug ?>"><?= $item_cm->slug ?></span></td>
 													<td>
 														<span class="item <?= (($perm_cockpit)?(""):("off")) ?>"><input type="checkbox" rel="<?= $item_cm->slug ?>" <?= $perm_cockpit ? "CHECKED" : "" ?> value="cockpit" name="permission[<?= $item_cm->slug ?>][Cockpit]"> <span>Cockpit</span></span>
 														<span class="item <?= (($perm_sidebar)?(""):("off")) ?>"><input type="checkbox" rel="<?= $item_cm->slug ?>" <?= $perm_sidebar ? "CHECKED" : "" ?> value="sidebar" name="permission[<?= $item_cm->slug ?>][Sidebar]"> <span>Sidebar</span></span>
@@ -213,7 +213,7 @@
 													$perm = perfilHasPermission($_GET["perfil"], $obj->nome);
 													?>
 													<tr>
-														<td style="width: 15%"><span class="header inline no-margin" id="permissao-custom-<?= $obj->nome ?>"><?= $obj->nome ?></span></td>
+														<td style="width: 25%"><span class="header inline no-margin" id="permissao-custom-<?= $obj->nome ?>"><?= $obj->nome ?></span></td>
 														<td>
 															<span class="item <?= ((perfilHasPermission($_GET['perfil'], $obj->nome))?(''):('off')) ?>"><input type="checkbox" rel="permissao-custom-<?= $obj->nome ?>" <?= $perm ? "CHECKED" : "" ?> value="<?= $obj->nome ?>" name="permission[<?= $obj->nome ?>]"></span>
 														</td>
