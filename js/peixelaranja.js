@@ -400,8 +400,6 @@ $(document).ready(function(){
 
 	peixeInit();
 
-	console.log(peixeMediaQuery());
-
 	//mostra mensagens
 	showPeixeMessage();
 

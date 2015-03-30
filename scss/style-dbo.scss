@@ -372,7 +372,6 @@ table.list .thumb-lista { margin-bottom: 0px !important; }
 #ui-datepicker-div { z-index: 50 !important; }
 
 /* icones do menu */
-.top-bar li i { display: none; } 
 
 /* correção da listagem de radios e checkbox */
 .list-radio-checkbox span span { display: none; }
@@ -733,11 +732,13 @@ select.select2[multiple] { opacity: 0; } //escondendo os select multipe que seja
 
 	.top-bar-section {
 		ul {
-			&:nth-child(2) {
-				li:first-child {
+			/*&:not(.dropdown) {
+				> li:first-child {
 					a { border-top: 1px solid rgb(221, 221, 221); }
 				}
-			}
+			}*/
+			/*&:nth-child(2) {
+			}*/
 			li.active {
 				a { font-weight: bold; }
 			}
