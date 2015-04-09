@@ -306,8 +306,8 @@
 	function dboFileName($file_name, $params = array())
 	{
 		extract($params);
-		$file_path = $file_path?:DBO_PATH."/upload/images/";
-		$overwrite = $overwrite?:false;
+		$file_path = $file_path?$file_path:DBO_PATH."/upload/images/";
+		$overwrite = $overwrite?$overwrite:false;
 
 		//primeiro quebrando o nome do arquivo em nome e extensao
 		$ext = dboGetExtension($file_name);

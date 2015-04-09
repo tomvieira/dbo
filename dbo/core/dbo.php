@@ -2566,7 +2566,7 @@ class Dbo extends Obj
 								// TEXTAREA-RICH ==================================================================================
 								if($valor->tipo == 'textarea-rich')
 								{
-									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('tinymce'))."' id='insert-".$valor->coluna."' data-name='".$valor->titulo."'></textarea>";
+									$return .= "<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?($valor->classes):('tinymce'))."' id='insert-".$valor->coluna."' data-name='".$valor->titulo."'></textarea>";
 
 									//getting the settings for tinymce
 									/*$file_code = '';
@@ -2619,7 +2619,7 @@ class Dbo extends Obj
 								// DATA ======================================================================================
 								elseif($valor->tipo == 'date')
 								{
-									$return .= (($custom_field)?($custom_field):("<input type='text' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('datepick'))."' name='".$valor->coluna."' data-name='".$valor->titulo."'/>"));
+									$return .= (($custom_field)?($custom_field):("<input type='text' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?($valor->classes):('datepick'))."' name='".$valor->coluna."' data-name='".$valor->titulo."'/>"));
 								}
 								// DATA E HORA ================================================================================
 								elseif($valor->tipo == 'datetime')
@@ -2627,7 +2627,7 @@ class Dbo extends Obj
 									ob_start();
 									?>
 									<div class="row collapse">
-										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='<?= (($valor->valida)?('required'):('')) ?> <?= (($valor->classes)?:('datetimepick')) ?>' data-name="<?= $valor->titulo ?>"/></div>
+										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='<?= (($valor->valida)?('required'):('')) ?> <?= (($valor->classes)?($valor->classes):('datetimepick')) ?>' data-name="<?= $valor->titulo ?>"/></div>
 										<div class="small-2 columns"><a href="#" class="button secondary postfix radius trigger-clear-closest-input" title="Limpar data e hora" style="background-image: url('<?= DBO_URL ?>/../images/cross.png'); background-repeat: no-repeat; background-position: center center;">&nbsp;</a></div>
 									</div>
 									<?
@@ -2885,6 +2885,7 @@ class Dbo extends Obj
 			$return .= '<div class="row"><div class="item large-12 columns text-right"><div class="input"><button class="button radius" id="main-submit" accesskey="s">'.((!$this->__module_scheme->insert_button_text)?('Inserir '.dboStrToLower($this->__module_scheme->titulo)):($this->__module_scheme->insert_button_text)).'</button></div></div></div>';
 			$return .= "<input type='hidden' name='__dbo_insert_flag' value='1'>";
 			$return .= CSRFInput();
+			$return .= submitToken();
 			$return .= "</form></div></div></span>"; //.dbo-element
 
 			//checando se há algo a se colocar depois do formulario (campos por exemplo)
@@ -3034,7 +3035,7 @@ class Dbo extends Obj
 								// TEXTAREA-RICH ==================================================================================
 								if($valor->tipo == 'textarea-rich')
 								{
-									$return .= "\t\t\t<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('tinymce'))."' id='update-".$valor->coluna."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($modulo->{$valor->coluna})):($modulo->{$valor->coluna}))."</textarea>\n";
+									$return .= "\t\t\t<textarea rows='".(($valor->rows)?($valor->rows):('5'))."' name='".$valor->coluna."' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?($valor->classes):('tinymce'))."' id='update-".$valor->coluna."' data-name='".$valor->titulo."'>".(($edit_function)?($edit_function($modulo->{$valor->coluna})):($modulo->{$valor->coluna}))."</textarea>\n";
 
 									//getting the settings for tinymce
 									/*$file_code = '';
@@ -3096,7 +3097,7 @@ class Dbo extends Obj
 									list($ano,$mes,$dia) = explode("-", $this->clearValue($modulo->{$valor->coluna}));
 									if($dia == '00') { $val = ''; }
 									else { $val = $dia."/".$mes."/".$ano; }
-									$return .= "\t\t\t<input type='text' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?:('datepick'))."' name='".$valor->coluna."' value='".$val."'  data-name='".$valor->titulo."'/>\n";
+									$return .= "\t\t\t<input type='text' class='".(($valor->valida)?('required'):(''))." ".(($valor->classes)?($valor->classes):('datepick'))."' name='".$valor->coluna."' value='".$val."'  data-name='".$valor->titulo."'/>\n";
 								}
 								// DATA E HORA ===============================================================================
 								elseif($valor->tipo == 'datetime')
@@ -3109,7 +3110,7 @@ class Dbo extends Obj
 									ob_start();
 									?>
 									<div class="row collapse">
-										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='<?= (($valor->valida)?('required'):('')) ?> <?= (($valor->classes)?:('datetimepick')) ?>' data-name="<?= $valor->titulo ?>" value="<?= $datetime_valor ?>"/></div>
+										<div class="small-10 columns"><input type='text' <?= (($valor->valida)?('required'):('')) ?> name="<?= $valor->coluna ?>" class='<?= (($valor->valida)?('required'):('')) ?> <?= (($valor->classes)?($valor->classes):('datetimepick')) ?>' data-name="<?= $valor->titulo ?>" value="<?= $datetime_valor ?>"/></div>
 										<div class="small-2 columns"><a href="#" class="button secondary postfix radius trigger-clear-closest-input" title="Limpar data e hora" style="background-image: url('<?= DBO_URL ?>/../images/cross.png'); background-repeat: no-repeat; background-position: center center;">&nbsp;</a></div>
 									</div>
 									<?
@@ -3473,6 +3474,7 @@ class Dbo extends Obj
 			$return .= "<div class='row'><div class='item large-12 columns text-right'><div class='input'><button class='button radius' id=\"main-submit\" accesskey='s'>Salvar alterações n".$this->__module_scheme->genero." ".dboStrToLower($this->__module_scheme->titulo)."</button></div></div></div>";
 			$return .= "<input type='hidden' name='__dbo_update_flag' value='".$update."'>\n\n";
 			$return .= CSRFInput();
+			$return .= submitToken();
 			$return .= "</form></div></div></span>"; //.dbo-element
 
 			//aqui inserimos as subsections
@@ -4991,403 +4993,407 @@ class Dbo extends Obj
 		//checando CSRF
 		CSRFCheckRequest();
 
+		//checando se o form está dando resubmissão
+		$resubmit = false;
+
 		if($_POST['__dbo_update_flag']) //se for pra dar update...
 		{
 			$this->id = $this->sanitize($_POST['__dbo_update_flag']);
 		}
 
-		//executando pre_update e pre_insert
-		if($_POST['__dbo_update_flag']) { //update
-			$func = $this->getModule()."_pre_update";
-			if(function_exists($func))
-			{
-				$func($this);
-			}
-		} else { //insert
-			$func = $this->getModule()."_pre_insert";
-			if(function_exists($func))
-			{
-				$func();
-			}
-		}
-
-		foreach($this->__module_scheme->campo as $chave => $campo)
+		if(checkSubmitToken())
 		{
-
-			$update = (($_POST['__dbo_update_flag'])?(true):(false));
-
-			//treating the automatic fields
-			if(in_array($campo->coluna, $__dbo_auto_fields))
-			{
-				if(!$_POST['__dbo_update_flag']) //insert
+			//executando pre_update e pre_insert
+			if($_POST['__dbo_update_flag']) { //update
+				$func = $this->getModule()."_pre_update";
+				if(function_exists($func))
 				{
-					//created_by -------------------------------------------------------
-					if($campo->coluna == 'created_by')
-					{
-						$this->created_by = loggedUser();
-					}
-					//created_on -------------------------------------------------------
-					elseif($campo->coluna == 'created_on')
-					{
-						$this->created_on = $this->now();
-					}
-					//order_by -------------------------------------------------------
-					elseif($campo->coluna == 'order_by')
-					{
-						$this->order_by = $this->getMaxOrderBy()+1;
-					}
+					$func($this);
 				}
-				else //update
+			} else { //insert
+				$func = $this->getModule()."_pre_insert";
+				if(function_exists($func))
 				{
-					//updated_by -------------------------------------------------------
-					if($campo->coluna == 'updated_by')
-					{
-						$this->updated_by = loggedUser();
-					}
-					//updated_on -------------------------------------------------------
-					elseif($campo->coluna == 'updated_on')
-					{
-						$this->updated_on = $this->now();
-					}
+					$func();
 				}
 			}
-			//or the other ordinary fields.
-			elseif($campo->{(($_POST['__dbo_update_flag'])?('edit'):('add'))} === TRUE && $this->perfilTemAcessoCampo($campo->perfil)) //checa se deve colocar na listagem de insert/update
+
+			foreach($this->__module_scheme->campo as $chave => $campo)
 			{
-				// TEXT ======================================================================================
-				if($campo->tipo == 'text')
+
+				$update = (($_POST['__dbo_update_flag'])?(true):(false));
+
+				//treating the automatic fields
+				if(in_array($campo->coluna, $__dbo_auto_fields))
 				{
-					if(
-						( $update && ($campo->interaction == 'updateonly' || $campo->interaction == '')) ||
-						(!$update && ($campo->interaction == 'insertonly' || $campo->interaction == ''))
-					)
+					if(!$_POST['__dbo_update_flag']) //insert
+					{
+						//created_by -------------------------------------------------------
+						if($campo->coluna == 'created_by')
+						{
+							$this->created_by = loggedUser();
+						}
+						//created_on -------------------------------------------------------
+						elseif($campo->coluna == 'created_on')
+						{
+							$this->created_on = $this->now();
+						}
+						//order_by -------------------------------------------------------
+						elseif($campo->coluna == 'order_by')
+						{
+							$this->order_by = $this->getMaxOrderBy()+1;
+						}
+					}
+					else //update
+					{
+						//updated_by -------------------------------------------------------
+						if($campo->coluna == 'updated_by')
+						{
+							$this->updated_by = loggedUser();
+						}
+						//updated_on -------------------------------------------------------
+						elseif($campo->coluna == 'updated_on')
+						{
+							$this->updated_on = $this->now();
+						}
+					}
+				}
+				//or the other ordinary fields.
+				elseif($campo->{(($_POST['__dbo_update_flag'])?('edit'):('add'))} === TRUE && $this->perfilTemAcessoCampo($campo->perfil)) //checa se deve colocar na listagem de insert/update
+				{
+					// TEXT ======================================================================================
+					if($campo->tipo == 'text')
+					{
+						if(
+							( $update && ($campo->interaction == 'updateonly' || $campo->interaction == '')) ||
+							(!$update && ($campo->interaction == 'insertonly' || $campo->interaction == ''))
+						)
+						{
+							$this->{$campo->coluna} = $_POST[$campo->coluna];
+						}
+					}
+					// PASSWORD ======================================================================================
+					elseif($campo->tipo == 'password')
 					{
 						$this->{$campo->coluna} = $_POST[$campo->coluna];
 					}
-				}
-				// PASSWORD ======================================================================================
-				elseif($campo->tipo == 'password')
-				{
-					$this->{$campo->coluna} = $_POST[$campo->coluna];
-				}
-				// TEXTAREA ==================================================================================
-				elseif($campo->tipo == 'textarea')
-				{
-					$this->{$campo->coluna} = $_POST[$campo->coluna];
-				}
-				// TEXTAREA-RICH ==================================================================================
-				elseif($campo->tipo == 'textarea-rich')
-				{
-					$this->{$campo->coluna} = $_POST[$campo->coluna];
-				}
-				// RADIO =====================================================================================
-				elseif ($campo->tipo == 'radio')
-				{
-					$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '-1')?($this->null()):($_POST[$campo->coluna]));
-				}
-				// CHECKBOX ==================================================================================
-				elseif ($campo->tipo == 'checkbox')
-				{
-					if(is_array($_POST[$campo->coluna]))
+					// TEXTAREA ==================================================================================
+					elseif($campo->tipo == 'textarea')
 					{
-						$this->{$campo->coluna} = implode("\n", $_POST[$campo->coluna]);
+						$this->{$campo->coluna} = $_POST[$campo->coluna];
 					}
-					else
+					// TEXTAREA-RICH ==================================================================================
+					elseif($campo->tipo == 'textarea-rich')
 					{
-						$this->{$campo->coluna} = '';
+						$this->{$campo->coluna} = $_POST[$campo->coluna];
 					}
-				}
-				// PRICE ====================================================================================
-				elseif ($campo->tipo == 'price')
-				{
-					$valor_price = $_POST[$campo->coluna];
-					if($campo->formato == 'real' || $campo->formato == 'generico')
+					// RADIO =====================================================================================
+					elseif ($campo->tipo == 'radio')
 					{
-						$replace_from = array('R$ ', '$ ', '.', ',');
-						$replace_to = array('', '', '', '.');
-						$valor_price = str_replace($replace_from, $replace_to, $valor_price);
+						$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '-1')?($this->null()):($_POST[$campo->coluna]));
 					}
-					else
+					// CHECKBOX ==================================================================================
+					elseif ($campo->tipo == 'checkbox')
 					{
-						$replace_from = array('US$ ', ',');
-						$replace_to = array('', '');
-						$valor_price = str_replace($replace_from, $replace_to, $valor_price);
-					}
-					$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '')?($this->null()):($valor_price));
-					unset($valor_price);
-				}
-				// SELECT ====================================================================================
-				elseif ($campo->tipo == 'select')
-				{
-					$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '-1')?($this->null()):($_POST[$campo->coluna]));
-				}
-				// DATA ======================================================================================
-				elseif($campo->tipo == 'date')
-				{
-					/* se for nulo */
-					if($campo->isnull && trim($_POST[$campo->coluna]) == '')
-					{
-						$this->{$campo->coluna} = $this->null();
-					}
-					else
-					{
-						list($dia, $mes, $ano) = explode("/", $_POST[$campo->coluna]);
-						$val = $ano."-".$mes."-".$dia;
-						$this->{$campo->coluna} = $val;
-					}
-				}
-				// DATA ======================================================================================
-				elseif($campo->tipo == 'datetime')
-				{
-					/* se for nulo */
-					if($campo->isnull && trim($_POST[$campo->coluna]) == '')
-					{
-						$this->{$campo->coluna} = $this->null();
-					}
-					else
-					{
-						$this->{$campo->coluna} = dateTimeSQL($_POST[$campo->coluna]);
-					}
-				}
-				// PLUGINS ==========================================================================
-				elseif($campo->tipo == 'plugin')
-				{
-					$plugin = $campo->plugin;
-					$plugin_path = DBO_PATH."/plugins/".$plugin->name."/".$plugin->name.".php";
-					$plugin_class = "dbo_".$plugin->name;
-					//checa se o plugin existe, antes de mais nada.
-					if(file_exists($plugin_path))
-					{
-						include_once($plugin_path); //inclui a classe
-						$plug = new $plugin_class($plugin->params); //instancia com os parametros
-						$plug->setFormData($campo->coluna); //seta os dados que vem do formulário para o plugin processar.
-						$this->{$campo->coluna} = $plug->getData(); //pega os dados processados para o banco de dados.
-					}
-					else { //senão, avisa que não está instalado.
-						$return .= "O Plugin <b>'".$plugin->name."'</b> não está instalado";
-					}
-				} //plugins
-				// JOIN ======================================================================================
-				elseif($campo->tipo == 'join')
-				{
-					$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '-1')?($this->null()):($_POST[$campo->coluna]));
-				}
-				// MULTI join ======================================================================================
-				elseif($campo->tipo == 'joinNN')
-				{
-					if(!$this->id) //insert
-					{
-						if(!$temp_id) { $temp_id = rand(100000000, 999999999); } //numero randomico para o id temporario, já que o id do objeto atual ainda nao existe.
-
-						$acertar[$campo->join->tabela_ligacao]['chave'] = $campo->join->chave1; //vai marcando as tabelas que precisam ser acertadas quando acabar o insert, para o caso em que há mais de um campo NxN.
-
-						foreach($_POST[$campo->coluna] as $chave2 => $valor2)
+						if(is_array($_POST[$campo->coluna]))
 						{
-							$obj = new Dbo($campo->join->tabela_ligacao);
-							$obj->{$campo->join->chave1} = $temp_id;
-							$obj->{$campo->join->chave2} = $valor2;
-							$obj->save();
+							$this->{$campo->coluna} = implode("\n", $_POST[$campo->coluna]);
 						}
-					} else {
-
-						//remove os que já estavam cadastrados
-						$cadastrados = new Dbo($campo->join->tabela_ligacao);
-						$cadastrados->{$campo->join->chave1} = $this->id;
-						$cadastrados->loadAll();
-						do {
-							$cadastrados->delete();
-						}while($cadastrados->fetch());
-
-						//insere os novos
-						foreach($_POST[$campo->coluna] as $atualizado)
+						else
 						{
-							$obj = new Dbo($campo->join->tabela_ligacao);
-							$obj->{$campo->join->chave1} = $this->id;
-							$obj->{$campo->join->chave2} = $atualizado;
-							$obj->save();
+							$this->{$campo->coluna} = '';
 						}
 					}
-				} //multi join
-				// IMAGE ======================================================================================
-				elseif($campo->tipo == 'image')
-				{
-					if(!$_POST['manter_atual_'.$campo->coluna])
+					// PRICE ====================================================================================
+					elseif ($campo->tipo == 'price')
 					{
-						$nome_arquivo = '';
-						if($_FILES[$campo->coluna]['size'] > 0)
+						$valor_price = $_POST[$campo->coluna];
+						if($campo->formato == 'real' || $campo->formato == 'generico')
 						{
-							//pegando a extesão e definindo o tipo de imagem
-							$ext = strtolower(dboGetExtension($_FILES[$campo->coluna]['name']));
-							
-							include_once(DBO_PATH."/core/classes/simpleimage.php"); //classe para fazer resize das imagens
+							$replace_from = array('R$ ', '$ ', '.', ',');
+							$replace_to = array('', '', '', '.');
+							$valor_price = str_replace($replace_from, $replace_to, $valor_price);
+						}
+						else
+						{
+							$replace_from = array('US$ ', ',');
+							$replace_to = array('', '');
+							$valor_price = str_replace($replace_from, $replace_to, $valor_price);
+						}
+						$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '')?($this->null()):($valor_price));
+						unset($valor_price);
+					}
+					// SELECT ====================================================================================
+					elseif ($campo->tipo == 'select')
+					{
+						$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '-1')?($this->null()):($_POST[$campo->coluna]));
+					}
+					// DATA ======================================================================================
+					elseif($campo->tipo == 'date')
+					{
+						/* se for nulo */
+						if($campo->isnull && trim($_POST[$campo->coluna]) == '')
+						{
+							$this->{$campo->coluna} = $this->null();
+						}
+						else
+						{
+							list($dia, $mes, $ano) = explode("/", $_POST[$campo->coluna]);
+							$val = $ano."-".$mes."-".$dia;
+							$this->{$campo->coluna} = $val;
+						}
+					}
+					// DATA ======================================================================================
+					elseif($campo->tipo == 'datetime')
+					{
+						/* se for nulo */
+						if($campo->isnull && trim($_POST[$campo->coluna]) == '')
+						{
+							$this->{$campo->coluna} = $this->null();
+						}
+						else
+						{
+							$this->{$campo->coluna} = dateTimeSQL($_POST[$campo->coluna]);
+						}
+					}
+					// PLUGINS ==========================================================================
+					elseif($campo->tipo == 'plugin')
+					{
+						$plugin = $campo->plugin;
+						$plugin_path = DBO_PATH."/plugins/".$plugin->name."/".$plugin->name.".php";
+						$plugin_class = "dbo_".$plugin->name;
+						//checa se o plugin existe, antes de mais nada.
+						if(file_exists($plugin_path))
+						{
+							include_once($plugin_path); //inclui a classe
+							$plug = new $plugin_class($plugin->params); //instancia com os parametros
+							$plug->setFormData($campo->coluna); //seta os dados que vem do formulário para o plugin processar.
+							$this->{$campo->coluna} = $plug->getData(); //pega os dados processados para o banco de dados.
+						}
+						else { //senão, avisa que não está instalado.
+							$return .= "O Plugin <b>'".$plugin->name."'</b> não está instalado";
+						}
+					} //plugins
+					// JOIN ======================================================================================
+					elseif($campo->tipo == 'join')
+					{
+						$this->{$campo->coluna} = (($campo->isnull && $_POST[$campo->coluna] == '-1')?($this->null()):($_POST[$campo->coluna]));
+					}
+					// MULTI join ======================================================================================
+					elseif($campo->tipo == 'joinNN')
+					{
+						if(!$this->id) //insert
+						{
+							if(!$temp_id) { $temp_id = rand(100000000, 999999999); } //numero randomico para o id temporario, já que o id do objeto atual ainda nao existe.
 
-							$nome_arquivo = time().rand(1,100).$ext; //criando um nome randomico para o arquivo
+							$acertar[$campo->join->tabela_ligacao]['chave'] = $campo->join->chave1; //vai marcando as tabelas que precisam ser acertadas quando acabar o insert, para o caso em que há mais de um campo NxN.
 
-							foreach($campo->image as $chave2 => $valor2) //processando o resize para todos os tamanhos das imagens
+							foreach($_POST[$campo->coluna] as $chave2 => $valor2)
 							{
-								$w = $valor2->width;
-								$h = $valor2->height;
-								$q = $valor2->quality;
-								$prefix = $valor2->prefix;
-								$image = new SimpleImage();
-								$image->load($_FILES[$campo->coluna]['tmp_name']);
-								if($w && !$h)
+								$obj = new Dbo($campo->join->tabela_ligacao);
+								$obj->{$campo->join->chave1} = $temp_id;
+								$obj->{$campo->join->chave2} = $valor2;
+								$obj->save();
+							}
+						} else {
+
+							//remove os que já estavam cadastrados
+							$cadastrados = new Dbo($campo->join->tabela_ligacao);
+							$cadastrados->{$campo->join->chave1} = $this->id;
+							$cadastrados->loadAll();
+							do {
+								$cadastrados->delete();
+							}while($cadastrados->fetch());
+
+							//insere os novos
+							foreach($_POST[$campo->coluna] as $atualizado)
+							{
+								$obj = new Dbo($campo->join->tabela_ligacao);
+								$obj->{$campo->join->chave1} = $this->id;
+								$obj->{$campo->join->chave2} = $atualizado;
+								$obj->save();
+							}
+						}
+					} //multi join
+					// IMAGE ======================================================================================
+					elseif($campo->tipo == 'image')
+					{
+						if(!$_POST['manter_atual_'.$campo->coluna])
+						{
+							$nome_arquivo = '';
+							if($_FILES[$campo->coluna]['size'] > 0)
+							{
+								//pegando a extesão e definindo o tipo de imagem
+								$ext = strtolower(dboGetExtension($_FILES[$campo->coluna]['name']));
+								
+								include_once(DBO_PATH."/core/classes/simpleimage.php"); //classe para fazer resize das imagens
+
+								$nome_arquivo = time().rand(1,100).$ext; //criando um nome randomico para o arquivo
+
+								foreach($campo->image as $chave2 => $valor2) //processando o resize para todos os tamanhos das imagens
 								{
-									$image->resizeToWidth($w);
-								}
-								elseif ($h && !$w)
-								{
-									$image->resizeToHeight($h);
-								}
-								else
-								{
-									if($w >= $h) {
+									$w = $valor2->width;
+									$h = $valor2->height;
+									$q = $valor2->quality;
+									$prefix = $valor2->prefix;
+									$image = new SimpleImage();
+									$image->load($_FILES[$campo->coluna]['tmp_name']);
+									if($w && !$h)
+									{
 										$image->resizeToWidth($w);
-									} else {
+									}
+									elseif ($h && !$w)
+									{
 										$image->resizeToHeight($h);
 									}
+									else
+									{
+										if($w >= $h) {
+											$image->resizeToWidth($w);
+										} else {
+											$image->resizeToHeight($h);
+										}
+									}
+
+									$caminho_arquivo = DBO_PATH."/upload/images/".$prefix.$nome_arquivo;
+									$image->save($caminho_arquivo, $q); //salvando o arquivo no server
 								}
-
-								$caminho_arquivo = DBO_PATH."/upload/images/".$prefix.$nome_arquivo;
-								$image->save($caminho_arquivo, $q); //salvando o arquivo no server
 							}
+							$this->{$campo->coluna} = $nome_arquivo; //salvando o nome do arquivo no banco.
 						}
-						$this->{$campo->coluna} = $nome_arquivo; //salvando o nome do arquivo no banco.
-					}
-				} //image
-				// FILE ======================================================================================
-				elseif($campo->tipo == 'file')
-				{
-					if(!$_POST['manter_atual_'.$campo->coluna])
+					} //image
+					// FILE ======================================================================================
+					elseif($campo->tipo == 'file')
 					{
-						if($_FILES[$campo->coluna]['size'] > 0 )
+						if(!$_POST['manter_atual_'.$campo->coluna])
 						{
-							$arquivo = $_FILES[$campo->coluna];
+							if($_FILES[$campo->coluna]['size'] > 0 )
+							{
+								$arquivo = $_FILES[$campo->coluna];
 
-							$partes_nome = explode(".", $arquivo['name']);
-							$extensao = $partes_nome[sizeof($partes_nome)-1]; //pega extensao do arquivo
-							$novo_nome = time().rand(1,100).".".$extensao; //cria um novo nome randomico
-							$string_arquivo = $arquivo['name']."\n".$novo_nome."\n".$arquivo['type']."\n".$arquivo['size']; //monta string com os dados do arquivo para o banco.
+								$partes_nome = explode(".", $arquivo['name']);
+								$extensao = $partes_nome[sizeof($partes_nome)-1]; //pega extensao do arquivo
+								$novo_nome = time().rand(1,100).".".$extensao; //cria um novo nome randomico
+								$string_arquivo = $arquivo['name']."\n".$novo_nome."\n".$arquivo['type']."\n".$arquivo['size']; //monta string com os dados do arquivo para o banco.
 
-							echo $campo->coluna;
+								echo $campo->coluna;
 
-							if(move_uploaded_file($arquivo['tmp_name'], DBO_FILE_UPLOAD_PATH."/".$novo_nome)) { //se salvar no server,
-								$this->{$campo->coluna} = $string_arquivo; //salvando os dados do arquivo no banco...
-							}
-							else {
-								echo "erro ao enviar o arquivo";
-								exit();
+								if(move_uploaded_file($arquivo['tmp_name'], DBO_FILE_UPLOAD_PATH."/".$novo_nome)) { //se salvar no server,
+									$this->{$campo->coluna} = $string_arquivo; //salvando os dados do arquivo no banco...
+								}
+								else {
+									echo "erro ao enviar o arquivo";
+									exit();
+								}
 							}
 						}
-					}
-				} //file
-			} //if add/edit === true
+					} //file
+				} //if add/edit === true
 
-			//put on the default values on insert
-			if(
-				!$_POST['__dbo_update_flag'] && 
-				(
-					$this->{$campo->coluna} == '' || 
-					$this->{$campo->coluna} == null
-				) && 
-				isset($campo->default_value)
-			)
-			{
-				$this->{$campo->coluna} = $campo->default_value;
-			}
-
-		} //foreach
-
-		if($_POST['__dbo_update_flag'])
-		{
-			$new = $this->update();
-		}
-		else
-		{
-			$new = $this->save();
-		}
-
-		if($temp_id) //se foi insert de NxN...
-		{
-			foreach($acertar as $tabela_acerto => $dados_acerto)
-			{
-				$obj = new Dbo($tabela_acerto);
-				$obj->{$dados_acerto['chave']} = $temp_id;
-				$obj->loadAll();
-				do {
-					$obj->{$dados_acerto['chave']} = $new;
-					$obj->update();
-				} while($obj->fetch());
-			}
-		}//acerto de temp_id...
-
-		//executando pos_update e pos_insert
-		if($_POST['__dbo_update_flag']) { //update
-			$func = $this->getModule()."_pos_update";
-			if(function_exists($func))
-			{
-				$func($this);
-			}
-		} else { //insert
-			$func = $this->getModule()."_pos_insert";
-			if(function_exists($func))
-			{
-				$func($this);
-			}
-		}
-
-		/* verificando se deve rodar uma funcao ou fazer um redirect por get */
-		if($_GET['dbo_return_function'])
-		{
-			$function_name = $_GET['dbo_return_function'];
-			if(function_exists($function_name))
-			{
-				$function_name((($_POST['__dbo_update_flag'])?('update'):('insert')), $this);
-			}
-		}
-
-		/* verificando se deve fazer um parse de codigo apos a operação realizada */
-		if($_GET['dbo_admin_post_code'])
-		{
-			$_SESSION[sysId()]['dbo_admin_post_code'] = $_GET['dbo_admin_post_code'];
-		}
-
-		/* verificando se deve fazer um redirect  */
-		if($_GET['dbo_return_redirect'])
-		{
-			header("Location: ".$_GET['dbo_return_redirect'].(($_GET['dbo_return_redirect_args'])?('?args='.$_GET['dbo_return_redirect_args']):('')));
-			exit();
-		}
-
-
-		//setando mensagens de sucesso
-		if($new)
-		{
-			if(function_exists(setMessage))
-			{
-				if($_POST['__dbo_update_flag'])
+				//put on the default values on insert
+				if(
+					!$_POST['__dbo_update_flag'] && 
+					(
+						$this->{$campo->coluna} == '' || 
+						$this->{$campo->coluna} == null
+					) && 
+					isset($campo->default_value)
+				)
 				{
-					setMessage("<div class='success'>".$this->__module_scheme->titulo." de ".$this->getFieldName($this->getPK())." ".$new." alterado com sucesso.</div>");
-					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_update'))):($this->keepUrl()));
+					$this->{$campo->coluna} = $campo->default_value;
 				}
-				else
-				{
-					setMessage("<div class='success'>".$this->__module_scheme->titulo." inserido com sucesso. ".$this->getFieldName($this->getPK()).": ".$new."</div>");
-					$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_new'))):($this->keepUrl(array('!dbo_new', 'dbo_update='.$new))));
-				}
+			} //foreach
+
+			if($_POST['__dbo_update_flag'])
+			{
+				$new = $this->update();
 			}
 			else
 			{
-				if($_POST['__dbo_update_flag'])
+				$new = $this->save();
+			}
+
+			if($temp_id) //se foi insert de NxN...
+			{
+				foreach($acertar as $tabela_acerto => $dados_acerto)
 				{
-					$url = $this->keepUrl(array('sucesso='.$new, '!dbo_update'));
+					$obj = new Dbo($tabela_acerto);
+					$obj->{$dados_acerto['chave']} = $temp_id;
+					$obj->loadAll();
+					do {
+						$obj->{$dados_acerto['chave']} = $new;
+						$obj->update();
+					} while($obj->fetch());
+				}
+			}//acerto de temp_id...
+
+			//executando pos_update e pos_insert
+			if($_POST['__dbo_update_flag']) { //update
+				$func = $this->getModule()."_pos_update";
+				if(function_exists($func))
+				{
+					$func($this);
+				}
+			} else { //insert
+				$func = $this->getModule()."_pos_insert";
+				if(function_exists($func))
+				{
+					$func($this);
+				}
+			}
+
+			/* verificando se deve rodar uma funcao ou fazer um redirect por get */
+			if($_GET['dbo_return_function'])
+			{
+				$function_name = $_GET['dbo_return_function'];
+				if(function_exists($function_name))
+				{
+					$function_name((($_POST['__dbo_update_flag'])?('update'):('insert')), $this);
+				}
+			}
+
+			/* verificando se deve fazer um parse de codigo apos a operação realizada */
+			if($_GET['dbo_admin_post_code'])
+			{
+				$_SESSION[sysId()]['dbo_admin_post_code'] = $_GET['dbo_admin_post_code'];
+			}
+
+			/* verificando se deve fazer um redirect  */
+			if($_GET['dbo_return_redirect'])
+			{
+				header("Location: ".$_GET['dbo_return_redirect'].(($_GET['dbo_return_redirect_args'])?('?args='.$_GET['dbo_return_redirect_args']):('')));
+				exit();
+			}
+
+			//setando mensagens de sucesso
+			if($new)
+			{
+				if(function_exists(setMessage))
+				{
+					if($_POST['__dbo_update_flag'])
+					{
+						setMessage("<div class='success'>".$this->__module_scheme->titulo." de ".$this->getFieldName($this->getPK())." ".$new." alterado com sucesso.</div>");
+						$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_update'))):($this->keepUrl()));
+					}
+					else
+					{
+						setMessage("<div class='success'>".$this->__module_scheme->titulo." inserido com sucesso. ".$this->getFieldName($this->getPK()).": ".$new."</div>");
+						$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_new'))):($this->keepUrl(array('!dbo_new', 'dbo_update='.$new))));
+					}
 				}
 				else
 				{
-					$url = $this->keepUrl(array('sucesso='.$new, '!dbo_new'));
+					if($_POST['__dbo_update_flag'])
+					{
+						$url = $this->keepUrl(array('sucesso='.$new, '!dbo_update'));
+					}
+					else
+					{
+						$url = $this->keepUrl(array('sucesso='.$new, '!dbo_new'));
+					}
 				}
+				$this->myHeader("Location: ".$url);
 			}
-			$this->myHeader("Location: ".$url);
 		}
 	} // autorAdminInsert()
 
