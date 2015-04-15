@@ -79,7 +79,7 @@ class POP3Mail
 	// Return -1 if fail to login
 	function Connect()
 	{
-		$this->_Connection = @fsockopen($this->Server,$this->Port, &$errorno, &$errorstr,30);
+		$this->_Connection = @fsockopen($this->Server,$this->Port, $errorno, $errorstr,30);
 		if ($this->_Connection === false) { //Connection Fails
 			$this->setError("Fail to Connect to server error return is \n\r Error No.: $errorno \r\n Error Message : $errorstr\r\n");
 			$this->_isConnected =false;

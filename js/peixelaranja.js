@@ -310,6 +310,8 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 	var status, text, readyState;
 	var container = $("#"+evt.target.input_id).next('.peixe-ajax-upload-status');
 
+	$("#"+evt.target.input_id).trigger('uploadStart', {});
+
 	try {
 		readyState = evt.target.readyState;
 		text = evt.target.responseText;
@@ -328,12 +330,13 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 			container.find('.upload-sending').fadeOut(function(){
 				container.find('.upload-error').fadeIn().find('span').text(data.error);
 			});
+			$("#"+evt.target.input_id).trigger('uploadCanceled', {});
 		}
 		else {
 			//tudo ok, disparar evento
 			//var event = new CustomEvent('upload-done', { 'detail': { 'old_file_name': data.old_name, 'new_file_name': data.name } });
 			//$("#"+evt.target.input_id)[0].dispatchEvent(event);
-			$("#"+evt.target.input_id).trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name });
+			$("#"+evt.target.input_id).trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name, data: data });
 
 			container.find('input[type="text"]').val(data.name);
 			container.find('.upload-sending').hide();

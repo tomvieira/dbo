@@ -97,4 +97,21 @@ $(document).ready(function(){
 		openColorBoxModal(clicado.data('url'), clicado.data('width'), clicado.data('height'));
 	});
 
+	$(document).on('click', '.trigger-tablesorter-filters', function(e){
+		e.stopPropagation();
+		clicado = $(this);
+		if($(this).data('tabela')){
+			filter_row = $($(this).data('tabela')).find('.tablesorter-filter-row');
+		}
+		else {
+			filter_row = $(this).closest('table').find('.tablesorter-filter-row');
+		}
+		if(filter_row.is(':hidden')){
+			filter_row.fadeIn('fast');			
+		}
+		else {
+			filter_row.hide();
+		}
+	});
+
 });
