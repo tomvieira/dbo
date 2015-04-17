@@ -22,6 +22,166 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function dboImportJs($libs = array(), $params = array())
+	{
+		extract($params);
+		$js_url = DBO_URL.'/../js';
+
+		//impedindo o import duplo de JS
+		global $DBO_JS_IMPORTED;
+		if(!is_array($DBO_JS_IMPORTED)) $DBO_JS_IMPORTED = array();
+
+		$return = '';
+
+		if(!in_array("modernizr", $DBO_JS_IMPORTED) && (in_array("modernizr", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/vendor/custom.modernizr.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "modernizr";
+		}
+		if(!in_array("jquery", $DBO_JS_IMPORTED) && (in_array("jquery", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/vendor/jquery.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "jquery";
+		}
+		if(!in_array("jquery-ui", $DBO_JS_IMPORTED) && (in_array("jquery-ui", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery-ui/jquery-ui.js\"></script>\n";
+			$return .= "<script src=\"".$js_url."/jquery-ui/ui.datepicker-pt-BR.js\"></script>\n";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery-ui/jquery-ui.css\">\n";
+			$DBO_JS_IMPORTED[] = "jquery-ui";
+		}
+		if(!in_array("peixelaranja", $DBO_JS_IMPORTED) && (in_array("peixelaranja", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/peixelaranja.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "peixelaranja";
+		}
+		if(!in_array("browser", $DBO_JS_IMPORTED) && (in_array("browser", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/browser.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "browser";
+		}
+		if(!in_array("dbo", $DBO_JS_IMPORTED) && (in_array("dbo", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/dbo.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "dbo";
+		}
+		if(!in_array("foundation", $DBO_JS_IMPORTED) && (in_array("foundation", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/foundation.min.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "foundation";
+		}
+		if(!in_array("html5shiv", $DBO_JS_IMPORTED) && (in_array("html5shiv", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/html5shiv.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "html5shiv";
+		}
+		if(!in_array("autosize", $DBO_JS_IMPORTED) && (in_array("autosize", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.autosize.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "autosize";
+		}
+		if(!in_array("color", $DBO_JS_IMPORTED) && (in_array("color", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.color.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "color";
+		}
+		if(!in_array("hoverflow", $DBO_JS_IMPORTED) && (in_array("hoverflow", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.hoverflow.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "hoverflow";
+		}
+		if(!in_array("maskedinput", $DBO_JS_IMPORTED) && (in_array("maskedinput", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.maskedinput.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "maskedinput";
+		}
+		if(!in_array("mousewheel", $DBO_JS_IMPORTED) && (in_array("mousewheel", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.mousewheel.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "mousewheel";
+		}
+		if(!in_array("parallax", $DBO_JS_IMPORTED) && (in_array("parallax", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.parallax.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "parallax";
+		}
+		if(!in_array("perfectscrollbar", $DBO_JS_IMPORTED) && (in_array("perfectscrollbar", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.perfectscrollbar.min.js\"></script>\n";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery.perfectscrollbar.min.css\">\n";
+			$DBO_JS_IMPORTED[] = "perfectscrollbar";
+		}
+		if(!in_array("placeholder", $DBO_JS_IMPORTED) && (in_array("placeholder", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.placeholder.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "placeholder";
+		}
+		if(!in_array("preloader", $DBO_JS_IMPORTED) && (in_array("preloader", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.preloader.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "preloader";
+		}
+		if(!in_array("priceformat", $DBO_JS_IMPORTED) && (in_array("priceformat", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.priceformat.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "priceformat";
+		}
+		if(!in_array("scrollto", $DBO_JS_IMPORTED) && (in_array("scrollto", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.scrollto.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "scrollto";
+		}
+		if(!in_array("starsrating", $DBO_JS_IMPORTED) && (in_array("starsrating", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.starsrating.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "starsrating";
+		}
+		if(!in_array("sticky-kit", $DBO_JS_IMPORTED) && (in_array("sticky-kit", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.sticky-kit.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "sticky-kit";
+		}
+		if(!in_array("timepicker", $DBO_JS_IMPORTED) && (in_array("timepicker", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.timepicker.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "timepicker";
+		}
+		if(!in_array("colorbox", $DBO_JS_IMPORTED) && (in_array("colorbox", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/colorbox/jquery.colorbox.js\"></script>\n";
+			$return .= "<script src=\"".$js_url."/colorbox/jquery.colorbox.scrollfix.js\"></script>\n";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/colorbox/colorbox.css\">\n";
+			$DBO_JS_IMPORTED[] = "colorbox";
+		}
+		if(!in_array("multiselect", $DBO_JS_IMPORTED) && (in_array("multiselect", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/multiselect/js/ui.multiselect.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "multiselect";
+		}
+		if(!in_array("tablesorter", $DBO_JS_IMPORTED) && (in_array("tablesorter", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/tablesorter/js/jquery.tablesorter.combined.min.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "tablesorter";
+		}
+		if(!in_array("tinymce", $DBO_JS_IMPORTED) && (in_array("tinymce", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/tinymce/tinymce.min.js\"></script>\n";
+			$return .= "<script src=\"".$js_url."/tinymce/jquery.tinymce.min.js\"></script>\n";
+			$DBO_JS_IMPORTED[] = "tinymce";
+		}
+		if(!in_array("select2", $DBO_JS_IMPORTED) && (in_array("select2", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/select2/jquery.select2.min.js\"></script>\n";
+			$return .= "<script src=\"".$js_url."/select2/jquery.select2.pt-BR.js\"></script>\n";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/select2/select2.css\">\n";
+			$DBO_JS_IMPORTED[] = "select2";
+		}
+
+		return $return;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function marca ($hailshack, $needle)
 	{
 		return str_replace($needle, "<span class='marca'>".$needle."</span>", $hailshack);
@@ -1738,16 +1898,22 @@
 			<script>
 				var DBO_URL = '<?= DBO_URL ?>';
 			</script>
- 			<script type="text/javascript" charset='utf-8' src="js/jquery.maskedinput.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/jquery-ui/jquery-ui.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/jquery-ui/ui.datepicker-pt-BR.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/jquery.timepicker.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/tinymce/tinymce.min.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/tinymce/jquery.tinymce.min.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/multiselect/js/ui.multiselect.js"></script>
-			<script type="text/javascript" charset='utf-8' src="js/dbo.js"></script>
-			<link href="js/jquery-ui/jquery-ui.css" rel="stylesheet" type="text/css">
-			<link href="js/multiselect/css/ui.multiselect.css" rel="stylesheet" type="text/css">
+			<?= dboImportJs(array(
+				'modernizr',
+				'jquery',
+				'jquery-ui',
+				'foundation',
+				'peixelaranja',
+				'select2',
+				'priceformat',
+				'autosize',
+				'scrollto',
+				'maskedinput',
+				'timepicker',
+				'tinymce',
+				'multiselect',
+				'dbo',
+			)); ?>
 		<?
 		$hooks->do_action('dbo_head');
 	}

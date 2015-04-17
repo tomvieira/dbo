@@ -16,37 +16,8 @@
 	<meta name="author" content="Peixe Laranja">
 	<base href="<?= @ereg_replace('/dbo$', '', DBO_URL) ?>/">
 
-	<link rel="shortcut icon" href="images/favicon.ico"><!-- 16x16 -->
-	<!-- <link rel="icon" href="images/icon.png" sizes="32x32">
-	<link rel="apple-touch-icon" href="images/apple-touch-icon-iphone.png" />
-	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-ipad.png" />
-	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-iphone4.png" /> -->
-
-	<!-- Foundation 4.3.0 -->
+	<link rel="shortcut icon" href="images/favicon.ico">
 	<link rel="stylesheet" href="css/foundation.css" />
-	<script src="js/vendor/custom.modernizr.js"></script>
-	<!-- <script>document.write('<script src=' +	('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +	'.js><\/script>')</script> -->
-	<script src="js/vendor/jquery.js"></script>
-	<script src="js/foundation.min.js"></script>
-	<!-- <script src="js/foundation/foundation.js"></script> -->
-	<!-- <script src="js/foundation/foundation.alerts.js"></script> -->
-	<!-- <script src="js/foundation/foundation.clearing.js"></script> -->
-	<!-- <script src="js/foundation/foundation.cookie.js"></script> -->
-	<script src="js/foundation/foundation.dropdown.js"></script>
-	<!-- <script src="js/foundation/foundation.forms.js"></script> -->
-	<!-- <script src="js/foundation/foundation.joyride.js"></script> -->
-	<!-- <script src="js/foundation/foundation.magellan.js"></script> -->
-	<!-- <script src="js/foundation/foundation.orbit.js"></script> -->
-	<!-- <script src="js/foundation/foundation.reveal.js"></script> -->
-	<!-- <script src="js/foundation/foundation.section.js"></script> -->
-	<!-- <script src="js/foundation/foundation.tooltips.js"></script> -->
-	<!-- <script src="js/foundation/foundation.topbar.js"></script> -->
-	<!-- <script src="js/foundation/foundation.interchange.js"></script> -->
-	<!-- <script src="js/foundation/foundation.placeholder.js"></script> -->
-	<!-- <script src="js/foundation/foundation.abide.js"></script> -->
-
-	<!-- Peixe Laranja JSFW -->
-	<script src="js/peixelaranja.js"></script>
 
 	<?= dboHead(); ?>
 
@@ -56,19 +27,6 @@
 	<link rel="stylesheet" media="screen" href="fonts/museo-sans/stylesheet.css">
 	<link rel="stylesheet" media="screen" href="fonts/font-awesome/css/font-awesome.css">
 	<link rel="stylesheet" media="screen" href="css/style.css">
-
-	<script src="js/select2/jquery.select2.min.js"></script>
-	<script src="js/select2/jquery.select2.pt-BR.js"></script>
-	<link rel="stylesheet" href="js/select2/select2.css">
-
-	<script src="js/jquery.priceformat.js"></script>
-
-	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.js'></script>
-	<script type="text/javascript" charset="utf-8" src='js/colorbox/jquery.colorbox.scrollfix.js'></script>
-	<link rel="stylesheet" media="screen" href="js/colorbox/colorbox.css">
-
-	<script src='js/jquery.autosize.js'></script>
-	<script src='js/jquery.scrollto.js'></script>
 
 	<? $hooks->do_action('head') ?>
 
