@@ -2051,7 +2051,7 @@
 		$protocol = $parts[0];
 		$domain = $parts[2];
 
-		if($_SERVER['SERVER_NAME'] != $domain)
+		if($_SERVER['SERVER_NAME'] != $domain || (strstr($protocol, 'https') && !$_SERVER['HTTPS']))
 		{
 			header('Location: '.$protocol.'//'.$domain.$_SERVER['SCRIPT_NAME'].((strlen($_SERVER['QUERY_STRING']))?("?".$_SERVER['QUERY_STRING']):('')));
 			exit();
