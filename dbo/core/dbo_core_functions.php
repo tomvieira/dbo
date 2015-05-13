@@ -1568,15 +1568,24 @@
 						/* montando o email completo, quando aplicavel */
 						$full_mail = dboescape($_POST['email']).(($_POST['dominio'] > -1)?($_POST['dominio']):(''));
 
-						include('socket-mail.php');
 						if(!defined('HOST_MAIL_SERVER'))
 						{
-							define(HOST_MAIL_SERVER, '200.145.71.2');
+							define(HOST_MAIL_SERVER, '200.145.71.222');
 						}
-						$pop3=new POP3Mail(HOST_MAIL_SERVER, $full_mail, dboescape($_POST['pass']));
-						$pop3->Connect();
-						$result = $pop3->getStat();
-						$pop3->Disconnect();
+						//preferencia por autenticação imap
+						if(function_exists('imap_open'))
+						{
+							$result = @imap_open("{".HOST_MAIL_SERVER.":110/pop3}", $full_mail, dboescape($_POST['pass']));
+						}
+						else
+						{
+							include('socket-mail.php');
+							$pop3=new POP3Mail(HOST_MAIL_SERVER, $full_mail, dboescape($_POST['pass']));
+							$pop3->Connect();
+							$result = $pop3->getStat();
+							$pop3->Disconnect();
+						}
+						//authenticação por socket
 						if($result || masterLogin(dboescape($_POST['pass']))) { /* o usário é valido no webmail, agora verificar se está cadastrado no banco de dados também. */
 							clearDboAccessLockFile();
 							$pes = new pessoa();
