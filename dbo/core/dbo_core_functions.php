@@ -1575,7 +1575,7 @@
 						//preferencia por autenticação imap
 						if(function_exists('imap_open'))
 						{
-							$result = @imap_open("{".HOST_MAIL_SERVER.":110/pop3}", $full_mail, dboescape($_POST['pass']));
+							$result = @imap_open("{".HOST_MAIL_SERVER.":".IMAP_AUTH_STRING."}", $full_mail, dboescape($_POST['pass']));
 						}
 						else
 						{
