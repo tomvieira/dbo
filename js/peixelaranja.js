@@ -29,7 +29,7 @@ function slidePeixeMessageUp() {
 	}, 1500);
 }
 
-function peixeJSON(action, args, callback, log, method) {
+function peixeJSON(action, args, callback, log, method, error_message) {
 	if(typeof method == 'undefined' || method == 'post'){
 		function_name = 'peixePost';
 	}
@@ -44,48 +44,56 @@ function peixeJSON(action, args, callback, log, method) {
 			if(log == true){
 				console.log(data);
 			}
-			var result = $.parseJSON(data);
-			if(result.message){
-				setPeixeMessage(result.message);
-				showPeixeMessage();
-			}
-			if(result.reload){
-				var html = '';
-				peixeGet(document.URL, function(d) {
-					html = $.parseHTML(d);
-					result.reload.forEach(function(value) {
-						peixeReload(value, html);
-					});
-				})
-			}
-			if(result.html){
-				for(var key in result.html)
-				{
-					$(key).fadeHtml(result.html[key]);
+			try{
+				var result = $.parseJSON(data);
+				if(result.message){
+					setPeixeMessage(result.message);
+					showPeixeMessage();
 				}
-			}
-			if(result.callback){
-				result.callback.forEach(function(value) {
-					if (typeof window[value] == 'function') {
-						window[value]();
+				if(result.reload){
+					var html = '';
+					peixeGet(document.URL, function(d) {
+						html = $.parseHTML(d);
+						result.reload.forEach(function(value) {
+							peixeReload(value, html);
+						});
+					})
+				}
+				if(result.html){
+					for(var key in result.html)
+					{
+						$(key).fadeHtml(result.html[key]);
 					}
-				});
-			}
-			if(result.redirect){
-				window.location = result.redirect;
-			}
-			if(result.eval){
-				eval(result.eval)
-			}
-			//tratando o callback customizado
-			if(typeof callback == 'function'){
-				callback(result);
-			}
-			else if(typeof window[callback] == 'function'){
-				window[callback]();
-			}
-			else if(typeof callback == 'string'){
-				eval(callback);
+				}
+				if(result.callback){
+					result.callback.forEach(function(value) {
+						if (typeof window[value] == 'function') {
+							window[value]();
+						}
+					});
+				}
+				if(result.redirect){
+					window.location = result.redirect;
+				}
+				if(result.eval){
+					eval(result.eval)
+				}
+				//tratando o callback customizado
+				if(typeof callback == 'function'){
+					callback(result);
+				}
+				else if(typeof window[callback] == 'function'){
+					window[callback]();
+				}
+				else if(typeof callback == 'string'){
+					eval(callback);
+				}
+			}catch(e){
+				if(error_message){
+					alert(error_message);
+				} else {
+					alert(e); //error in the above string(in this case,yes)!
+				}
 			}
 		}
 	)
@@ -484,7 +492,7 @@ $(document).ready(function(){
 			}
 		}
 		if(!error){
-			peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)));
+			peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)), 'post', ((typeof form.data('json_error_message') != 'undefined')?(form.data('json_error_message').replace(/\\n/g, '\n')):(false)));
 		}
 		return false;
 	});
@@ -502,7 +510,7 @@ $(document).ready(function(){
 			}
 		}
 		if(!error){
-			peixeJSON(clicado.attr('href'), '', ((typeof clicado.data('callback') != 'undefined')?(clicado.data('callback')):('')), ((typeof clicado.attr('peixe-log') != 'undefined')?(true):(false)), 'get');
+			peixeJSON(clicado.attr('href'), '', ((typeof clicado.data('callback') != 'undefined')?(clicado.data('callback')):('')), ((typeof clicado.attr('peixe-log') != 'undefined')?(true):(false)), 'get', ((typeof clicado.data('json_error_message') != 'undefined')?(clicado.data('json_error_message').replace(/\\n/g, '\n')):(false)));
 		}
 		return false;
 	});
