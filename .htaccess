@@ -1,4 +1,0 @@
-php_flag magic_quotes_gpc Off
-php_value memory_limit 256M
-php_value post_max_size 15M
-php_value upload_max_filesize 15M

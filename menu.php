@@ -1,7 +1,7 @@
 <? require_once('lib/includes.php'); ?>
 
 <ul class="left">
-	<li id='menu-cadastros'><a href='cadastros.php'>Cadastros</a></li>
+	<li id='menu-cadastros'><a href='cadastros.php'><?= DBO_TERM_CADASTROS ?></a></li>
 </ul>
 <ul class="right">
 <?

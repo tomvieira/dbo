@@ -8,14 +8,13 @@
 	}
 
 	$nro_itens_sidebar = getItemsSidebar();
-
 ?>
 
 <div class="row">
 	<div class="large-12 columns">
 		<div class="breadcrumb">
 			<ul class="no-margin">
-				<li><a href="cadastros.php">Cadastros</a></li>
+				<li><a href="cadastros.php"><?= DBO_TERM_CADASTROS ?></a></li>
 			</ul>
 		</div>
 	</div>

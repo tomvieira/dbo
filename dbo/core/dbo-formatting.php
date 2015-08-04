@@ -213,8 +213,12 @@
 
 	function dboUnautop($content)
 	{
-		$content = preg_replace('/<p>(.+)<\/p>\r?\n?/is', "${1}\n\n", $content);
-		$content = preg_replace('/<br ?\/?>\s?/is', "${1}\n", $string);
+		$content = preg_replace('/<p>(.+)<\/p>\r?\n?/im', "$1\n\n", $content);
+		$content = preg_replace('/<br ?\/?>\s?/im', "$1\n", $content);
+		$content = preg_replace("/>\n</im", ">__dbo-line-break-flag__<", $content);
+		$content = preg_replace("/>\n(\S)/im", ">\n\n$1", $content);
+		$content = preg_replace("/__dbo-line-break-flag__/im", "\n", $content);
+		$content = trim($content);
 		return $content;
 	}
 

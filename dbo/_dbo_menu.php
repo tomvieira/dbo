@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'menu' ======================================== AUTO-CREATED ON 14/06/2015 13:18:25 */
+/* DBO DEFINITION FILE FOR MODULE 'menu' ======================================== AUTO-CREATED ON 24/07/2015 11:57:42 */
 /* ================================================================================================================== */
 
 
@@ -50,17 +50,17 @@ $module->campo[$field->coluna] = $field;
 /*==========================================*/
 
 $field = new Obj();
-$field->titulo = 'Nome';
-$field->coluna = 'nome';
+$field->titulo = 'Slug';
+$field->coluna = 'slug';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'VARCHAR(255)';
 $field->interaction = '';
 $field->tipo = 'text';
@@ -69,18 +69,37 @@ $module->campo[$field->coluna] = $field;
 /*==========================================*/
 
 $field = new Obj();
-$field->titulo = 'Slug';
-$field->coluna = 'slug';
+$field->titulo = 'Nome';
+$field->coluna = 'nome';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Profundidade';
+$field->coluna = 'profundidade';
+$field->pk = false;
+$field->isnull = false;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT';
 $field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
@@ -91,17 +110,36 @@ $field = new Obj();
 $field->titulo = 'Estrutura do menu';
 $field->coluna = 'estrutura';
 $field->pk = false;
-$field->isnull = false;
-$field->add = true;
+$field->isnull = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
+$field->edit = false;
+$field->view = false;
 $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'TEXT';
 $field->interaction = '';
 $field->tipo = 'textarea';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Idioma';
+$field->coluna = 'dbo_lang';
+$field->pk = false;
+$field->isnull = true;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(10)';
+$field->interaction = '';
+$field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/

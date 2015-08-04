@@ -1,5 +1,5 @@
 <?
-	require_once('lib/includes.php');
+	require_once('../../lib/includes.php');
 	require_once(DBO_PATH.'/core/dbo-ui.php');
 	dboAuth('json');
 
@@ -87,6 +87,7 @@
 			$pag->texto = dboUnautop($pag->texto);
 
 			//hook que faz alterações no objeto logo antes do save/update
+			$pag = $hooks->apply_filters('dbo_pagina_pre_save', $pag);
 			$pag = $hooks->apply_filters('dbo_pagina_'.$tipo.'_pre_save', $pag);
 
 			//salvando a pagina principal
@@ -139,7 +140,7 @@
 			//se for um insert, atualiza o action do formulário para update.
 			if($operation == 'insert')
 			{
-				$form_action = secureUrl('ajax-dbo-pagina.php?action=salvar-pagina&tipo='.$_GET['tipo'].'&pagina_id='.$pag->id."&full_url=".base64_encode($dbo->keepUrl(array(
+				$form_action = secureUrl('dbo/core/dbo-pagina-ajax.php?action=salvar-pagina&tipo='.$_GET['tipo'].'&pagina_id='.$pag->id."&full_url=".base64_encode($dbo->keepUrl(array(
 					'dbo_update='.$pag->id,
 					'!dbo_new'
 				), array(

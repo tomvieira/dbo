@@ -57,6 +57,7 @@ html > object { display: none !important; }
 .hidden { display: none; }
 .help { cursor: help; }
 .pointer { cursor: pointer; }
+.underline { text-decoration: underline; }
 
 .tal { text-align: left; }
 .tac { text-align: center; }
@@ -99,12 +100,12 @@ html > object { display: none !important; }
 
 /* esitlos para o media manager */
 
-div[media-manager-element="image-container"] {
+div[media-manager-element="image-container"] { max-width: 100%;
 	&.float-left { float: left; margin-right: 1.5em; margin-bottom: 1em; }
 	&.float-right { float: right; margin-left: 1.5em; margin-bottom: 1em; } 
-	dl { display: inline-block; margin: 0; 
-		dt { margin: 0; 
-			img { display: block; }
+	dl { display: inline-block; margin: 0; max-width: 100%;
+		dt { margin: 0; max-width: 100%;
+			img { display: block; max-width: 100%; }
 		}
 		dd { color: #999; font-style: italic; margin: 0; padding-top: 5px; font-size: 12px; }
 	}
@@ -211,28 +212,28 @@ input[type="radio"] + label {
 }
 
 /* alteração de fonte sob demanda */
-.font-9 { font-size: 9px; }
-.font-10 { font-size: 10px; }
-.font-11 { font-size: 11px; }
-.font-12 { font-size: 12px; }
-.font-13 { font-size: 13px; }
-.font-14 { font-size: 14px; }
-.font-15 { font-size: 15px; }
-.font-16 { font-size: 16px; }
-.font-17 { font-size: 17px; }
-.font-18 { font-size: 18px; }
-.font-19 { font-size: 19px; }
-.font-20 { font-size: 20px; }
-.font-21 { font-size: 21px; }
-.font-22 { font-size: 22px; }
-.font-23 { font-size: 23px; }
-.font-24 { font-size: 24px; }
-.font-25 { font-size: 25px; }
-.font-26 { font-size: 26px; }
-.font-27 { font-size: 27px; }
-.font-28 { font-size: 28px; }
-.font-29 { font-size: 29px; }
-.font-30 { font-size: 30px; }
+.font-9 { font-size: 9px !important; }
+.font-10 { font-size: 10px !important; }
+.font-11 { font-size: 11px !important; }
+.font-12 { font-size: 12px !important; }
+.font-13 { font-size: 13px !important; }
+.font-14 { font-size: 14px !important; }
+.font-15 { font-size: 15px !important; }
+.font-16 { font-size: 16px !important; }
+.font-17 { font-size: 17px !important; }
+.font-18 { font-size: 18px !important; }
+.font-19 { font-size: 19px !important; }
+.font-20 { font-size: 20px !important; }
+.font-21 { font-size: 21px !important; }
+.font-22 { font-size: 22px !important; }
+.font-23 { font-size: 23px !important; }
+.font-24 { font-size: 24px !important; }
+.font-25 { font-size: 25px !important; }
+.font-26 { font-size: 26px !important; }
+.font-27 { font-size: 27px !important; }
+.font-28 { font-size: 28px !important; }
+.font-29 { font-size: 29px !important; }
+.font-30 { font-size: 30px !important; }
 
 /* consertando as posições das listas */
 ul.inside, ol.inside { list-style-position: inside; }
@@ -277,6 +278,17 @@ hr.tiny { margin: 0.50em 0; }
 
 /* small up */
 @media #{$small} {
+
+	//linhas com tamanho dinamico para large-up
+	.row {
+		[class*="large-din-"] { width: auto;
+			.row { width: auto; }
+			input, select, .prefix, .postfix { width: auto; }
+			.prefix, .postfix { padding-left: 1em; padding-right: 1em; }
+		}
+		.large-din-left { float: left; }
+		.large-din-right { float: right; }
+	}
 
 	/* alteração de fonte sob demanda */
 	.font-9-for-medium-up { font-size: 9px; }
@@ -390,3 +402,10 @@ hr.tiny { margin: 0.50em 0; }
 	}
 
 } 
+
+//fix para o background position fixed com off-canvas do foundation
+.off-canvas-wrap, .inner-wrap {
+    @media (min-width: 768px) {
+        -webkit-backface-visibility: visible; 
+    }
+}

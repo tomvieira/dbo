@@ -1,0 +1,1166 @@
+<?php
+
+	function paginaForm($pag, $params = array())
+	{
+		require_once(DBO_PATH.'/core/dbo-ui.php');
+		global $hooks;
+		global $_pes;
+
+		extract($params);
+
+		$operation = $pag->id ? 'update' : 'insert';
+
+		ob_start();
+
+		echo dboImportJs(array(
+			'scrolllock',
+			'colorbox',
+		));
+
+		?>
+		<style>
+			.wrapper-pub-option { padding-bottom: 5px; display: none; }
+			.wrapper-pub-option input, 
+			.wrapper-pub-option select { margin-bottom: 5px; }
+			#wrapper-categorias-da-pagina ul li ul { margin-left: 20px; }
+			#wrapper-categorias-da-pagina input[type="checkbox"] { margin-bottom: 8px; }
+		</style>
+
+		<form id="form-pagina" method="post" action="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=salvar-pagina&tipo='.$tipo.'&pagina_id='.$pag->id."&full_url=".base64_encode($pag->keepUrl())) ?>" peixe-log>
+			<div class="row almost full">
+				<div class="large-9 columns">
+					<div class="row">
+						<div class="large-12 columns">
+							<h3><?= ($operation == 'update' ? 'Editar' : 'Adicionar nov'.$genero)." ".$titulo ?></h3>
+						</div>
+					</div>
+					
+					<? $hooks->do_action('dbo_'.$tipo.'_form_titulo_before', $pag, $params); ?>
+			
+					<div class="row" id="wrapper-titulo">
+						<div class="large-12 columns">
+							<input type="text" name="titulo" id="pagina-titulo" data-generate_slug="<?= $operation == 'insert' ? 'true' : 'false' ?>" value="<?= $pag->titulo != '(sem título)' ? htmlSpecialChars($pag->titulo) : '' ?>" placeholder="Digite aqui o título" autofocus class="font-20" style="margin-bottom: 5px;"/>
+						</div>
+					</div>
+
+					<div class="row" style="<?= $operation == 'insert' ? 'opacity: 0;' : '' ?>" id="wrapper-pagina-slug">
+						<div class="large-12 columns">
+							<div class="font-12">
+								<span class="color medium">Link permanente: <?= SITE_URL ?>/</span><span id="wrapper-slug-view"><strong id="slug-label" class="color" style="padding-right: 7px;"><?= $pag->slug ?></strong><span class="button radius secondary no-margin tiny font-10 trigger-slug-edit">EDITAR</span></span><span id="wrapper-slug-edit" style="display: none;"><input type="text" name="slug" id="pagina-slug" value="<?= $pag->slug ?>" data-slug_atual="<?= $pag->slug ?>" style="width: auto; display: inline-block; height: 21px;" class="no-margin"/> <span class="button radius secondary no-margin tiny font-10 trigger-slug-save">SALVAR</span> <a href="" class="underline trigger-slug-edit" style="position: relative; left: 5px;">cancelar</a></span>
+							</div>
+						</div>
+					</div>
+
+					<div class="row" id="wrapper-subtitulo">
+						<div class="large-12 columns">
+							<?= $pag->getFormElement($operation, 'subtitulo', array(
+								'placeholder' => 'Digite aqui o subtítulo',
+								'styles' => 'margin-top: 5px; margin-bottom: 1em',
+							)); ?>
+						</div>
+					</div>
+			
+					<? $hooks->do_action('dbo_'.$tipo.'_form_titulo_after', $pag, $params); ?>
+					
+					<? $hooks->do_action('dbo_'.$tipo.'_form_conteudo_before', $pag, $params); ?>
+			
+					<div class="row">
+						<div class="large-6 columns">
+							<span class="button small secondary trigger-colorbox-modal" data-width="100%" data-height="100%" data-url="dbo-media-manager.php?dbo_modal=1&modulo=pagina&modulo_id=<?= $pag->id ?>&destiny=tinymce&external_button=1" data-transition="none" data-fadeout="1" style="margin-bottom: 5px;"><i class="fa fa-fw fa-image top-1"></i> Adicionar mídia</span>
+						</div>
+						<div class="large-6 columns">
+							<dl class="sub-nav right no-margin top-9">
+								<dd class="active"><a href="#" tabindex="-1" class="trigger-editor-visual">Visual</a></dd>
+								<dd><a href="#" tabindex="-1" class="trigger-editor-codigo">Código</a></dd>
+							</dl>
+						</div>
+					</div>
+			
+					<div class="row">
+						<div class="large-12 columns">
+							<?= $pag->getFormElement($operation, 'texto', array(
+								'classes' => 'editor',
+								'styles' => 'height: 300px; opacity: 0;',
+								'input_id' => 'texto',
+								'edit_function' => 'dboAutop',
+								'init_js' => false,
+							)) ?>
+							<textarea name="texto_codigo" id="texto-codigo" spellcheck='false' class="code-editor" style="display: none;"></textarea>
+						</div>
+					</div>
+			
+					<? $hooks->do_action('dbo_'.$tipo.'_form_conteudo_after', $pag, $params); ?>
+					
+					<?php
+						if($extension_module)
+						{
+							?>
+							<div class="form-<?= $operation ?>">
+								<?php
+
+								$hooks->do_action('dbo_'.$tipo.'_form_extension_module_before', $pag, $params);
+
+								$pag->ext_mod = new $extension_module();
+								
+								if($operation == 'insert')
+								{
+									$pag->ext_mod->getInsertForm(array('fields_only' => true));
+								}
+								elseif($operation == 'update')
+								{
+									$pag->ext_mod->id = $pag->id;
+									$pag->ext_mod->load();
+									$pag->ext_mod->getUpdateForm(array('fields_only' => true));
+								}
+
+								$hooks->do_action('dbo_'.$tipo.'_form_extension_module_after', $pag, $params);
+
+								?>
+							</div>
+
+							<div class="row">
+								<div class="large-12 columns">
+									<hr>
+								</div>
+							</div>
+							<?php
+						}
+					?>
+
+					<? $hooks->do_action('dbo_'.$tipo.'_form_autor_before', $pag, $params); ?>
+
+					<div class="row">
+						<?
+							if(hasPermission('admin', 'pagina-'.$tipo))
+							{
+								?>
+								<div class="large-6 columns">
+									<label for="">Autor desta publicação</label>
+									<div id="wrapper-autor">
+										<?
+											if(!$pag->autor)
+											{
+												echo $pag->getFormElement($operation, 'autor', array(
+													'join_label' => $_pes->nome,
+													'value' => loggedUser(),
+													'required' => true
+												));	
+											}
+											else
+											{
+												echo $pag->getFormElement($operation, 'autor', array(
+													'required' => true
+												));	
+											}
+										?>
+									</div>
+								</div>
+								<?
+							}
+						?>
+						<div class="large-6 columns">
+							<? $hooks->do_action('dbo_'.$tipo.'_form_autor_sibling', $pag, $params); ?>
+						</div>
+					</div>
+
+					<? $hooks->do_action('dbo_'.$tipo.'_form_autor_after', $pag, $params); ?>
+				</div>
+				<div class="large-3 columns">
+					<? $hooks->do_action('dbo_'.$tipo.'_form_sidebar_before', $pag, $params); ?>
+					
+					<div id="pagina-controles">
+			
+						<? $hooks->do_action('dbo_'.$tipo.'_form_sidebar_prepend', $pag, $params); ?>
+			
+						<div class="panel font-13 radius">
+							<div class="row">
+								<div class="large-12 columns">
+									<strong>Publicação</strong><br />
+									<div id="wrapper-publicacao">
+										<hr class="small">
+										<span data-status="rascunho" class="button secondary small radius trigger-form-submit">Salvar como <span id="button-rascunho-term"><?= $pag->status == 'pendente' ? 'pendente' : 'rascunho' ?></span></span><br />
+										<?
+											$status_name = $pag->getValue('status', $pag->status);
+										?>
+										<p class="no-margin">
+											<i class="fa fa-thumb-tack fa-fw font-14"></i> Status: <strong><?= $status_name ? $status_name : 'Não salvo' ?></strong> <a href="" class="underline trigger-pub-option" style="display: none;">Editar</a>
+										</p>
+										<div class="wrapper-pub-option" style="display: none;">
+											<div class="row">
+												<div class="large-12 columns">
+													<select id="status-selector" class="pub-option">
+														<? 
+															if($pag->status == 'publicado')
+															{
+																?>
+																<option value="publicado" selected>Publicado</option>
+																<?
+															}
+															elseif($pag->status == 'agendado')
+															{
+																?>
+																<option value="agendado" selected>Agendado</option>
+																<?
+															}
+														?>
+														<option value="pendente" <?= $pag->status == 'pendente' ? 'selected' : '' ?> data-button-titulo="pendente">Revisão pendente</option>
+														<option value="rascunho" <?= $pag->status == 'rascunho' || !$pag->status ? 'selected' : '' ?> data-button-titulo="rascunho">Rascunho</option>
+													</select>
+													<a href="" class="trigger-cancel-pub-option underline margin-bottom">cancelar</a>
+												</div>
+											</div>
+										</div>
+										<p class="no-margin" style="display: none;">
+											<i class="fa fa-eye fa-fw font-14"></i> Visibilidade: <strong>Público</strong> <a href="" class="underline" style="display: none;">Editar</a>
+										</p>
+										<div class="wrapper-pub-option"></div>
+										<p class="no-margin">
+											<i class="fa fa-calendar fa-fw font-14"></i>
+											Data: <strong id="wrapper-data-publicacao"><?= $pag->data ? dboDate('j/M/Y H:i', strtotime($pag->data)) : 'Agora' ?></strong> <a href="" class="underline trigger-pub-option">Editar</a>
+										</p>
+										<div class="wrapper-pub-option item" style="padding-top: 5px; display: none;">
+											<div class="row">
+												<div class="large-12 columns">
+													<?= $pag->getFormElement($operation, 'data', array(
+														'input_id' => 'data-publicacao',
+														'placeholder' => 'Selecione a data',
+													)) ?>
+													<a href="" class="trigger-cancel-pub-option underline margin-bottom">cancelar</a>
+												</div>
+											</div>
+										</div>
+										<hr class="small">
+										<div class="row" id="">
+											<div class="large-6 columns">
+												<?
+													if($operation == 'update' && $pag->status != 'lixeira')
+													{
+														?>
+														<a href="#" class="top-9"><i class="fa-trash font-14 fa-fw"></i> Lixeira</a>
+														<?
+													}
+												?>
+											</div>
+											<div class="large-6 columns text-right">
+												<?
+													if(!$pag->status || $pag->status == 'rascunho' || $pag->status == 'pendente' || $pag->status == 'lixeira')
+													{
+														?>
+														<span data-status="publicado" id="button-publicar" class="button radius no-margin trigger-form-submit" accesskey="s">Publicar</span>
+														<?
+													}
+													else
+													{
+														?>
+														<span class="button radius no-margin trigger-form-submit" accesskey="s" id="button-publicar">Atualizar</span>
+														<?
+													}
+												?>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+			
+						<?php
+							//implementação de categorias, vai ter que ficar para depois. Fazer páginas como categorias está resolvendo por enquanto.
+							if($tipo != 'pagina' && class_exists('categoria'))
+							{
+								require_once(DBO_PATH.'/core/dbo-categoria-admin.php');
+								echo renderCategoriaPaginaFormWidget($pag, $tipo);
+							}
+						?>
+
+						<div class="panel font-13 radius" id="wrapper-imagem-destacada">
+							<div class="row">
+								<div class="large-12 columns">
+									<strong>Imagem destacada</strong>
+									<hr class="small">
+									<div id="wrapper-imagem-destacada"><?= $pag->getFormElement($operation, 'imagem_destaque', array(
+											'max_width' => '100%',
+										)); ?></div>
+								</div>
+							</div>
+						</div>
+			
+						<? $hooks->do_action('dbo_'.$tipo.'_form_sidebar_append', $pag, $params); ?>
+					</div>
+			
+					<? $hooks->do_action('dbo_'.$tipo.'_form_sidebar_after', $pag, $params); ?>
+				
+				</div>
+			</div>
+			<input type="hidden" name="status" id="input-status" value="<?= $pag->status ? $pag->status : 'rascunho' ?>"/>
+			<?= CSRFInput(); ?>
+		</form>
+		<script>
+
+			function closeClosestWrapperPubOption(obj) {
+				obj.closest('.wrapper-pub-option').slideUp('fast', function(){
+					$(this).prev('p').find('.trigger-pub-option').show();
+				})
+			}
+			
+			function getNewSlug(slug) {
+				peixeJSON('dbo/core/dbo-pagina-ajax.php?action=get-new-slug', {
+					slug: slug,
+					DBO_CSRF_token: '<?= CSRFGetToken() ?>'
+				}, null, true);
+			}
+
+			function autop (pee) {
+				var preserve_linebreaks = false
+				var preserve_br = false
+				var blocklist = 'table|thead|tfoot|caption|col|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre' +
+							'|form|map|area|blockquote|address|math|style|p|h[1-6]|hr|fieldset|legend|section' +
+							'|article|aside|hgroup|header|footer|nav|figure|figcaption|details|menu|summary'
+
+				if (pee.indexOf('<object') !== -1) {
+					pee = pee.replace(/<object[\s\S]+?<\/object>/g, function (a) {
+						return a.replace(/[\r\n]+/g, '')
+					})
+				}
+
+				pee = pee.replace(/<[^<>]+>/g, function (a) {
+					return a.replace(/[\r\n]+/g, ' ')
+				})
+
+				// Protect pre|script tags
+				if (pee.indexOf('<pre') !== -1 || pee.indexOf('<script') !== -1) {
+					preserve_linebreaks = true
+					pee = pee.replace(/<(pre|script)[^>]*>[\s\S]+?<\/\1>/g, function (a) {
+						return a.replace(/(\r\n|\n)/g, '<wp-line-break>')
+					})
+				}
+
+				// keep <br> tags inside captions and convert line breaks
+				if (pee.indexOf('[caption') !== -1) {
+					preserve_br = true
+					pee = pee.replace(/\[caption[\s\S]+?\[\/caption\]/g, function (a) {
+						// keep existing <br>
+						a = a.replace(/<br([^>]*)>/g, '<wp-temp-br$1>')
+						// no line breaks inside HTML tags
+						a = a.replace(/<[a-zA-Z0-9]+( [^<>]+)?>/g, function (b) {
+							return b.replace(/[\r\n\t]+/, ' ')
+						})
+						// convert remaining line breaks to <br>
+						return a.replace(/\s*\n\s*/g, '<wp-temp-br />')
+					})
+				}
+
+				pee = pee + '\n\n'
+				pee = pee.replace(/<br \/>\s*<br \/>/gi, '\n\n')
+				pee = pee.replace(new RegExp('(<(?:' + blocklist + ')(?: [^>]*)?>)', 'gi'), '\n$1')
+				pee = pee.replace(new RegExp('(</(?:' + blocklist + ')>)', 'gi'), '$1\n\n')
+				pee = pee.replace(/<hr( [^>]*)?>/gi, '<hr$1>\n\n') // hr is self closing block element
+				pee = pee.replace(/\s*<option/gi, '<option') // No <p> or <br> around <option>
+				pee = pee.replace(/<\/option>\s*/gi, '</option>')
+				pee = pee.replace(/\r\n|\r/g, '\n')
+				pee = pee.replace(/\n\s*\n+/g, '\n\n')
+				pee = pee.replace(/([\s\S]+?)\n\n/g, '<p>$1</p>\n')
+				pee = pee.replace(/<p>\s*?<\/p>/gi, '')
+				pee = pee.replace(new RegExp('<p>\\s*(</?(?:' + blocklist + ')(?: [^>]*)?>)\\s*</p>', 'gi'), '$1')
+				pee = pee.replace(/<p>(<li.+?)<\/p>/gi, '$1')
+				pee = pee.replace(/<p>\s*<blockquote([^>]*)>/gi, '<blockquote$1><p>')
+				pee = pee.replace(/<\/blockquote>\s*<\/p>/gi, '</p></blockquote>')
+				pee = pee.replace(new RegExp('<p>\\s*(</?(?:' + blocklist + ')(?: [^>]*)?>)', 'gi'), '$1')
+				pee = pee.replace(new RegExp('(</?(?:' + blocklist + ')(?: [^>]*)?>)\\s*</p>', 'gi'), '$1')
+				pee = pee.replace(/\s*\n/gi, '<br />\n')
+				pee = pee.replace(new RegExp('(</?(?:' + blocklist + ')[^>]*>)\\s*<br />', 'gi'), '$1')
+				pee = pee.replace(/<br \/>(\s*<\/?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)/gi, '$1')
+				pee = pee.replace(/(?:<p>|<br ?\/?>)*\s*\[caption([^\[]+)\[\/caption\]\s*(?:<\/p>|<br ?\/?>)*/gi, '[caption$1[/caption]')
+
+				pee = pee.replace(/(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)<\/p>/g, function (a, b, c) {
+					if (c.match(/<p( [^>]*)?>/)) {
+						return a
+					}
+
+					return b + '<p>' + c + '</p>'
+				})
+
+				// put back the line breaks in pre|script
+				if (preserve_linebreaks) {
+					pee = pee.replace(/<wp-line-break>/g, '\n')
+				}
+
+				if (preserve_br) {
+					pee = pee.replace(/<wp-temp-br([^>]*)>/g, '<br$1>')
+				}
+
+				return pee
+			}
+
+			function updateVisualEditor() {
+				mce_container = $(tinyMCE.activeEditor.getContainer());
+				code_container = $('#texto-codigo');
+
+				html_code = autop(code_container.val());
+				tinyMCE.activeEditor.setContent(html_code);
+			}
+
+			function updateCodeEditor() {
+				mce_container = $(tinyMCE.activeEditor.getContainer());
+				code_container = $('#texto-codigo');
+				//console.log(tinyMCE.activeEditor.getHeight());
+
+				//seta o tamanho da textarea para o tamanho do editor
+				code_container.height(mce_container.height());
+				mce_container.hide();
+				clean_code = tinyMCE.activeEditor.getContent();
+				clean_code = clean_code.replace(/<p>(.+)<\/p>\r?\n?/gim, "\$1\n\n");
+				clean_code = clean_code.replace(/<br ?\/?>\s?/gim,"\n");
+				clean_code = clean_code.trim();
+				clean_code = clean_code.replace(/>\n</gim,">__dbo-line-break-flag__<");
+				clean_code = clean_code.replace(/>\n(\S)/gim,">\n\n$1");
+				clean_code = clean_code.replace(/__dbo-line-break-flag__/gim,"\n");
+			}
+
+			$(document).ready(function(){
+
+				//mostrando opções de publicação
+				$(document).on('click', '.trigger-pub-option', function(e){
+					e.preventDefault();
+					clicado = $(this);
+					clicado.hide();
+					clicado.closest('p').next('.wrapper-pub-option').slideDown('fast');
+				});
+
+				//escondendo opções de publicação
+				$(document).on('click', '.trigger-cancel-pub-option', function(e){
+					e.preventDefault();
+					closeClosestWrapperPubOption($(this));
+				});
+
+				//submitando o formulário.
+				$(document).on('click', '.trigger-form-submit', function(){
+					clicado = $(this);
+					form = $('#form-pagina');
+
+					//atualizando o valor do tinymce
+					if($('#texto-codigo').is(':visible')){
+						updateVisualEditor();
+					}
+
+					//atualizando o status dependendo de qual botão clicar.
+					if(clicado.data('status')){
+						$('#input-status').val(clicado.data('status'));
+					}
+					peixeJSON(form.attr('action'), form.serialize(), '', true);
+					return false;
+				});
+
+				//detectando quando a data de publicação é limpa pelo script
+				$(document).on('clear', '#data-publicacao', function(){
+					$('#wrapper-data-publicacao').text('Agora');
+					$('#button-publicar').text('Publicar').data('status', 'publicado');
+					closeClosestWrapperPubOption($(this));
+				});
+
+				//alterando a data de publicação
+				$(document).on('change', '#data-publicacao', function(){
+					$('#wrapper-data-publicacao').text($(this).val());
+				});
+
+				$(document).on('update', '#data-publicacao', function(e, data){
+
+					//pegando o horário atual
+					agora = new Date();
+					agora = agora.dateTime();
+
+					//pegando o horário escolhido
+					data.date.split(' ').list('data_escolhida', 'horario_escolhido');
+					data_escolhida.split('/').list('dia', 'mes', 'ano');
+					data_escolhida = ano + '-' + mes + '-' + dia + ' ' + horario_escolhido;
+
+					data_escolhida > agora ? (msg='Agendar',status='') : (msg='Publicar',status='publicado');
+
+					$('#button-publicar').text(msg).data('status', status);
+
+					closeClosestWrapperPubOption($(this));
+				});
+
+				//pegando uma slug para a página atual baseado no titulo do post
+				$(document).on('change', '#pagina-titulo', function(){
+					c = $(this);
+					if($.trim(c.val()) != '' && c.data('generate_slug') == true){
+						getNewSlug(c.val());
+					}
+				});
+
+				//controlando os botoes do formulario da slug
+				$(document).on('click', '.trigger-slug-edit', function(e){
+					e.preventDefault();
+					$('#wrapper-slug-view').toggle();
+					$('#wrapper-slug-edit').toggle();
+					input = $('#pagina-slug');
+					if(input.is(':visible')){
+						input.focus();
+					}
+				});
+
+				//atribuindo a nova slug
+				$(document).on('keypress', '#pagina-slug', function(e){
+					if(e.which == 13){
+						$('.trigger-slug-save').trigger('click');
+					}
+				});
+
+				$(document).on('click', '.trigger-slug-save', function(){
+					i = $('#pagina-slug');
+					if($.trim(i.val()) != '' && i.val() != i.data('slug_atual')){
+						getNewSlug(i.val());
+					}
+					else if(i.val() == i.data('slug_atual')){
+						$('#slug-label').text(i.val());
+						$('#wrapper-slug-view').toggle();
+						$('#wrapper-slug-edit').toggle();
+					}
+				});
+
+				//alternando do editor visual para codigo e vice-versa
+				$(document).on('click', 'dd a.trigger-editor-codigo', function(e){
+					e.preventDefault();
+					c = $(this);
+					dd = c.closest('dd');
+					dd.closest('dl').find('dd.active').removeClass('active');
+					if(dd.hasClass('active')){
+						return;
+					}
+					else {
+						dd.addClass('active');
+						updateCodeEditor();
+						code_container.val(clean_code).show().css('opacity', 1);
+						code_container.focus();
+					}
+				});
+
+				$(document).on('click', 'dd a.trigger-editor-visual', function(e){
+					e.preventDefault();
+					c = $(this);
+					dd = c.closest('dd');
+					dd.closest('dl').find('dd.active').removeClass('active');
+					if(dd.hasClass('active')){
+						return;
+					}
+					else {
+						dd.addClass('active');
+						updateVisualEditor();
+						mce_container.show();
+						code_container.hide();
+					}
+				});
+
+				$(document).delegate('#texto-codigo', 'keydown', function(e) {
+					var keyCode = e.keyCode || e.which;
+
+					if (keyCode == 9) {
+						e.preventDefault();
+						var start = $(this).get(0).selectionStart;
+						var end = $(this).get(0).selectionEnd;
+
+						// set textarea value to: text before caret + tab + text after caret
+						$(this).val($(this).val().substring(0, start)
+												+ "\t"
+												+ $(this).val().substring(end));
+
+						// put caret at right position again
+						$(this).get(0).selectionStart =
+						$(this).get(0).selectionEnd = start + 1;
+					}
+				});					
+
+				setTimeout(function(){
+					$('#texto_ifr').scrollLock();
+					$('#texto-codigo').scrollLock();
+				}, 1000);
+
+			}) //doc.ready
+		</script>
+		<?
+		return ob_get_clean();
+	}
+
+	function paginaCreateMediaPage($file_name, $params = array())
+	{
+		extract($params);
+
+		$titulo = $titulo ? $titulo : preg_replace('/\\.[^.\\s]{3,4}$/', '', $file_name);
+
+		$pag = new pagina();
+		$pag->titulo = $titulo;
+		$pag->data = dboNow();
+		$pag->tipo = 'midia';
+		$pag->autor = loggedUser();
+		$pag->created_by = loggedUser();
+		$pag->created_on = dboNow();
+		$pag->slug = dboUniqueSlug($titulo, 'database', array(
+			'table' => $pag->getTable(),
+			'column' => 'slug',
+		));
+		$pag->imagem_destaque = $file_name;
+		$pag->status = 'publicado';
+		if($modulo)
+		{
+			$pag->modulo_anexado = $modulo;
+		}
+		if($modulo_id)
+		{
+			$pag->modulo_anexado_id = $modulo_id;
+		}
+		$pag->save();
+
+		//esta flag vai dizer se a slug deve ser mudada na primeira alteração de título.
+		if('update_slug')
+		{
+			$pag->setDetail('update_slug', true);
+			$pag->update();
+		}
+	}
+
+	function autoAdminPagina($params = array())
+	{
+		global $dbo;
+		global $hooks;
+		global $tipo;
+		global $_system;
+		global $_pes;
+
+		extract($params);
+
+		//verificando se o tipo de pagina existe setada no sistema
+		$tipo = is_array($_system['pagina_tipo'][$tipo]) ? $tipo : 'pagina';
+
+		//extrai as informações do tipo customizado, senão extrai da página mesmo.
+		extract($_system['pagina_tipo'][$tipo]);
+
+		//juntando os parametros com o tipo de objeto, para os formulários necessários.
+		$params = array_merge($params, $_system['pagina_tipo'][$tipo]);
+
+		//instanciando a página, se existe
+		$pag = new pagina($_GET['dbo_update']);
+
+		//variaveis padrão
+		$list_view = ($_GET['list_view'] ? $_GET['list_view'] : ($default_list_view ? $default_list_view : 'list'));
+		$paginacao = $paginacao === null ? 20 : $paginacao;
+		$order_by = $order_by !== null ? $order_by : 'titulo';
+		$order = $order !== null ? $order : 'ASC';
+
+		ob_start();
+		?>
+		<div class="row">
+			<div class="large-9 columns">
+				<div class="breadcrumb">
+					<ul class="no-margin">
+						<li><a href="cadastros.php"><?= DBO_TERM_CADASTROS ?></a></li>
+						<li><a href="<?= $dbo->keepUrl('!dbo_new&!dbo_update') ?>"><?= ucfirst($titulo_plural) ?></a></li>
+						<?
+							if($_GET['dbo_new'] || $_GET['dbo_update'])
+							{
+								?>
+								<li id="breadcrumb-item-atual"><a href="#"><?= $pag->id ? $pag->getBreadcrumbIdentifier() : 'Nov'.$genero.' '.$titulo ?></a></li>
+								<?
+							}
+						?>
+					</ul>
+				</div>
+			</div>
+			<div class="large-3 columns text-right">
+				<?= ((hasPermission('insert', 'pagina-'.$tipo) && !$_GET['dbo_new'] && !$_GET['dbo_update'])?('<a href="'.$dbo->keepUrl('dbo_new=1').'" class="button small radius no-margin top-less-15 trigger-nova-pagina"><i class="fa fa-plus"></i> Nov'.$genero.' '.$titulo.'</a>'):('')) ?>
+				<?= (($_GET['dbo_new'] || $_GET['dbo_update'])?('<a href="'.$dbo->keepUrl('!dbo_new&!dbo_update').'" class="button small radius no-margin top-less-15 secondary"><i class="fa-arrow-left"></i> Voltar</a>'):('')) ?>
+			</div>
+		</div>
+		<hr class="small">
+		<div id="pagina-canvas" style="padding-bottom: 200px;">
+			<?
+				//listagem
+				if(!$_GET['dbo_new'] && !$_GET['dbo_update'])
+				{
+					meta::set('listagem_options_'.$tipo, json_encode(array(
+						'titulo' => true,
+						'descricao' => true,
+						'categorias' => true,
+					)), array(
+						'created_by' => loggedUser(),
+						'meta_details' => array(
+							'data_type' => 'JSON',
+						),
+					));
+					?>
+					<style>
+						.list-pagina td { vertical-align: top; }
+						tfoot th { border-bottom: 1px solid #ddd; }
+						thead th { border-top: 1px solid #ddd; }
+					</style>
+					<div class="row almost full list-pagina" id="list-<?= $tipo ?>" class="list-pagina">
+						<div class="large-12 columns">
+							<?
+
+								//partes do SQL
+								$sql_part_status = ($_GET['pagina_status'] != 'lixeira')?(($_GET['pagina_status'])?(" AND pag.status = '".dboescape($_GET['pagina_status'])."' "):(" AND pag.status != 'lixeira' ")):(" AND pag.status = 'lixeira' ");
+
+								//data
+								$sql_part_data = (!empty($_GET['m']) ? " AND DATE_FORMAT(data, '%Y-%m') = '".dboescape($_GET['m'])."' " : '');
+
+								//search
+								if(!empty($_GET['s']))
+								{
+									$parts = array();
+									$terms = explode(" ", $_GET['s']);
+									foreach($terms as $term)
+									{
+										$parts[] = "
+											(pag.titulo LIKE '%".dboescape($term)."%' OR pag.texto LIKE '%".dboescape($term)."%')
+										";
+									}
+									$sql_part_search = " AND ".implode(" AND ", $parts);
+								}
+
+								//pegando o range de datas
+								$meses = array();
+								$sql = "
+									SELECT 
+										DATE_FORMAT(data, '%Y-%m') AS mes 
+										FROM ".$pag->getTable()." pag
+									WHERE 
+										tipo = '".$tipo."'
+										".$sql_part_status."
+										".$sql_part_search."
+									GROUP BY mes
+									ORDER BY mes DESC;
+								";
+								$res = dboQuery($sql);
+								if(dboAffectedRows())
+								{
+									while($lin = dboFetchObject($res))
+									{
+										$meses[] = $lin->mes;
+									}
+								}
+
+								//listando todas as páginas
+								$sql = "
+									SELECT 
+										SQL_CALC_FOUND_ROWS
+										pag.*,
+										aut.nome AS nome_autor
+									FROM ".$pag->getTable()." pag
+									LEFT JOIN ".$_pes->getTable()." aut ON
+										pag.autor = aut.id
+									WHERE
+										tipo = '".$tipo."' 
+										".$sql_part_status."
+										".$sql_part_data."
+										".$sql_part_search."
+									ORDER BY
+										".($_GET['order_by'] ? dboescape($_GET['order_by']) : $order_by)." ".($_GET['order'] ? dboescape($_GET['order']) : $order)."
+								";
+								$pag = new pagina();
+								$pag->forcePagination($paginacao);
+								$pag->query($sql);
+							?>
+							<div class="row">
+								<div class="small-12 large-din-left columns">
+									<?= $pag->renderStatusSelector(array(
+										'genero' => $genero,
+										'tipo' => $tipo,
+										'active' => (($_GET['pagina_status'])?($_GET['pagina_status']):(false)),
+									)) ?>
+								</div>
+								<div class="small-12 large-din-right columns">
+									<div class="row collapse">
+										<div class="small-9 large-din-left columns" id="list-search">
+											<input type="search" name="s" id="" class="font-12" value="<?= htmlSpecialChars($_GET['s']) ?>" placeholder="Procurar <?= $titulo_plural ?>"/>
+										</div>
+										<div class="small-3 large-din-left columns end">
+											<span class="button secondary radius postfix font-12 trigger-search"><i class="fa-search"></i></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row">
+								<div class="small-12 columns large-din-left">
+									<div class="row collapse">
+										<div class="small-9 large-din-left columns">
+											<select class="font-12 acoes-em-massa">
+												<option value="">Ações em massa</option>
+												<?php
+													if($_GET['pagina_status'] == 'lixeira')
+													{
+														?>
+														<option value="restaurar-multi">Restaurar</option>
+														<option value="excluir-multi">Excluir definitivamente</option>
+														<?php
+													}
+													else
+													{
+														?>
+														<option value="lixeira-multi">Lixeira</option>
+														<?php
+													}
+												?>
+											</select>
+										</div>
+										<div class="small-3 large-din-left columns">
+											<span class="button secondary postfix font-12 radius trigger-aplicar-acoes-em-massa">Aplicar</span>
+										</div>
+									</div>
+								</div>
+								<div class="small-12 columns large-din-left end">
+									<div class="row collapse">
+										<div class="small-9 large-din-left columns">
+											<select name="m" class="font-12" id="list-data-selector">
+												<option value="">Mostrar todas as datas</option>
+												<?php
+													if(sizeof($meses))
+													{
+														foreach($meses as $mes)
+														{
+															?>
+															<option value="<?= $mes ?>" <?= $_GET['m'] == $mes ? 'selected' : '' ?>><?= dboDate('F Y', strtotime($mes)) ?></option>
+															<?php
+														}
+													}
+												?>
+											</select>
+										</div>
+										<div class="small-3 large-din-left columns">
+											<span class="button secondary postfix font-12 radius trigger-filtrar-por-data">Filtrar</span>
+										</div>
+									</div>
+								</div>
+								<div class="small-12 large-din-right columns">
+									<span class="font-14 form-height-fix">
+										<span id="list-view-selector">
+											<i data-url="<?= $dbo->keepUrl('list_view=list') ?>" class="fa fa-list pointer peixe-reload <?= $list_view == 'list' ? '' : 'color light' ?>" title="Visão de lista" peixe-reload="#wrapper-list-table,#status-selector,#list-view-selector"></i> &nbsp;
+											<i data-url="<?= $dbo->keepUrl('list_view=details') ?>" class="fa fa-th-list pointer peixe-reload <?= $list_view == 'details' ? '' : 'color light' ?>" title="Visão detalhada" peixe-reload="#wrapper-list-table,#status-selector,#list-view-selector"></i> &nbsp;
+											<i data-url="<?= $dbo->keepUrl('list_view=gallery') ?>" class="fa fa-th-large pointer peixe-reload <?= $list_view == 'gallery' ? '' : 'color light' ?>" title="Visão de galeria" peixe-reload="#wrapper-list-table,#status-selector,#list-view-selector"></i> &nbsp;
+										</span>
+										<span class="color medium font-12 list-numero-itens"><em><?= intval($pag->total())." ".(($pag->total() > 1 || !$pag->total())?('itens'):('item')) ?></em></span>
+										<span id="list-pagination"><?= $pag->splitter(null, array(
+											'display' => 'inline-block',
+											'margin' => 0,
+											'font_size' => '14px',
+											'layout' => 'compact',
+											'peixe_reload' => '#list-pagination,#list-pagination-bottom,#list-view-selector,#list-table-rows',
+										)); ?></span>
+									</span>
+								</div>
+							</div>
+							
+							<div id="wrapper-list-table">
+								<table class="responsive <?= $list_view ?>" id="list-table">
+									<thead>
+										<tr>
+											<th style="width: 30px;"><input type="checkbox" name="" id="" value="" class="no-margin top-2 trigger-check-all"/></th>
+											<th><?= $pag->getLinkOrderBy('titulo', 'Título') ?></th>
+											<th style="width: 20%;"><?= $pag->getLinkOrderBy('nome_autor', 'Autor') ?></th>
+											<th style="width: 10%;"><?= $pag->getLinkOrderBy('data', 'Data') ?></th>
+										</tr>
+									</thead>
+									<tbody id="list-table-rows">
+										<?
+											if($pag->size())
+											{
+												do {
+													?>
+													<tr id="list-item-<?= $pag->id ?>">
+														<?php
+															if($list_view != 'gallery')
+															{
+																?>
+																<td><input type="checkbox" name="selected[]" id="" value="<?= $pag->id ?>" class="no-margin top-2 stop-propagation list-checkable"/></td>
+																<?php
+															}
+														?>
+														<td style="<?= $list_view == 'gallery' ? 'background-image: url('.$pag->imagemUrl(array('size' => 'small', 'show_placeholder' => true)).')' : '' ?>">
+															<?php
+																if($list_view == 'gallery')
+																{
+																	?>
+																	<input type="checkbox" name="selected[]" id="selected-<?= $pag->id ?>" value="<?= $pag->id ?>" class="no-margin top-2 stop-propagation list-checkable"/><label for="selected-<?= $pag->id ?>"></label>
+																	<?php
+																}
+															?>
+															<span class="info">
+																<strong><a href="<?= $dbo->keepUrl('dbo_update='.$pag->id); ?>" style="padding-bottom: 4px; display: inline-block;"><?= $pag->titulo ?></a></strong><?= $pag->status != 'publicado' ? '<span class="color medium"> &#8212; '.ucfirst($pag->status).'</span>' : '' ?><br />
+																<?php
+																	if($list_view == 'details')
+																	{
+																		echo '<span class="font-12">'.$pag->resumo().'</span>';
+																	}
+																?>
+																<div style="height: 13px;">
+																	<span class="hover-info font-12">
+																	<?php
+																		if($_GET['pagina_status'] == 'lixeira')
+																		{
+																			?>
+																			<a href="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=restaurar&pagina_id='.$pag->id.'&'.CSRFVar()) ?>" class="peixe-json">Retaurar</a>
+																			<span class="color light">&nbsp;|&nbsp;</span>
+																			<a href="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=excluir&pagina_id='.$pag->id.'&'.CSRFVar()) ?>" class="color alert peixe-json" data-confirm='Tem certeza que deseja excluir <?= $genero ?> <?= $titulo ?> "<?= $pag->titulo ?>" dfinitivamente?\n\nEsta ação é irreversível.'>Excluir definitivamente</a>
+																			<?php
+																		}
+																		else
+																		{
+																			?>
+																			<a href="<?= $dbo->keepUrl('dbo_update='.$pag->id); ?>">Editar</a>
+																			<span class="color light">&nbsp;|&nbsp;</span>
+																			<a href="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=lixeira&pagina_id='.$pag->id.'&'.CSRFVar()) ?>" class="color alert peixe-json" data-confirm='Tem certeza que deseja enviar <?= $genero ?> <?= $titulo ?> "<?= $pag->titulo ?>" para a lixeira?'>Lixeira</a> 
+																			<span class="color light">&nbsp;|&nbsp;</span>
+																			<a href="<?= SITE_URL ?>/<?= $pag->slug ?>" target="_blank">Visualizar</a> 
+																			<?php
+																		}
+																	?>
+																	</span>
+																</div>
+															</span>
+														</td>
+														<td><?= $pag->nome_autor ?></td>
+														<td>
+															<?= dboDate('d/M/Y', strtotime($pag->data)) ?><br />
+															<span class="color medium"><?= $pag->getValue('status', $pag->status) ?></span>
+														</td>
+													</tr>
+													<?
+												}while($pag->fetch());
+											}
+											else
+											{
+												?>
+												<tr>
+													<td colspan="10" class="text-center"><h2 class="no-margin color medium" style="padding: 30px;">Nada aqui :(</h2></td>
+												</tr>
+												<?
+											}
+										?>
+									</tbody>
+									<tfoot>
+										<tr>
+											<th style="width: 30px;"><input type="checkbox" name="" id="" value="" class="no-margin top-2 trigger-check-all"/></th>
+											<th><?= $pag->getLinkOrderBy('titulo', 'Título') ?></th>
+											<th style="width: 20%;"><?= $pag->getLinkOrderBy('nome_autor', 'Autor') ?></th>
+											<th style="width: 10%;"><?= $pag->getLinkOrderBy('data', 'Data') ?></th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+
+							<div class="row">
+								<div class="small-12 columns large-din-left">
+									<div class="row collapse">
+										<div class="small-9 large-din-left columns">
+											<select class="font-12 acoes-em-massa">
+												<option value="">Ações em massa</option>
+												<?php
+													if($_GET['pagina_status'] == 'lixeira')
+													{
+														?>
+														<option value="restaurar-multi">Restaurar</option>
+														<option value="excluir-multi">Excluir definitivamente</option>
+														<?php
+													}
+													else
+													{
+														?>
+														<option value="lixeira-multi">Lixeira</option>
+														<?php
+													}
+												?>
+											</select>
+										</div>
+										<div class="small-3 large-din-left columns">
+											<span class="button secondary postfix font-12 radius trigger-aplicar-acoes-em-massa">Aplicar</span>
+										</div>
+									</div>
+								</div>
+								<div class="small-12 large-din-right columns">
+									<span class="color medium font-12 list-numero-itens"><em><?= intval($pag->total())." ".(($pag->total() > 1 || !$pag->total())?('itens'):('item')) ?></em></span>
+									<span id="list-pagination-bottom"><?= $pag->splitter(null, array(
+										'display' => 'inline-block',
+										'margin' => 0,
+										'font_size' => '14px',
+										'form' => false,
+										'layout' => 'compact',
+										'peixe_reload' => '#list-pagination,#list-pagination-bottom,#list-view-selector,#list-table-rows',
+									)); ?></span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<script>
+
+						function triggerSearch() {
+							s = $('#list-search input').val();
+							target = keepUrl('s='+s);
+							peixeUpdateCurrentUrl(target);
+							peixeGet(peixe_current_url, function(d){
+								d = $.parseHTML(d);
+								['#list-table-rows','#list-pagination','#list-pagination-bottom'].forEach(function(v){
+									peixeReload(v, d);
+								})
+							})
+						}
+
+						$(document).ready(function(){
+							$(document).on('click', '#list-status-selector a', function(e){
+								e.preventDefault();
+								c = $(this);
+								c.closest('dl').find('dd').removeClass('active');
+								c.closest('dd').addClass('active');
+							});
+
+							//selecionando tudo
+							$(document).on('click', '.trigger-check-all', function(){
+								c = $(this);
+								if(c.is(':checked')){
+									$('.trigger-check-all').prop('checked', true);
+									$('.list-checkable').prop('checked', true);
+								}
+								else {
+									$('.trigger-check-all').prop('checked', false);
+									$('.list-checkable').prop('checked', false);
+								}
+							});
+							
+							$(document).on('click', '.list-checkable', function(){
+								c = $(this);
+								if(!c.is(':checked')){
+									$('.trigger-check-all').prop('checked', false);
+								}
+							});
+
+							//aplicando acoes em massa
+							$(document).on('change', '.acoes-em-massa', function(){
+								c = $(this);
+								$('.acoes-em-massa').val(c.val());
+							});
+
+							$(document).on('click', '.trigger-aplicar-acoes-em-massa', function(){
+								//primeiro checanco se tem alguma coisa selecionada
+								checados = $('.list-checkable:checked');
+								if(checados.length){
+									acao = $('.acoes-em-massa').val();
+									if(!acao){
+										alert('Você precisa selecionar uma ação da lista.');
+									}
+									else {
+										//tratando ação por ação
+										if(acao == 'lixeira-multi'){
+											var ans = confirm("Tem certeza que deseja enviar os itens selecionados para a lixeira?");
+										}
+										else if(acao == 'excluir-multi'){
+											var ans = confirm("Tem certeza que deseja excluir os itens selecionados definitivamente?\n\nEsta ação é irreversível.");
+										}
+										else if(acao == 'restaurar-multi'){
+											var ans = true;
+										}
+										if(ans){
+											peixeJSON('dbo/core/dbo-pagina-ajax.php?action='+acao, {
+												pagina_ids: checados.map(function(){ return $(this).val() }).get(),
+												DBO_CSRF_token: '<?= CSRFGetToken() ?>'
+											}, null, true);
+										}
+									}
+								}
+								else {
+									alert('Você precisa selecionar alguns itens para realizar uma ação em massa.');
+								}
+							});
+
+							//filtrando por data
+							$(document).on('click', '.trigger-filtrar-por-data', function(){
+								peixeUpdateCurrentUrl(keepUrl('!pag&m='+$('#list-data-selector').val()));
+								peixeGet(peixe_current_url, function(d){
+									d = $.parseHTML(d);
+									['#list-table-rows','#list-pagination','#list-pagination-bottom','.list-numero-itens','#list-view-selector','#list-status-selector'].forEach(function(v){
+										peixeReload(v, d);
+									})
+								})
+							});
+
+							//filtrando por busca
+							$(document).on('keypress', '#list-search input', function(e){
+								if(e.which == 13){
+									triggerSearch();
+								}
+							});
+
+							$(document).on('click', '.trigger-search', function(){
+								triggerSearch();
+							});
+
+						}) //doc.ready
+					</script>
+					<?
+				}
+				//mostrando o formulário de inserção
+				elseif($_GET['dbo_new'] || $_GET['dbo_update'])
+				{
+					echo paginaForm($pag, $params);
+				}
+			?>
+		</div>
+		<script>
+
+			<? $hooks->do_action('dbo_'.$tipo.'_javascript_prepend', $pag, $params); ?>
+
+			//função para salvar a página quando der CTRL + S no editor de texto.
+			function smartSave() {
+				form = $('#form-pagina');
+				peixeJSON(form.attr('action'), form.serialize(), '', true);
+				return false;
+			}
+
+			function editorInit(){
+				$(".editor").each(function(){
+					$(this).tinymce({
+						height: (($(this).attr('rows'))?($(this).attr('rows')*19):('300')),
+						theme: 'dbo',
+						resize: false,
+						//object_resizing: false,
+						autoresize: true,
+						autoresize_max_height: 600,
+						language: 'pt_BR',
+						autofocus: false,
+						entity_encoding: 'named',
+						entities: '160,nbsp',
+						save_onsavecallback: function(){ smartSave(); },
+						extended_valid_elements: 'div[media-manager-element|class|id],img[media-manager-element|src|alt|class|id|style]',
+
+						plugins: [
+							"save advlist lists link image charmap preview hr anchor pagebreak",
+							"searchreplace wordcount visualblocks visualchars code fullscreen",
+							"media nonbreaking save table contextmenu directionality",
+							"emoticons template paste textcolor dbo_media_manager dbo_column_manager autoresize"
+						],
+						toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | dbo_column_manager | link media dbo_media_manager | fullscreen"
+					})
+				})
+			}
+
+			function paginaInit() {
+				editorInit();
+
+				if(typeof dboInit == 'function'){
+					dboInit();
+				}
+
+				peixeInit();
+			}
+
+			$(document).ready(function(){
+
+				paginaInit();
+
+			}) //doc.ready
+
+			<? $hooks->do_action('dbo_'.$tipo.'_javascript_append', $pag, $params); ?>
+
+		</script>
+		<?
+		return ob_get_clean();
+	}
+
+?>

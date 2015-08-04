@@ -1,5 +1,5 @@
-<? require_once('lib/includes.php'); ?>
-<?
+<?php require_once('lib/includes.php'); ?>
+<?php
 	/* se não existir o custom header, usar o header padrão. */
 	if(!file_exists('./custom-header.php'))
 	{
@@ -28,10 +28,10 @@
 	<link rel="stylesheet" media="screen" href="fonts/font-awesome/css/font-awesome.css">
 	<link rel="stylesheet" media="screen" href="css/style.css">
 
-	<? $hooks->do_action('head') ?>
+	<?php $hooks->do_action('head') ?>
 
 	<style>
-		<?
+		<?php
 			if(!logadoNoPerfil('Desenv')) {
 				echo ".dev { display: none !important; }";
 			}
@@ -73,7 +73,7 @@
 						<li class="name"></li>
 						<li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
 					</ul>
-					<?
+					<?php
 						include(((file_exists('custom-menu.php'))?('custom-menu.php'):('menu.php')));
 					?>
 				</section>
@@ -82,7 +82,7 @@
 	</div><!-- main-header -->
 
 	<div id="main-wrap">
-		<?
+		<?php
 	}
 	else
 	{

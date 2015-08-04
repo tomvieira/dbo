@@ -1,5 +1,16 @@
 <?
 	include('includes.php');
+	//se já existir o arquivo de defines, não é possível fazer mais nada aqui.
+	if(validateDefinesFile())
+	{
+		?>
+		<h1 style="font-family: Arial; text-align: center;"><br /><br /><br /><br />O sistema já foi instalado.</h3>
+		<h3 style="font-family: Arial; text-align: center;">O instalador está inacessível.<br /><br /></h5>
+		<p style="font-family: Arial; text-align: center;">Se você chegou até aqui... É porque alguma coisa errada aconteceu com a conexão ao banco de dados.</p>
+		<h1 style="font-family: Arial; text-align: center; font-size: 150px; line-height: .2;">:(</h3>
+		<?
+		exit();
+	}
 	populateSession();
 ?>
 <!doctype html>
@@ -14,7 +25,7 @@
 	<link rel="shortcut icon" href="images/favicon.ico">
 	<link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 
 	<link rel="stylesheet" href="js/colorpicker/css/colorpicker.css" type="text/css" />
 	<script type="text/javascript" src="js/colorpicker/js/colorpicker.js"></script>

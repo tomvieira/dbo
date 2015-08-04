@@ -442,6 +442,66 @@ function getModuleForm ($module)
 						</div>
 					</div><!-- row -->
 
+					<div class='row standard'>
+						<div class='item'>
+							<div class='dica'>Permissões custom que serão criadas para este módulo</div>
+							<label>Permissões custom</label>
+							<div class='input'>
+								<?
+									if($module->permissoes_custom)
+									{
+										$permissoes_custom = trim($module->permissoes_custom);
+										$partes = explode("\n", $permissoes_custom);
+
+										$partes_trimmed = array();
+										$count = 1;
+										foreach($partes as $chave => $valor)
+										{
+											if($count != 1) {
+												$partes_trimmed[] = substr($valor, 1, strlen($valor)-1);
+											} else {
+												$partes_trimmed[] = $valor;
+											}
+											$count++;
+										}
+										$permissoes_custom = implode("\n", $partes_trimmed);
+									}
+								?>
+								<textarea name='permissoes_custom' rows='1' class='code'><?= $permissoes_custom ?></textarea>
+							</div>
+						</div>
+					</div><!-- row -->
+
+					<div class='row standard'>
+						<div class='item'>
+							<div class='dica'>Bibliotecas JS necessárias para este módulo</div>
+							<label>Bibliotecas JS</label>
+							<div class='input'>
+								<?
+									if($module->bibliotecas_js)
+									{
+										$bibliotecas_js = trim($module->bibliotecas_js);
+										$partes = explode("\n", $bibliotecas_js);
+
+										$partes_trimmed = array();
+										$count = 1;
+										foreach($partes as $chave => $valor)
+										{
+											if($count != 1) {
+												$partes_trimmed[] = substr($valor, 1, strlen($valor)-1);
+											} else {
+												$partes_trimmed[] = $valor;
+											}
+											$count++;
+										}
+										$bibliotecas_js = implode("\n", $partes_trimmed);
+									}
+								?>
+								<textarea name='bibliotecas_js' rows='1' class='code'><?= $bibliotecas_js ?></textarea>
+							</div>
+						</div>
+					</div>
+
 					<div class='row'>
 						<div class='item'>
 							<div class='dica'>Salve a restrição em uma variável $rest</div>
@@ -1120,6 +1180,7 @@ function getFieldForm ($mod,$field)
 								<option value='price' <?= ($campo->tipo == 'price')?('SELECTED'):('') ?>>Preço</option>
 								<option value='file' <?= ($campo->tipo == 'file')?('SELECTED'):('') ?>>Arquivo</option>
 								<option value='image' <?= ($campo->tipo == 'image')?('SELECTED'):('') ?>>Imagem</option>
+								<option value='media' <?= ($campo->tipo == 'media')?('SELECTED'):('') ?>>Mídia</option>
 								<option value='join' <?= ($campo->tipo == 'join' || $campo->tipo == 'joinNN')?('SELECTED'):('') ?>>Join</option>
 								<option value='query' <?= ($campo->tipo == 'query')?('SELECTED'):('') ?>>Query</option>
 								<option value='plugin' <?= ($campo->tipo == 'plugin')?('SELECTED'):('') ?>>Plugin</option>
@@ -1249,6 +1310,24 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 						</div>
 					</div><!-- row -->
 		<?
+		// MIDIA ------------------------------------------------------------------------------------------------------------------------
+		} elseif($type == 'media') {
+			?>
+						<div class='row wide'>
+							<div class='item'>
+								<label>Formatos permitidos, separados por vírgula (imagem,video)</label>
+								<div class='input'>
+									<div class='wrapper-field-type-detail'>
+										<div class='row'>
+											<div class='item'>
+												<input type='text' name='formatos' value='<?= $campo->formatos ?>'/>
+											</div><!-- item -->
+										</div><!-- row -->
+									</div><!-- wrapper-field-type-detail -->
+								</div><!-- input -->
+							</div>
+						</div><!-- row -->
+			<?
 		// JOIN ------------------------------------------------------------------------------------------------------------------------
 		} elseif($type == 'join' || $type == 'joinNN') {
 
@@ -1604,6 +1683,7 @@ function getNewFieldForm($mod)
 				<li><input type='radio' name='tipo' value='password'/><span>Password</span></li>
 				<li><input type='radio' name='tipo' value='image'/><span>Upload de Imagem</span></li>
 				<li><input type='radio' name='tipo' value='file'/><span>Upload de Arquivo</span></li>
+				<li><input type='radio' name='tipo' value='media'/><span>Mídia</span></li>
 				<li><input type='radio' name='tipo' value='select'/><span>Select (drop-down múltiplos valores)</span></li>
 				<li><input type='radio' name='tipo' value='radio'/><span>Radio (múltiplos valores)</span></li>
 				<li><input type='radio' name='tipo' value='checkbox'/><span>Checkbox (múltiplos valores)</span></li>
@@ -1838,6 +1918,11 @@ function runUpdateField($post_data)
 	{
 		$obj = new Obj();
 		$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->file = $obj;
+	}
+	//preco ----------------------------------------------------------------------------------------
+	elseif($post_data['tipo'] == 'media')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo[$field]->formatos = $post_data['formatos'];
 	}
 	//join ----------------------------------------------------------------------------------------
 	elseif($post_data['tipo'] == 'join')
@@ -2103,6 +2188,12 @@ function runNewField($post_data)
 	{
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "TEXT";
 		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'file';
+	}
+	//Mídia
+	elseif($post_data['tipo'] == 'media')
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->type = "VARCHAR(255)";
+		$_SESSION['dbomaker_modulos'][$mod]->campo['temporary_field_key_5658']->tipo = 'media';
 	}
 	//Select
 	elseif($post_data['tipo'] == 'select')
@@ -2527,6 +2618,24 @@ function runUpdateModule($post_data)
 	$_SESSION['dbomaker_modulos'][$mod]->classes_listagem = stripslashes($post_data['classes_listagem']);
 	$_SESSION['dbomaker_modulos'][$mod]->insert_button_text = stripslashes($post_data['insert_button_text']);
 
+	if(strlen(trim($post_data['permissoes_custom'])))
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->permissoes_custom = ident($post_data['permissoes_custom']);
+	}
+	else
+	{
+		unset($_SESSION['dbomaker_modulos'][$mod]->permissoes_custom);
+	}
+
+	if(strlen(trim($post_data['bibliotecas_js'])))
+	{
+		$_SESSION['dbomaker_modulos'][$mod]->bibliotecas_js = ident($post_data['bibliotecas_js']);
+	}
+	else
+	{
+		unset($_SESSION['dbomaker_modulos'][$mod]->bibliotecas_js);
+	}
+
 	if(strlen(trim($post_data['restricao'])))
 	{
 		$_SESSION['dbomaker_modulos'][$mod]->restricao = ident($post_data['restricao']);
@@ -2822,6 +2931,20 @@ function writeModuleFile($mod)
 		fwrite($fh, "\$module->insert = 'Nov".($module->genero)." ".singleScape($module->titulo)."';\n");
 		fwrite($fh, "\$module->preload_insert_form = ".(($module->preload_insert_form)?('true'):('false')).";\n");
 		fwrite($fh, "\$module->auto_view = ".(($module->auto_view)?('true'):('false')).";\n");
+		if(strlen($module->permissoes_custom))
+		{
+			fwrite($fh, "\$module->permissoes_custom = '\n");
+			$permissoes_custom = singleScape("\t".trim(unixEOL($module->permissoes_custom)));
+			fwrite($fh, $permissoes_custom."\n");
+			fwrite($fh, "';\n");
+		}
+		if(strlen($module->bibliotecas_js))
+		{
+			fwrite($fh, "\$module->bibliotecas_js = '\n");
+			$bibliotecas_js = singleScape("\t".trim(unixEOL($module->bibliotecas_js)));
+			fwrite($fh, $bibliotecas_js."\n");
+			fwrite($fh, "';\n");
+		}
 		if(strlen($module->restricao))
 		{
 			fwrite($fh, "\$module->restricao = '\n");
@@ -2956,6 +3079,14 @@ function writeModuleFile($mod)
 					{
 						fwrite($fh, "\t\$file = new Obj();\n");
 						fwrite($fh, "\$field->file = \$file;\n");
+					}
+					//midia
+					if($field->tipo == 'media')
+					{
+						if(strlen($field->formatos))
+						{
+							fwrite($fh, "\$field->formatos = ".$field->formatos.";\n");
+						}
 					}
 					//join
 					elseif($field->tipo == 'join' || $field->tipo == 'joinNN')

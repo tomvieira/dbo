@@ -1,22 +1,31 @@
 <?
-	$dbo_media_manager_image_sizes_default = array(
+	
+	include_once('dbo-shortcodes.php');
+	include_once('dbo-formatting.php');
+
+	//defines padrão, se não setados pelo usuário.
+	@define(DBO_TERM_CADASTROS, 'Cadastros');
+
+	//variáveis de sistema
+
+	$_system['media_manager']['default_image_sizes'] = array(
 		'small' => array(
-			'name' => 'Pequeno',
-			'max_width' => '180',
-			'max_height' => '180',
+			'name' => 'Miniatura',
+			'max_width' => '200',
+			'max_height' => '200',
 			'quality' => '90'
 		),
 		'medium' => array(
 			'name' => 'Médio',
 			'max_width' => '400',
 			'max_height' => '400',
-			'quality' => '90'
+			'quality' => '80'
 		),
 		'large' => array(
 			'name' => 'Grande',
 			'max_width' => '1200',
 			'max_height' => '1200',
-			'quality' => '90'
+			'quality' => '80'
 		)
 	);
 
@@ -25,161 +34,343 @@
 	function dboImportJs($libs = array(), $params = array())
 	{
 		extract($params);
+		
+		$libs = (array)$libs;
+
 		$js_url = DBO_URL.'/../js';
 
 		//impedindo o import duplo de JS
-		global $DBO_JS_IMPORTED;
-		if(!is_array($DBO_JS_IMPORTED)) $DBO_JS_IMPORTED = array();
+		global $_system;
+		if(!is_array($_system['dbo_imported_js'])) $_system['dbo_imported_js'] = array();
 
-		$return = '';
+		$return = "<!-- DBO IMPORTED JS -->\n";
 
-		if(!in_array("modernizr", $DBO_JS_IMPORTED) && (in_array("modernizr", $libs) || $import_all))
+		if(!in_array("modernizr", $_system['dbo_imported_js']) && (in_array("modernizr", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/vendor/custom.modernizr.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "modernizr";
+			$_system['dbo_imported_js'][] = "modernizr";
 		}
-		if(!in_array("jquery", $DBO_JS_IMPORTED) && (in_array("jquery", $libs) || $import_all))
+		if(!in_array("jquery", $_system['dbo_imported_js']) && (in_array("jquery", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/vendor/jquery.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "jquery";
+			$_system['dbo_imported_js'][] = "jquery";
 		}
-		if(!in_array("jquery-ui", $DBO_JS_IMPORTED) && (in_array("jquery-ui", $libs) || $import_all))
+		if(!in_array("jquery-ui", $_system['dbo_imported_js']) && (in_array("jquery-ui", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery-ui/jquery-ui.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/jquery-ui/ui.datepicker-pt-BR.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery-ui/jquery-ui.css\">\n";
-			$DBO_JS_IMPORTED[] = "jquery-ui";
+			$_system['dbo_imported_js'][] = "jquery-ui";
 		}
-		if(!in_array("peixelaranja", $DBO_JS_IMPORTED) && (in_array("peixelaranja", $libs) || $import_all))
+		if(!in_array("peixelaranja", $_system['dbo_imported_js']) && (in_array("peixelaranja", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/peixelaranja.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "peixelaranja";
+			$_system['dbo_imported_js'][] = "peixelaranja";
 		}
-		if(!in_array("browser", $DBO_JS_IMPORTED) && (in_array("browser", $libs) || $import_all))
+		if(!in_array("browser", $_system['dbo_imported_js']) && (in_array("browser", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/browser.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "browser";
+			$_system['dbo_imported_js'][] = "browser";
 		}
-		if(!in_array("dbo", $DBO_JS_IMPORTED) && (in_array("dbo", $libs) || $import_all))
+		if(!in_array("dbo", $_system['dbo_imported_js']) && (in_array("dbo", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/dbo.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "dbo";
+			$_system['dbo_imported_js'][] = "dbo";
 		}
-		if(!in_array("foundation", $DBO_JS_IMPORTED) && (in_array("foundation", $libs) || $import_all))
+		if(!in_array("foundation", $_system['dbo_imported_js']) && (in_array("foundation", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/foundation.min.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "foundation";
+			$_system['dbo_imported_js'][] = "foundation";
 		}
-		if(!in_array("html5shiv", $DBO_JS_IMPORTED) && (in_array("html5shiv", $libs) || $import_all))
+		if(!in_array("html5shiv", $_system['dbo_imported_js']) && (in_array("html5shiv", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/html5shiv.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "html5shiv";
+			$_system['dbo_imported_js'][] = "html5shiv";
 		}
-		if(!in_array("autosize", $DBO_JS_IMPORTED) && (in_array("autosize", $libs) || $import_all))
+		if(!in_array("autosize", $_system['dbo_imported_js']) && (in_array("autosize", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.autosize.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "autosize";
+			$_system['dbo_imported_js'][] = "autosize";
 		}
-		if(!in_array("color", $DBO_JS_IMPORTED) && (in_array("color", $libs) || $import_all))
+		if(!in_array("color", $_system['dbo_imported_js']) && (in_array("color", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.color.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "color";
+			$_system['dbo_imported_js'][] = "color";
 		}
-		if(!in_array("hoverflow", $DBO_JS_IMPORTED) && (in_array("hoverflow", $libs) || $import_all))
+		if(!in_array("hoverflow", $_system['dbo_imported_js']) && (in_array("hoverflow", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.hoverflow.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "hoverflow";
+			$_system['dbo_imported_js'][] = "hoverflow";
 		}
-		if(!in_array("maskedinput", $DBO_JS_IMPORTED) && (in_array("maskedinput", $libs) || $import_all))
+		if(!in_array("maskedinput", $_system['dbo_imported_js']) && (in_array("maskedinput", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.maskedinput.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "maskedinput";
+			$_system['dbo_imported_js'][] = "maskedinput";
 		}
-		if(!in_array("mousewheel", $DBO_JS_IMPORTED) && (in_array("mousewheel", $libs) || $import_all))
+		if(!in_array("mousewheel", $_system['dbo_imported_js']) && (in_array("mousewheel", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.mousewheel.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "mousewheel";
+			$_system['dbo_imported_js'][] = "mousewheel";
 		}
-		if(!in_array("parallax", $DBO_JS_IMPORTED) && (in_array("parallax", $libs) || $import_all))
+		if(!in_array("parallax", $_system['dbo_imported_js']) && (in_array("parallax", $libs) || $import_all))
 		{
-			$return .= "<script src=\"".$js_url."/jquery.parallax.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "parallax";
+			$return .= "<script src=\"".$js_url."/jquery.parallax.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "parallax";
 		}
-		if(!in_array("perfectscrollbar", $DBO_JS_IMPORTED) && (in_array("perfectscrollbar", $libs) || $import_all))
+		if(!in_array("perfectscrollbar", $_system['dbo_imported_js']) && (in_array("perfectscrollbar", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.perfectscrollbar.min.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery.perfectscrollbar.min.css\">\n";
-			$DBO_JS_IMPORTED[] = "perfectscrollbar";
+			$_system['dbo_imported_js'][] = "perfectscrollbar";
 		}
-		if(!in_array("placeholder", $DBO_JS_IMPORTED) && (in_array("placeholder", $libs) || $import_all))
+		if(!in_array("placeholder", $_system['dbo_imported_js']) && (in_array("placeholder", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.placeholder.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "placeholder";
+			$_system['dbo_imported_js'][] = "placeholder";
 		}
-		if(!in_array("preloader", $DBO_JS_IMPORTED) && (in_array("preloader", $libs) || $import_all))
+		if(!in_array("scrolllock", $_system['dbo_imported_js']) && (in_array("scrolllock", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.scrolllock.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "scrolllock";
+		}
+		if(!in_array("preloader", $_system['dbo_imported_js']) && (in_array("preloader", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.preloader.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "preloader";
+			$_system['dbo_imported_js'][] = "preloader";
 		}
-		if(!in_array("priceformat", $DBO_JS_IMPORTED) && (in_array("priceformat", $libs) || $import_all))
+		if(!in_array("priceformat", $_system['dbo_imported_js']) && (in_array("priceformat", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.priceformat.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "priceformat";
+			$_system['dbo_imported_js'][] = "priceformat";
 		}
-		if(!in_array("scrollto", $DBO_JS_IMPORTED) && (in_array("scrollto", $libs) || $import_all))
+		if(!in_array("scrollto", $_system['dbo_imported_js']) && (in_array("scrollto", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.scrollto.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "scrollto";
+			$_system['dbo_imported_js'][] = "scrollto";
 		}
-		if(!in_array("starsrating", $DBO_JS_IMPORTED) && (in_array("starsrating", $libs) || $import_all))
+		if(!in_array("starsrating", $_system['dbo_imported_js']) && (in_array("starsrating", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.starsrating.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "starsrating";
+			$_system['dbo_imported_js'][] = "starsrating";
 		}
-		if(!in_array("sticky-kit", $DBO_JS_IMPORTED) && (in_array("sticky-kit", $libs) || $import_all))
+		if(!in_array("sticky-kit", $_system['dbo_imported_js']) && (in_array("sticky-kit", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.sticky-kit.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "sticky-kit";
+			$_system['dbo_imported_js'][] = "sticky-kit";
 		}
-		if(!in_array("timepicker", $DBO_JS_IMPORTED) && (in_array("timepicker", $libs) || $import_all))
+		if(!in_array("timepicker", $_system['dbo_imported_js']) && (in_array("timepicker", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.timepicker.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "timepicker";
+			$_system['dbo_imported_js'][] = "timepicker";
 		}
-		if(!in_array("colorbox", $DBO_JS_IMPORTED) && (in_array("colorbox", $libs) || $import_all))
+		if(!in_array("colorbox", $_system['dbo_imported_js']) && (in_array("colorbox", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/colorbox/jquery.colorbox.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/colorbox/jquery.colorbox.scrollfix.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/colorbox/colorbox.css\">\n";
-			$DBO_JS_IMPORTED[] = "colorbox";
+			$_system['dbo_imported_js'][] = "colorbox";
 		}
-		if(!in_array("multiselect", $DBO_JS_IMPORTED) && (in_array("multiselect", $libs) || $import_all))
+		if(!in_array("multiselect", $_system['dbo_imported_js']) && (in_array("multiselect", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/multiselect/js/ui.multiselect.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "multiselect";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/multiselect/css/ui.multiselect.css\">\n";
+			$_system['dbo_imported_js'][] = "multiselect";
 		}
-		if(!in_array("tablesorter", $DBO_JS_IMPORTED) && (in_array("tablesorter", $libs) || $import_all))
+		if(!in_array("nestable", $_system['dbo_imported_js']) && (in_array("nestable", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/nestable/jquery.nestable.js\"></script>\n";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/nestable/jquery.nestable.css\">\n";
+			$_system['dbo_imported_js'][] = "nestable";
+		}
+		if(!in_array("tablesorter", $_system['dbo_imported_js']) && (in_array("tablesorter", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/tablesorter/js/jquery.tablesorter.combined.min.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "tablesorter";
+			$_system['dbo_imported_js'][] = "tablesorter";
 		}
-		if(!in_array("tinymce", $DBO_JS_IMPORTED) && (in_array("tinymce", $libs) || $import_all))
+		if(!in_array("smooth-scroll", $_system['dbo_imported_js']) && (in_array("smooth-scroll", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/smooth-scroll.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "smooth-scroll";
+		}
+		if(!in_array("stellar", $_system['dbo_imported_js']) && (in_array("stellar", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.stellar.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "stellar";
+		}
+		if(!in_array("tinymce", $_system['dbo_imported_js']) && (in_array("tinymce", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/tinymce/tinymce.min.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/tinymce/jquery.tinymce.min.js\"></script>\n";
-			$DBO_JS_IMPORTED[] = "tinymce";
+			$_system['dbo_imported_js'][] = "tinymce";
 		}
-		if(!in_array("select2", $DBO_JS_IMPORTED) && (in_array("select2", $libs) || $import_all))
+		if(!in_array("select2", $_system['dbo_imported_js']) && (in_array("select2", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/select2/jquery.select2.min.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/select2/jquery.select2.pt-BR.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/select2/select2.css\">\n";
-			$DBO_JS_IMPORTED[] = "select2";
+			$_system['dbo_imported_js'][] = "select2";
 		}
+		if(!in_array("waypoints", $_system['dbo_imported_js']) && (in_array("waypoints", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.waypoints.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "waypoints";
+		}
+		if(!in_array("inview", $_system['dbo_imported_js']) && (in_array("inview", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/shortcuts/jquery.inview.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "inview";
+		}
+		if(!in_array("infinite", $_system['dbo_imported_js']) && (in_array("infinite", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/shortcuts/jquery.infinite.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "infinite";
+		}
+
+		$return .= "<!-- DBO_IMPORTED_JS (END) -->\n";
 
 		return $return;
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboRegisterJS($code, $once = false, $id)
+	{
+		global $_system;
+		if($once)
+		{
+			if(!$_system['dbo_registered_js'][$id])
+			{
+				$_system['dbo_registered_js'][$id] = $id;
+				$_system['dbo_registered_js_code'] .= $code;
+			}
+		}
+		else
+		{
+			$_system['dbo_registered_js_code'] .= $code;
+		}
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function imagemAjustada($image, $params = array())
+	{
+		/**
+		* @params:
+		*  height 
+		*  max_width 
+		*  classes 
+		*  styles
+		*  size: small | medium | large
+		*/
+		extract($params);
+
+		$height = $height !== null ? $height : '65%';
+		$max_width = $max_width !== null ? $max_width : '100%';
+
+		if($image)
+		{
+			return '<div style="background-size: cover; background-repeat: no-repeat; background-position: center center; background-image: url('.$image.'); padding-top: '.$height.'; max-width: '.$max_width.';'.$styles.'" class="'.$classes.'"><img src="'.$image.'" style="display: none;" alt=""></div>';
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function listYoutubeThumb($obj, $field)
+	{
+		return youtubeThumb($obj->{$field}, array(
+			'classes' => 'thumb-lista',
+		));
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function youtubeThumbUrl($url, $params = array())
+	{
+		extract($params);
+		parse_str(parse_url($url, PHP_URL_QUERY), $array);
+		return 'http://img.youtube.com/vi/'.$array['v'].'/0.jpg';
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function youtubeThumb($url, $params = array())
+	{
+		extract($params);
+		return '<img src="'.youtubeThumbUrl($url, $params).'" alt="" class="'.$classes.'">';
+	}
+	
+	function youtubeEmbedUrl($url, $params = array())
+	{
+		extract($params);
+		parse_str(parse_url($url, PHP_URL_QUERY), $array);
+		return 'http://www.youtube.com/embed/'.$array['v'].'?rel=0&wmode=transparent';
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboRegisterDocReady($code, $once = false, $id = null)
+	{
+		global $_system;
+		if($once)
+		{
+			if(!$_system['dbo_registered_doc_ready'][$id])
+			{
+				$_system['dbo_registered_doc_ready'][$id] = $id;
+				$_system['dbo_registered_doc_ready_code'] .= $code;
+			}
+		}
+		else
+		{
+			$_system['dbo_registered_doc_ready_code'] .= $code;
+		}
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboRegisterDboInit($code, $once = false, $id = null)
+	{
+		global $_system;
+		if($once)
+		{
+			if(!$_system['dbo_registered_dbo_init'][$id])
+			{
+				$_system['dbo_registered_dbo_init'][$id] = $id;
+				$_system['dbo_registered_dbo_init_code'] .= $code;
+			}
+		}
+		else
+		{
+			$_system['dbo_registered_dbo_init_code'] .= $code;
+		}
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboGetRegisteredJS()
+	{
+		global $_system;
+		ob_start();
+		if(!empty($_system['dbo_registered_js_code']) || !empty($_system['dbo_registered_doc_ready_code']) || !empty($_system['dbo_registered_dbo_init_code']))
+		{
+			?>
+			<!-- DBO REGISTERED JS -->
+			<script>
+				
+				function dboInit() {
+					<?= $_system['dbo_registered_dbo_init_code'] ?>	
+				}
+
+				<?= $_system['dbo_registered_js_code'] ?>
+				$(document).ready(function(){
+					<?= $_system['dbo_registered_doc_ready_code'] ?>
+				}) //doc.ready
+			</script>
+			<!-- DBO REGISTERED JS (END) -->
+			<?
+		}
+		return ob_get_clean();
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function marca ($hailshack, $needle)
@@ -191,6 +382,7 @@
 
 	function safeArrayKey($key, $array)
 	{
+		$key = $key ? $key : 1;
 		if(@array_key_exists($key, $array))
 		{
 			return safeArrayKey($key+100, $array);
@@ -214,6 +406,32 @@
 		return str_replace("dbo/upload/dbo-media-manager/", DBO_URL."/upload/dbo-media-manager/", $content);
 	}
 	$hooks->add_filter('dbo_content', 'filterMediaManagerUrl');
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function filterMediaManagerPath($content)
+	{
+		return str_replace("dbo/upload/dbo-media-manager/", DBO_PATH."/upload/dbo-media-manager/", $content);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function cleanupEditorCode($content)
+	{
+		//removendo height do style das imagens
+		$content = preg_replace('/(<img.+style=".*)(height: .*px;)(".*[^>].*\/>)/im', '$1$3', $content);
+
+		return $content;
+	}
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function paginaCleanupPreSave($pag)
+	{
+		$pag->texto = cleanupEditorCode($pag->texto);
+		return $pag;
+	}
+	$hooks->add_filter('dbo_pagina_pre_save', 'paginaCleanupPreSave');
 
 	// ----------------------------------------------------------------------------------------------------------------
 
@@ -245,7 +463,15 @@
 		global $dbo_query_counter;
 		$dbo_query_counter++;
 		//dboLog('query', $sql);
-		return mysql_query($sql);
+		$ret = mysql_query($sql);
+		if($ret)
+		{
+			return $ret;
+		}
+		else
+		{
+			echo dboQueryError();
+		}
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -292,6 +518,45 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function dboUniqueSlug($slug, $type = 'database', $params = array())
+	{
+		/**
+		* $params:
+		*  table: tabela a ser pesquisada para a unique slug
+		*  column: coluna a ser pesquisada para a unique slug
+ 		*/
+		extract($params);
+
+		$slug = makeSlug($slug);
+
+		if($type == 'database')
+		{
+			if(!$table || !$column)
+			{
+				trigger_error('Fields "label" and "column" must be set to work with database slugs', E_USER_ERROR);
+			}
+			else
+			{
+				$sql = "SELECT ".$column." FROM ".$table." WHERE ".$column." = '".$slug."' ".($exclude_id ? " AND id <> '".$exclude_id."' " : "");
+				dboQuery($sql);
+				if(dboAffectedRows())
+				{
+					$n = intval(preg_replace('#^[a-zA-Z0-9-_]+-([0-9]+)?$#is', '${1}', $slug));
+					if($n != 0)
+					{
+						$slug = preg_replace('#^([a-zA-Z0-9-_]+)-[0-9]+$#is', '${1}', $slug);
+					}
+					$n = $n == 0 ? 2 : ++$n;
+					$slug .= '-'.$n;
+					return dboUniqueSlug($slug, $type, $params);
+				}
+				return $slug;
+			}
+		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dboNow($tipo = 'datetime')
 	{
 		if(!defined('DBO_NOW'))
@@ -310,6 +575,13 @@
 		{
 			return date($agora);
 		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboLang()
+	{
+		return 'pt-BR';
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -471,7 +743,7 @@
 
 		//primeiro quebrando o nome do arquivo em nome e extensao
 		$ext = dboGetExtension($file_name);
-		$file = ereg_replace('\\'.$ext.'$', '', $file_name);
+		$file = preg_replace('/\\'.$ext.'$/is', '', $file_name);
 
 		//se o overwrite for false, vamos retornar o nome padrão
 		if($overwrite)
@@ -486,7 +758,7 @@
 			{
 				$parts = explode("-", $file);
 				$count = intval($parts[sizeof($parts)-1]);
-				$file = ereg_replace('\-'.$count.'$', '', $file);
+				$file = preg_replace('/\-'.$count.'$/is', '', $file);
 				return dboFileName($file."-".($count+1).$ext, $params);
 			}
 			//se não existe, beleza. Só retornar o nome do arquivo
@@ -511,17 +783,18 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
-	function peixeAjaxFileUploadInput($name, $id, $tipo = 'required', $db_data = '')
+	function peixeAjaxFileUploadInput($name, $id, $tipo = 'required', $db_data = '', $params = array())
 	{
+		extract($params);
 		//se houver arquivo setado, mostra a estrutura do peixelaranja pronta.
 		if(strlen(trim($db_data)))
 		{
 			list($file_name, $server_file_name) = explode("\n", $db_data);
 			ob_start();
 			?>
-			<input type="file" class="peixe-ajax-file-upload-ready" name="<?= $name ?>_aux" value="<?= $server_file_name ?>" style="display: none;" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?>/>
-			<div class="peixe-ajax-upload-status">
-				<input type="text" name="<?= $name ?>" value="<?= $server_file_name ?>" style="display: none;" <?= $tipo ?>/>
+			<input type="file" class="peixe-ajax-file-upload-ready" name="<?= $name ?>_aux" value="" style="display: none;" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?> class="<?= $classes ?>"/>
+			<div class="peixe-ajax-upload-status" style="<?= $styles ?>">
+				<input type="text" name="<?= $name ?>" value="<?= $server_file_name ?>" style="display: none;" <?= $tipo ?> <?= dboParseDataAttributes($data_attributes) ?>/>
 				<div class="upload-progress progress radius" style="display: none;"><span class="meter" style="width: 0%;"></span></div>
 				<div class="upload-sending font-14 margin-bottom" style="display: none;"><i class="fa-spinner fa-spin"></i> <span>Enviando...</span></div>
 				<div class="upload-success font-14 margin-bottom" style="display: none;"><i class="fa-check"></i> <span>Sucesso!</span></div>
@@ -538,6 +811,18 @@
 			<?
 			return ob_get_clean();
 		}
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboParseDataAttributes($array = array())
+	{
+		$return = '';
+		foreach($array as $key => $value)
+		{	
+			$return .= 'data-'.$key.'="'.json_encode($value).'" ';
+		}
+		return $return;
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -863,6 +1148,16 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function textOnly($string)
+	{
+		$string = strip_tags($string);
+		$string = str_replace('&nbsp;', '', $string);
+		$string = preg_replace('/\s+/im', ' ', $string);
+		return $string;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function makeDboButtons ($url = '')
 	{
 
@@ -900,6 +1195,12 @@
 			$modulos[$key]['var'] = $module->modulo;
 		}
 
+		//incluindo as páginas
+		if(class_exists('pagina'))
+		{
+			pagina::registerMenus($modulos);
+		}
+
 		ksort($modulos);
 
 		$count = 1;
@@ -917,7 +1218,7 @@
 				{
 					$notifications = $notification_function();
 				}
-				echo "<li><a class='radius' href='".(($url)?($url."?dbo_mod=".$valor['var']):($dbo->keepUrl(array('!dbo_new&!dbo_update&!dbo_delete&!dbo_view&!pag!','dbo_mod='.$valor['var']))))."'><span class='icon' style='background-image: url(".DBO_URL."/../images/module_icons/".$valor['icon'].");'></span><div class='name'>".$valor['titulo']."</div>".(($notifications)?("<span class='notifications'>".$notifications."</span>"):(''))."</a></li>\n";
+				echo "<li><a class='radius' href='".(($valor['custom_url'])?($valor['custom_url']):(($url)?($url."?dbo_mod=".$valor['var']):($dbo->keepUrl(array('!dbo_new&!dbo_update&!dbo_delete&!dbo_view&!pag!','dbo_mod='.$valor['var'])))))."'><span class='icon' style='background-image: url(".DBO_URL."/../images/module_icons/".$valor['icon'].");'></span><div class='name'>".$valor['titulo']."</div>".(($notifications)?("<span class='notifications'>".$notifications."</span>"):(''))."</a></li>\n";
 			}
 			$count++;
 		}
@@ -963,6 +1264,12 @@
 			$modulos[$key]['var'] = $module->modulo;
 		}
 
+		//incluindo as páginas
+		if(class_exists('pagina'))
+		{
+			pagina::registerMenus($modulos);
+		}
+
 		ksort($modulos);
 
 		$count = 1;
@@ -980,7 +1287,7 @@
 				{
 					$notifications = $notification_function();
 				}
-				echo "<li><a href='".(($url)?($url."?dbo_mod=".$valor['var']):($dbo->keepUrl(array('!dbo_new&!dbo_update&!dbo_delete&!dbo_view&!pag!','dbo_mod='.$valor['var']))))."' class='sidebar-button'><i style='background-image: url(".DBO_URL."/../images/module_icons/".$valor['icon'].")'></i><span class='name'>".$valor['titulo'].(($notifications)?("<span class='notifications'>".$notifications."</span>"):(''))."</span></a></li>\n";
+				echo "<li><a href='".(($valor['custom_url'])?($valor['custom_url']):(($url)?($url."?dbo_mod=".$valor['var']):($dbo->keepUrl(array('!dbo_new&!dbo_update&!dbo_delete&!dbo_view&!pag!','dbo_mod='.$valor['var'])))))."' class='sidebar-button'><i style='background-image: url(".DBO_URL."/../images/module_icons/".$valor['icon'].")'></i><span class='name'>".$valor['titulo'].(($notifications)?("<span class='notifications'>".$notifications."</span>"):(''))."</span></a></li>\n";
 			}
 			$count++;
 		}
@@ -1274,7 +1581,7 @@
 	// ----------------------------------------------------------------------------------------------------------------
 
 	//checa se as permissões de pasta estão ok
-	function checkPermissions ()
+	function checkPermissions()
 	{
 		$images = DBO_PATH.'/upload/images';
 		$files = DBO_PATH.'/upload/files';
@@ -1922,6 +2229,7 @@
 				'tinymce',
 				'multiselect',
 				'dbo',
+				'colorbox',
 			)); ?>
 		<?
 		$hooks->do_action('dbo_head');
@@ -1932,17 +2240,21 @@
 	function dboBody()
 	{
 		global $dbo;
-		if(isSuperAdmin()) {
-		?>
-			<div id='super-admin-bar' class="hide-for-small" style="<?= (($_GET['dbo_modal'])?('display: none;'):('')) ?>">
-				<div class='wrapper-controls'>
-					<div class='wrapper-buttons'>
-						<a href='<?= DBO_URL ?>/install/?reffered=1' target='install' title='Instalação'><img src='<?= DBO_URL ?>/core/images/install.png' alt='install'/></a>
-						<a href='<?= DBO_URL ?>/dbomaker/?reffered=1' target='dbomaker' title='Gerador de Módulos'><img src='<?= DBO_URL ?>/core/images/dbomaker.png' alt='dbomaker'/></a>
+		global $hooks;
+		if(isSuperAdmin() || $hooks->has_action('dbo_top_dock'))
+		{
+			?>
+			<div id="wrapper-dbo-top-dock" class="hide-for-small" style="<?= (($_GET['dbo_modal'])?('display: none;'):('')) ?>">
+				<div class="row">
+					<div class="large-12 columns">
+						<ul id="dbo-top-dock">
+							<?= isSuperAdmin() ? '<li><a href="'.DBO_URL.'/dbomaker/?reffered=1" target="dbomaker" class="color light pointer" title="Gerador de módulos do DBO" data-tooltip><i class="fa fa-fw fa-cube"></i></a></li>' : '' ?>
+							<?php $hooks->do_action('dbo_top_dock'); ?>
+						</ul>
 					</div>
 				</div>
 			</div>
-		<?
+			<?php
 		}
 	}
 	
@@ -1953,13 +2265,16 @@
 		global $start_time;
 		global $dbo_query_counter;
 		global $hooks;
+		global $_system;
+		echo dboGetRegisteredJS();
 		$hooks->do_action('dbo_footer');
 		if(!$_GET['dbo_mod'] && !$_GET['dbo_modal']) { dumpMid(); }
 		$end_time = (float) array_sum(explode(' ',microtime()));
 		if(!$_GET['dbo_modal'])
 		{
 			echo "<span class='processing-time' style='color: #FFF;' class='no-print'>Processing time: ". sprintf("%.4f", ($end_time-$start_time))." seconds</span>";
-			echo " <span class='dbo-queries-number' style='color: #FFF;'>Queries: ".$dbo_query_counter."</span>";
+			echo " <span class='dbo-queries-number' style='color: #FFF;'> - Queries: ".$dbo_query_counter."</span>";
+			echo " <span class='dbo-memory-usage' style='color: #FFF;'> - Memory peak: ".humanFilesize(memory_get_peak_usage(false))."</span>";
 		}
 		getMessage();
 	}
@@ -2135,6 +2450,7 @@
 
 	function includeClasses()
 	{
+		global $_system;
 		if(DBO_AUTOLOAD_CLASSES === true)
 		{
 			spl_autoload_register("dboAutoload");
@@ -2152,8 +2468,18 @@
 			if(is_array($arq_classes))
 			{
 				sort($arq_classes);
-				foreach($arq_classes as $key => $value)
+				foreach($arq_classes as $value)
 				{
+					//não inclui os módulos na blacklist
+					if(is_array($_system['module_blacklist']))
+					{
+						$module = '';
+						$module = preg_replace('#^_class_(.*)\.php$#is', '${1}', $value);
+						if(in_array($module, $_system['module_blacklist']))
+						{
+							continue;
+						}
+					}
 					require_once(DBO_PATH."/".$value);
 				}
 			}
@@ -2247,10 +2573,12 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
-	function maxString($string, $max_size)
+	function maxString($string, $max_size, $params = array())
 	{
+		extract($params);
+		$more = $more ? $more : '...';
 		$max = min($max_size, strlen($string));
-		return iconv('UTF-8', "UTF-8//IGNORE", substr($string, 0, $max)).((strlen($string) > $max_size)?("..."):(''));
+		return iconv('UTF-8', "UTF-8//IGNORE", substr($string, 0, $max)).((strlen($string) > $max_size)?($more):(''));
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -2878,6 +3206,16 @@
 
 		return $d;
 	
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function humanFilesize($bytes, $dec = 2) 
+	{
+		$size   = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+		$factor = floor((strlen($bytes) - 1) / 3);
+
+		return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------

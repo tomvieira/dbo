@@ -3,17 +3,17 @@
 <link rel="stylesheet" href="<?= DBO_URL ?>/plugins/jcrop_dbo/css/jquery.Jcrop.css" type="text/css" />
 <style>
 	html, body { height: 100%; }
+	body { overflow-y: scroll !important; }
 	.processing-time, .dbo-queries-number { display: none; }
 	#main-wrap { height: 100%; }
 	.peixe-ajax-loader { width: 60px; height: 60px; font-size: 30px; text-align: center; line-height: 50px; border-radius: 1000px; background-color: rgba(1,1,1,.8); top: 50%; left: 50%; margin-left: -30px; margin-top: -30px; }
 	.peixe-ajax-loader span { display: none; }
 </style>
 <?
-
 	//verificando definições de tamanhos de crop e tamanhos de imagem
-	if(!isset($dbo_media_manager_custom_crops))
+	if(!isset($_system['media_manager']['crops']))
 	{
-		$dbo_media_manager_custom_crops = array(
+		$_system['media_manager']['crops'] = array(
 			'quadradro' => array(
 				'name' => 'Recorte quadrado',
 				'width' => 1,
@@ -30,7 +30,7 @@
 	}
 
 	//setando tamanhos das imagens
-	$dbo_media_manager_image_sizes = array_merge($dbo_media_manager_image_sizes_default, (array)$dbo_media_manager_image_sizes);
+	$_system['media_manager']['image_sizes'] = array_merge($_system['media_manager']['default_image_sizes'], (array)$_system['media_manager']['image_sizes']);
 
 	//primeiro checando se o cidadão pode fazer upload de imagens
 	if(!hasPermission('media-manager'))
@@ -54,145 +54,207 @@
 		else
 		{
 			?>
-			<div class="row full" id="dbo-media-manager">
-				<div class="large-7 columns">
+			<div id="dbo-media-manager">
+				<div class="coluna-1">
+					<div class="row full">
+						<div class="large-3 columns">
+							<h3 class="no-margin">Inserir&nbsp;mídia</h3>
+						</div>
+						<div class="large-9 columns">
+							<div class="row">
+								<div class="columns small-12 large-din-right">
+									<div class="row collapse">
+										<div class="columns small-9 large-din-left">
+											<input type="search" name="" id="" value="" class="no-margin font-12" placeholder="Procurar mídias..."/>
+										</div>
+										<div class="columns small-3 large-din-left">
+											<span class="postfix radius font-12 pointer"><i class="fa fa-search fa-fw"></i></span>
+										</div>
+									</div>
+								</div>
+								<div class="columns small-12 large-din-right">
+									<select name="" class="font-12">
+										<option value="">Todas as mídias</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
 					<div id="block-media-list">
 						<?
-							$handle = opendir($media_folder_path); //abrindo a diretorio para leitura, retorna array $arquivos
-							while (false !== ($opendirfiles = readdir($handle)))
+							$pag = new pagina();
+							$pag->queryPaginas(array(
+								'tipo' => 'midia',
+								'order_by' => 'id',
+								'order' => 'desc',
+								'where' => (!hasPermission('media-manager-all') ? " created_by = '".loggedUser()."' " : ""),
+							));
+							if(!$pag->size())
 							{
-								if(
-									$opendirfiles != '.' && 
-									$opendirfiles != '..' && 
-									$opendirfiles != 'thumbs' && 
-									$opendirfiles != 'Thumbs.db' 
-								)
-								{
-									$files[] = $opendirfiles;
-								}
-							}
-							closedir($handle); //fechando diretorio
-							if(!sizeof($files))
-							{
-								?><h3 class="text-center"><br /><br /><br />Ainda não há imagens cadastradas</h3><?					
+								?><h3 class="text-center"><br /><br /><br />Ainda não há mídias cadastradas</h3><?					
 							}
 							else
 							{
 								?>
-								<ul class="large-block-grid-4">
+								<ul class="large-block-grid-8">
 									<?
-										foreach($files as $key => $value)
-										{
+										do {
 											?>
-											<li class="wrapper-media-item <?= (($selected_file == $value)?('active'):('')) ?>">
-												<div class="media-item <?= (($selected_file == $value)?('active'):('')) ?>" style="background-image: url('<?= $media_folder_url.'thumbs/medium-'.$value.(($selected_file == $value)?('?='.$img_token):('')) ?>')" data-file="<?= $value ?>">
-													<span class="trigger-delete" data-file="<?= $value ?>" data-url="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=delete-media&file='.$value.'&'.CSRFVar()) ?>"><i class="fa-close"></i></span>
-													<span class="legenda"><?= $value ?></span>
+											<li class="wrapper-media-item <?= (($selected_file == $pag->imagem_destaque)?('active'):('')) ?>">
+												<div class="media-item <?= (($selected_file == $pag->imagem_destaque)?('active'):('')) ?>" style="background-image: url('<?= $media_folder_url.'thumbs/small-'.$pag->imagem_destaque.(($selected_file == $pag->imagem_destaque)?('?='.$img_token):('')) ?>')" data-file="<?= $pag->imagem_destaque ?>">
+													<span class="trigger-delete" data-file="<?= $pag->imagem_destaque ?>" data-url="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=delete-media&pagina_id='.$pag->id.'&'.CSRFVar()) ?>"><i class="fa-close"></i></span>
+													<span class="legenda"><?= $pag->titulo ? $pag->titulo : $pag->imagem_destaque ?></span>
 												</div>
 											</li>
-											<?
-										}
+											<?php
+										}while($pag->fetch());
 									?>
 								</ul>
-								<?
+								<?php
 							}
 						?>
 					</div>
 				</div>
-				<div class="large-5 columns">
+				<div class="coluna-2">
 					<div id="block-details">
 						<?
 							if($selected_file)
 							{
+								$pag->queryPaginas(array(
+									'tipo' => 'midia',
+									'where' => "imagem_destaque = '".$selected_file."'",
+								));
 								list($width, $height, $lixo, $lixo) = getimagesize($media_folder_path.$selected_file);
 								?>
+								<h6>Detalhes</h6>
+								<a href="#" id="title-upload" class="font-13 top-minus-2" style="padding-left: 10px;"><span class="underline">Enviar novo arquivo</span></a>
 								<div id="detalhes">
-									<div class="row">
-										<div class="large-6 columns"><h6>Detalhes</h6></div>
-										<div class="large-6 columns text-right"><small id="main-pic-size"><?= $width ?> x <?= $height ?> px</small></div>
-									</div>
-									<div class="text-center">
-										<div id="main-pic">
-											<img src="<?= $media_folder_url.$selected_file ?>?=<?= $img_token ?>" id="selected-image" data-width="<?= $width ?>" data-height="<?= $height ?>" data-file="<?= $selected_file ?>"/>
+									<div class="inner-wrap">
+										<div class="text-center">
+											<div id="main-pic">
+												<img src="<?= $media_folder_url.$selected_file ?>?=<?= $img_token ?>" id="selected-image" data-width="<?= $width ?>" data-height="<?= $height ?>" data-file="<?= $selected_file ?>"/>
+											</div>
+											<img src="<?= $media_folder_url.'thumbs/medium-'.$selected_file ?>?=<?= $img_token ?>" style="height: 0; width: 0; overflow: hidden;"/>
+											<img src="<?= $media_folder_url.'thumbs/large-'.$selected_file ?>?=<?= $img_token ?>" style="height: 0; width: 0; overflow: hidden;"/>
 										</div>
-									</div>
-									<ul id="drop-crop" class="f-dropdown" data-dropdown-content aria-hidden="true" tabindex="-1">
-										<?
-											if(is_array($dbo_media_manager_custom_crops) && sizeof($dbo_media_manager_custom_crops))
-											{
-												foreach($dbo_media_manager_custom_crops as $slug => $settings)
+										<ul id="drop-crop" class="f-dropdown" data-dropdown-content aria-hidden="true" tabindex="-1">
+											<?
+												if(is_array($_system['media_manager']['crops']) && sizeof($_system['media_manager']['crops']))
+												{
+													foreach($_system['media_manager']['crops'] as $slug => $settings)
+													{
+														?>
+														<li><a href="#" data-w="<?= $settings['width'] ?>" data-h="<?= $settings['height'] ?>" data-force_resize="<?= (($settings['force_resize'])?('true'):('false')) ?>"><?= htmlSpecialChars($settings['name']) ?></a></li>
+														<?
+													}
+												}
+											?>
+										</ul>
+										<div id="wrapper-tabela-detalhes">
+											<div id="cropper-controls">
+												<form method="post" action="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=do-crop&file='.$selected_file.'&'.CSRFVar()) ?>" class="no-margin peixe-json" id="form-crop" peixe-log>
+													<div class="font-14 text-left" style="padding-left: 100px; color: #fff;">
+														<p>
+															<span style="position: relative; top: -5px; color: #999;" class="font-14">Aplicar o recorte:</span><br />
+															<input type="radio" name="aplicar_crop" id="aplicar_crop_miniatura" value="miniatura"/><label for="aplicar_crop_miniatura">Somente na miniatura</label><br />
+															<input type="radio" name="aplicar_crop" id="aplicar_crop_todos" value="todos" checked/><label for="aplicar_crop_todos">Em todos os tamanhos</label><br />
+															<input type="radio" name="aplicar_crop" id="aplicar_crop_todos_menos_miniatura" value="todos_menos_miniatura"/><label for="aplicar_crop_todos_menos_miniatura">Todos, menos a miniatura</label>
+														</p>
+													</div>
+													<input type="hidden" name="c-x" id="c-x" value=""/>
+													<input type="hidden" name="c-y" id="c-y" value=""/>
+													<input type="hidden" name="c-w" id="c-w" value=""/>
+													<input type="hidden" name="c-h" id="c-h" value=""/>
+													<input type="hidden" name="force_resize" id="force_resize" value="false"/>
+													<span class="button radius large" onClick="doCrop();">Recortar</span>
+													<span class="button radius secondary large" onClick="stopCrop();">Cancelar</span>
+												</form>
+											</div>
+											<span class="button-crop" data-dropdown="drop-crop" title="Recortar" data-tooltip><i class="fa-crop"></i></span>
+											<form action="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=update-media-image&media_id='.$pag->id.'&'.CSRFVar()) ?>" method="post" class="no-margin" id="form-media-image">
+												<table class="tools" style="margin-bottom: 2px">
+													<tbody>
+														<tr>
+															<td>Alinhamento</td>
+															<td style="position: relative;">
+																<div id="position-selector" class="selector">
+																	<span class="active"><i class="fa-fw fa-align-justify" title="Nenhum" data-tooltip data-value="text-left"></i></span>
+																	<span><i class="fa-fw fa-align-left" title="Esquerda" data-tooltip data-value="float-left"></i></span>
+																	<span><i class="fa-fw fa-align-center" title="Centro" data-tooltip data-value="text-center"></i></span>
+																	<span><i class="fa-fw fa-align-right" title="Direita" data-tooltip data-value="float-right"></i></span>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<td>Título</td>
+															<td>
+																<input type="text" name="titulo" id="titulo" value="<?= htmlSpecialChars($pag->titulo) ?>" placeholder="Digite o título desta imagem" class="no-margin font-12"/>
+															</td>
+														</tr>
+														<tr>
+															<td>Legenda</td>
+															<td>
+																<input type="text" name="legenda" id="legenda" value="" placeholder="Digite a legenda para a imagem" class="no-margin font-12"/>
+															</td>
+														</tr>
+														<tr>
+															<td>Tamanho</td>
+															<td>
+																<select id="size-selector" class="font-12 no-margin">
+																	<?
+																		foreach($_system['media_manager']['image_sizes'] as $slug => $data)
+																		{
+																			list($w, $h) = getimagesize($media_folder_path.'thumbs/'.$slug.'-'.$selected_file);
+																			?>
+																			<option data-slug="<?= $slug ?>" data-value="thumbs/<?= $slug ?>-" <?= (($slug == 'medium')?('selected'):('')) ?> value="thumbs/<?= $slug ?>-"><?= $data['name'] ?> - <?= $w ?> &times; <?= $h ?></option>
+																			<?
+																		}
+																	?>
+																	<option data-slug="original" data-value="" value="">Original - <?= $width ?> &times <?= $height ?></option>
+																</select>
+															</td>
+														</tr>
+														<tr>
+															<td>Linkar para</td>
+															<td>
+																<select class="font-12 no-margin">
+																	<option value="nenhum">Nenhum</option>
+																	<option value="arquivo">Arquivo original</option>
+																	<option value="pagina-anexo">Página de anexo</option>
+																	<option value="url">URL Personalizada</option>
+																</select>
+															</td>
+														</tr>
+														<tr>
+															<td style="vertical-align: top; padding-top: 10px;">Descrição</td>
+															<td>
+																<textarea name="texto" id="texto" class="no-margin font-12" style="height: 80px; resize: none;"><?= htmlSpecialChars($pag->texto) ?></textarea>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+												<input type="hidden" name="media_id" id="media_id" value="<?= $pag->id ?>"/>
+											</form>
+										</div>
+										<div class="text-right">
+											<?php
+												if($_GET['destiny'])
 												{
 													?>
-													<li><a href="#" data-w="<?= $settings['width'] ?>" data-h="<?= $settings['height'] ?>" data-force_resize="<?= (($settings['force_resize'])?('true'):('false')) ?>"><?= htmlSpecialChars($settings['name']) ?></a></li>
-													<?
+													<input type="button" name="" id="inserir-midia" value="Adicionar mídia" class="button no-margin radius" data-destiny="<?= $_GET['destiny'] ?>"/>
+													<?php
 												}
-											}
-										?>
-									</ul>
-									<span class="button-crop" data-dropdown="drop-crop" title="Recortar" data-tooltip><i class="fa-crop"></i></span>
-									<div id="cropper-controls">
-										<form method="post" action="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=do-crop&file='.$selected_file.'&'.CSRFVar()) ?>" class="no-margin peixe-json" id="form-crop" peixe-log>
-											<input type="hidden" name="c-x" id="c-x" value=""/>
-											<input type="hidden" name="c-y" id="c-y" value=""/>
-											<input type="hidden" name="c-w" id="c-w" value=""/>
-											<input type="hidden" name="c-h" id="c-h" value=""/>
-											<input type="hidden" name="force_resize" id="force_resize" value="false"/>
-											<span class="button radius large" onClick="doCrop();">Recortar</span>
-											<span class="button radius secondary large" onClick="stopCrop();">Cancelar</span>
-										</form>
-									</div>
-									<table class="tools">
-										<tbody>
-											<tr>
-												<td>Alinhamento</td>
-												<td style="position: relative;">
-													<div id="position-selector" class="selector">
-														<span class="active"><i class="fa-fw fa-align-left" title="Esquerda" data-tooltip data-value="text-left"></i></span>
-														<span><i class="fa-fw fa-align-center" title="Centro" data-tooltip data-value="text-center"></i></span>
-														<span><i class="fa-fw fa-align-right" title="Direita" data-tooltip data-value="text-right"></i></span>
-														|
-														<span><i class="fa-fw fa-outdent" title="Flutuando à esquerda" data-tooltip data-value="float-left"></i></span>
-														<span><i class="fa-fw fa-outdent flip-horizontal" title="Flutuando à direita" data-tooltip data-value="float-right"></i></span>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td>Tamanho</td>
-												<td>
-													<div id="size-selector" class="selector">
-														<?
-															foreach($dbo_media_manager_image_sizes as $slug => $data)
-															{
-																?>
-																<span data-slug="<?= $slug ?>" data-value="thumbs/<?= $slug ?>-" class="<?= (($slug == 'medium')?('active'):('')) ?>"><?= $data['name'] ?></span>
-																<?
-															}
-														?>
-														<span data-slug="original" data-value="">Original</span>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<td>Legenda</td>
-												<td>
-													<input type="text" name="legenda" id="legenda" value="" placeholder="Digite a legenda para a imagem" class="no-margin"/>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-									<div class="text-right">
-										<input type="button" name="" id="inserir-imagem" value="Inserir a imagem no texto" class="button small no-margin radius"/>
+											?>
+										</div>
 									</div>
 								</div>
 								<?
 							}
 						?>
 					</div>
-					<div id="block-upload">
-						<h4 id="title-upload" class="pointer"><strong><i class="fa-plus-circle"></i> Enviar imagem</strong></h4>
+					<div id="block-upload" style="padding-top: 30px;">
 						<form method="post" action="" class="no-margin" id="form-upload" enctype="multipart/form-data" style="<?= (($selected_file)?('display: none;'):('')) ?>">
-							<label for="file">Selecione a imagem para upload</label>
-							<input type="file" name="arquivo" id="arquivo" peixe-ajax-file-upload data-action="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=upload-file&'.CSRFVar()) ?>"/>
+							<input type="file" name="arquivo" id="arquivo" peixe-ajax-file-upload data-action="<?= secureUrl('ajax-dbo-media-manager-actions.php?action=upload-file&'.CSRFVar()) ?>" data-modulo="<?= $_GET['modulo'] ?>" data-modulo_id="<?= $_GET['modulo_id'] ?>"/><label for="arquivo" id="arquivo-label"><i class="fa-cloud-upload" style="font-size: 20px;"></i> Enviar arquivo</label>
 						</form>
 					</div>
 				</div>
@@ -205,6 +267,10 @@
 
 	var jcrop_api;
 	var scale;
+	var timer_update_media;
+	var destiny = '<?= $_GET['destiny']; ?>';
+	var wrapper_id = '<?= $_GET['wrapper_id'] ?>';
+	var external_button = '<?= $_GET['external_button'] ?>';
 
 	function startCrop(w, h) {
 		$('#drop-crop').css('left', '-99999px').removeClass('open');
@@ -309,29 +375,58 @@
 		$('#form-upload').slideDown();
 	}
 
-	function inserirImagemAtiva() {
+	function inserirMidiaAtiva(destiny) {
 		
-		//variaveis para montar a tag da imagem
+		destiny = typeof destiny == 'undefined' ? 'tinymce' : destiny;
+
 		var file_name = $('#main-pic img').data('file');
-		var align = $('#position-selector .active i').data('value');
-		var size = $('#size-selector .active').data('value');
-		var caption = $('#legenda').val();
 
-		var       img = '<div media-manager-element="image-container" class="'+align+'">';
-		var img = img + '<dl><dt>';
-		var img = img + '<img media-manager-element="image" src="dbo/upload/dbo-media-manager/'+size+file_name+'">';
-
-		//verificando se tem caption
-		if(caption.length){
-			img = img + '<dd class="text-left">'+caption+'</dd>';
+		if(destiny == 'field'){
+			wrapper = $('#'+wrapper_id, parent.document);
+			wrapper.find('.media-controls-insert').hide();
+			wrapper.find('.media-controls-update').show();
+			wrapper.find('img').attr('src', 'dbo/upload/dbo-media-manager/thumbs/medium-'+file_name+'?='+Math.random());
+			wrapper.find('input[type="hidden"]').val(file_name);
+			button_update = wrapper.find('.button-media-update');
+			button_update.attr('data-url', keepUrl('file='+file_name, button_update.data('url')));
+			parent.$.fn.colorbox.close();
 		}
+		else if(destiny == 'tinymce'){
+			//variaveis para montar a tag da imagem
+			var align = $('#position-selector .active i').data('value');
+			var size = $('#size-selector').val();
+			var caption = $('#legenda').val();
 
-		var img = img + '</dt></dl>';
-		var img = img + '</div>';
+			var       img = '<div media-manager-element="image-container" class="'+align+'">';
+			var img = img + '<dl><dt>';
+			var img = img + '<img media-manager-element="image" src="dbo/upload/dbo-media-manager/'+size+file_name+'">';
 
-		parent.tinyMCE.activeEditor.insertContent(img);
-		parent.tinyMCE.activeEditor.nodeChanged();
-		parent.tinyMCE.activeEditor.windowManager.close();
+			//verificando se tem caption
+			if(caption.length){
+				img = img + '<dd class="text-left">'+caption+'</dd>';
+			}
+
+			var img = img + '</dt></dl>';
+			var img = img + '</div>';
+			
+			parent.tinyMCE.activeEditor.insertContent(img);
+			parent.tinyMCE.activeEditor.nodeChanged();
+			parent.tinyMCE.activeEditor.windowManager.close();
+
+			if(external_button){
+				parent.$.fn.colorbox.close();
+			}
+		}
+	}
+
+	function updateMediaData() {
+		form = $('#form-media-image');
+		$.post(
+			form.attr('action'),
+			form.serialize(),
+			function(data) {}
+		)
+		return false;
 	}
 
 	$(document).ready(function(){
@@ -384,7 +479,7 @@
 		$(document).on('click', '#dbo-media-manager .trigger-delete', function(e){
 			e.stopPropagation();
 			clicado = $(this);
-			var ans = confirm("Tem certeza que deseja excluir a imagem \""+clicado.data('file')+"\"?");
+			var ans = confirm("Tem certeza que deseja excluir a mídia \""+clicado.data('file')+"\"?");
 			if (ans==true) {
 				peixeJSON(clicado.data('url'), '', '', true);
 			} 
@@ -396,9 +491,10 @@
 			clicado.addClass('active');
 		});
 
-		$(document).on('click', '#title-upload', function(){
-			if($('#detalhes:visible').length){
-				$('#detalhes:visible').slideUp(function(){
+		$(document).on('click', '#title-upload', function(e){
+			e.preventDefault();
+			if($('#block-details:visible').length){
+				$('#block-details:visible').slideUp(function(){
 					$('#form-upload').slideDown();
 					$('#block-media-list .active').removeClass('active');
 				})
@@ -413,8 +509,16 @@
 		});
 
 		//tratando a inserção das imagens no editor
-		$(document).on('click', '#inserir-imagem', function(){
-			inserirImagemAtiva();
+		$(document).on('click', '#inserir-midia', function(){
+			inserirMidiaAtiva($(this).data('destiny'));
+		});
+
+		//atualizando os dados da media
+		$(document).on('input', '#titulo, #texto', function(){
+			clearTimeout(timer_update_media);
+			timer_update_media = setTimeout(function(){
+				updateMediaData();
+			}, 1200);
 		});
 
 	}) //doc.ready

@@ -1,16 +1,23 @@
 <?
 	require_once('lib/includes.php');
 
-	$dbo_media_manager_image_sizes = array_merge($dbo_media_manager_image_sizes_default, (array)$dbo_media_manager_image_sizes);
+	$_system['media_manager']['image_sizes'] = array_merge($_system['media_manager']['default_image_sizes'], (array)$_system['media_manager']['image_sizes']);
 
 	//função que cria os thumbs da imagem em questão
-	function resampleThumbs($file_name, $file_path)
+	function resampleThumbs($file_name, $file_path, $params = array())
 	{
 		require_once(DBO_PATH."/core/classes/simpleimage.php");
-		global $dbo_media_manager_image_sizes;
+		global $_system;
+		extract($params);
 
-		foreach($dbo_media_manager_image_sizes as $slug => $data)
+		foreach($_system['media_manager']['image_sizes'] as $slug => $data)
 		{
+			//pula a miniatura no caso específico
+			if($aplicar_crop == 'todos_menos_miniatura' && $slug == 'small') continue;
+
+			//faz somente a minutura no caso específico
+			if($aplicar_crop == 'miniatura' && $slug != 'small') continue;
+
 			$image = new SimpleImage();
 			$image->load($file_path.$file_name);
 			if($data['max_width'] >= $data['max_height']) {
@@ -18,7 +25,7 @@
 			} else {
 				$image->resizeToHeight($data['max_height']);
 			}
-			$caminho_arquivo = $file_path.'thumbs/'.$slug."-".$file_name;
+			$caminho_arquivo = $file_path.'thumbs/'.$slug."-".preg_replace('/-_-dbomediamanagertempkey-_-[0-9]+$/is', '', $file_name);
 			$image->save($caminho_arquivo, $data['quality']); //salvando o arquivo no server
 		}
 	}
@@ -58,6 +65,16 @@
 		//pegando a extensão do arquivo
 		$new_file_name = dboFileName($uploaded_file_data[name], array('file_path' => $file_path));
 
+		/*$file_data = exif_read_data($uploaded_file_data[tmp_name]);
+		
+		//tenta extrair as informações do exif do arquivo.
+		//============= DEBUG ================
+		echo "<PRE>";
+		var_dump($file_data);
+		exit();
+		echo "</PRE>";
+		//============= DEBUG ================*/
+
 		//salvando o arquivo com novo nome e retornando as informações
 		if(move_uploaded_file($uploaded_file_data[tmp_name], $file_path.$new_file_name))
 		{
@@ -67,6 +84,17 @@
 
 			//aqui temos que fazer os resamples das imagens, baseado nos tamanhos definidos no sistema.
 			resampleThumbs($new_file_name, $file_path);
+
+			//criando uma página do tipo midia, caso exista a classe de páginas.
+			if(class_exists('pagina'))
+			{
+				require_once(DBO_PATH.'/core/dbo-pagina-admin.php');
+				paginaCreateMediaPage($new_file_name, array(
+					'modulo' => $_POST['modulo'],
+					'modulo_id' => $_POST['modulo_id'],
+					'update_slug' => true,
+				));
+			}
 		}
 		else
 		{
@@ -77,25 +105,38 @@
 	//deletando uma imagem
 	elseif($_GET['action'] == 'delete-media')
 	{
-		//impedindo espertinhos de apagar o que não devem
-		if(unlink($file_path.$_GET['file']))
+		$pag = new pagina($_GET['pagina_id']);
+		if($pag->size())
 		{
-			//deletando thumbs
-			foreach($dbo_media_manager_image_sizes as $slug => $data)
+			if(unlink($file_path.$pag->imagem_destaque))
 			{
-				@unlink($file_path.'thumbs/'.$slug.'-'.$_GET['file']);
-			}
+				//deletando thumbs
+				foreach($_system['media_manager']['image_sizes'] as $slug => $data)
+				{
+					@unlink($file_path.'thumbs/'.$slug.'-'.$pag->imagem_destaque);
+				}
 
-			$json_result['message'] = '<div class="success">Arquivo excluido com sucesso.</div>';
-			$json_result['reload'][] = '#block-media-list';
-			$json_result['reload'][] = '#block-details';
-			$json_result['callback'][] = 'mediaManagerInit';
-			$json_result['eval'] = 'setTimeout(function(){ showFormUpload(); }, 500)';
+				$json_result['message'] = '<div class="success">Mídia removida com sucesso.</div>';
+				$json_result['reload'][] = '#block-media-list';
+				$json_result['reload'][] = '#block-details';
+				$json_result['callback'][] = 'mediaManagerInit';
+				$json_result['eval'] = 'setTimeout(function(){ showFormUpload(); }, 500)';
+			}
+			$pag->forceDelete();
 		}
+		else
+		{
+			$json_result['message'] = '<div class="error">Erro: a mídia requisitada não existe.</div>';
+		}
+		//impedindo espertinhos de apagar o que não devem
 	}
 	//fazendo o crop da imagem
 	elseif($_GET['action'] == 'do-crop')
 	{
+		
+		//gera uma chave temporária caso o crop vá ser aplicado somente na miniatura.
+		$temp_key = $_POST['aplicar_crop'] == 'miniatura' ? '-_-dbomediamanagertempkey-_-'.time().rand(1,1000) : '';
+
 		//setando o src
 		$src = $file_path.$_GET['file'];
 
@@ -139,18 +180,39 @@
 		imagecopyresampled($dst_r,$img_r,0,0,$x,$y,$targ_w,$targ_h,$w,$h);
 
 		if( $image_type == IMAGETYPE_JPEG ) {
-			imagejpeg($dst_r, $file_path.$_GET['file'], $jpeg_quality);
+			imagejpeg($dst_r, $file_path.$_GET['file'].$temp_key, $jpeg_quality);
 		} elseif( $image_type == IMAGETYPE_GIF ) {
-			imagegif($dst_r, $file_path.$_GET['file']);
+			imagegif($dst_r, $file_path.$_GET['file'].$temp_key);
 		} elseif( $image_type == IMAGETYPE_PNG ) {
-			imagepng($dst_r, $file_path.$_GET['file']);
+			imagepng($dst_r, $file_path.$_GET['file'].$temp_key);
 		}
 
 		//criando thumbs apos o crop
-		resampleThumbs($_GET['file'], $file_path);
+		resampleThumbs($_GET['file'].$temp_key, $file_path, array('aplicar_crop' => $_POST['aplicar_crop']));
+
+		//remove a imagem temporária, caso exista.
+		if(strlen(trim($temp_key))) @unlink($file_path.$_GET['file'].$temp_key);
 
 		$json_result['eval'] = 'stopCrop(); setTimeout(function(){ reloadAfterCrop(); }, 100)';
 		
+	}
+	elseif($_GET['action'] == 'update-media-image')
+	{
+		//carrega o arquivo
+		$pag = new pagina($_GET['media_id']);
+		if($pag->size())
+		{
+			$pag->titulo = $_POST['titulo'];
+			$pag->texto = $_POST['texto'];
+			//comentado porque preciso pensar em uma forma de implementar isso
+			//considerando o esquema de inserção com link para a página de anexo.
+			/*$pag->slug = dboUniqueSlug($_POST['titulo'], 'database', array(
+				'table' => $pag->getTable(),
+				'column' => 'slug',
+				'exclude_id' => $pag->id,
+			));*/
+			$pag->update();
+		}
 	}
 
 	echo json_encode($json_result);

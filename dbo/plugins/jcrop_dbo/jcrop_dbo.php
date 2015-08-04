@@ -83,7 +83,7 @@ class dbo_jcrop_dbo
 
 	function getInsertForm ($coluna = '')
 	{
-
+		echo dboImportJs('colorbox');
 		$result .= "<div class='jcrop-dbo-result-canvas' id='jcrop-dbo-preview-".$coluna."'><img src='images/spacer.gif' class='thumb-lista' style='display: none; width: 100%; max-width: 100%;'></div>";
 		$result .= "<a href='".DBO_URL."/plugins/jcrop_dbo/cropper.php?data=".base64_encode(serialize($this))."&coluna=".$coluna."' data-width='1050' data-height='98%' rel='modal' class='button secondary radius small'>Selecione a foto para tratamento</a>";
 		$result .= "<input type='hidden' name='".$coluna."[image]' id='jcrop-dbo-field-".$coluna."'>";
@@ -96,6 +96,7 @@ class dbo_jcrop_dbo
 	   Recebe o nome da coluna no banco de dados como parametro, caso voce queira usar no nome de seus inputs para algum fim.  */
 	function getUpdateForm ($coluna = '')
 	{
+		echo dboImportJs('colorbox');
 		$result .= "<input type='hidden' name='".$coluna."[image]' id='jcrop-dbo-field-".$coluna."' value='".$this->image."' rel='".$this->image."'>";
 		if(strlen($this->image)) //if there is a picture in the db
 		{

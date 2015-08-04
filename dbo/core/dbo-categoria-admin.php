@@ -115,13 +115,18 @@ function renderCategoryOptions($array, $prefix = '')
 
 function renderCategoryCheckboxes($array, $checked = array(), $params = array())
 {
+	/*
+	* @params
+	*  menu_structure: se setado como true, faz uma listagem de checkboxes para o menu maker
+	*  full_tree: a arvore completa para pegar a slug por recursão
+	*/
 	extract($params);
 	ob_start();
 	echo '<ul class="no-bullet '.($children ? 'children' : '').'">';
 	foreach($array as $data)
 	{
 		?>
-		<li class="font-12"><input type="checkbox" <?= in_array($data['id'], $checked) ? 'checked' : '' ?> name="categoria[]" id="categoria-<?= $data['id'] ?>" value="<?= $data['id'] ?>" class="top-2"/><label for="categoria-<?= $data['id'] ?>"><?= $data['nome'] ?></label>
+		<li class="font-12"><input type="checkbox" <?= in_array($data['id'], $checked) ? 'checked' : '' ?> name="<?= $menu_structure ? 'item-' : '' ?>categoria[]" id="categoria-<?= $data['id'] ?>" value="<?= $data['id'] ?>" class="top-2" <?= $menu_structure ? getCategoryMenuDataAttrs($full_tree, $data, $params) : '' ?>/><label for="categoria-<?= $data['id'] ?>"><?= $data['nome'] ?></label>
 		<?php
 		if(is_array($data['children']))
 		{
@@ -133,6 +138,136 @@ function renderCategoryCheckboxes($array, $checked = array(), $params = array())
 		<?php
 	}
 	echo '</ul>';
+	return ob_get_clean();
+}
+
+function getCategoryMenuDataAttrs($tree, $current, $params)
+{
+	global $_system;
+	extract($params);
+	return ' data-titulo="'.$current['nome'].'" data-slug="'.$current['full_slug'].'" data-categoria_id="'.$current['id'].'" data-tipo="categoria" ';
+}
+
+/*function getCategoriaFullSlug($tree, $current, $prefix)
+{
+	return $prefix.'/categorias/'.getFullSlug($tree, $current['slug']);
+}
+
+function getFullSlug($array, $key) {
+	foreach($array as $node) {
+		if($key == $node['slug']) { //Found it on this node
+			return $node['slug'];
+		}
+		else //Search depth first
+		{
+			if (isset($node['children']) && is_array($node['children']) && !empty($node['children']) ) {
+				$subSlug = getFullSlug($node['children'], $key);
+				if(!empty($subSlug)) //If it was found
+				{
+					return $node['slug'].'/'.$subSlug;
+				}
+				else //Look at the next sibling
+				{
+					continue;
+				}
+			} else { // This is a leaf, and it wasn't found
+				continue;
+			}
+		}
+	}
+	return ''; //Failed to find it.
+}*/
+
+function renderCategoriaMenuAdminStructure()
+{
+	global $_system;
+	ob_start();
+	?>
+	<li class="accordion-navigation">
+		<a href="#acc-categorias">Categorias</a>
+		<div id="acc-categorias" class="content">
+			<div class="row">
+				<div class="large-12 columns">
+					<?php
+						if(sizeof($_system['pagina_tipo']))
+						{
+							?>
+							<dl class="sub-nav" id="seletor-categorias">
+								<?php
+									foreach($_system['pagina_tipo'] as $tipo => $data)
+									{
+										if($tipo == 'pagina') continue;
+										?>
+										<dd class="<?= !$active ? 'active' : '' ?>"><a href="#" data-target="#wrapper-categoria-<?= $tipo ?>"><?= ucfirst($data['titulo_plural']) ?></a></dd>
+										<?php
+										if(!$active) $active = true;
+									}
+								?>
+							</dl>
+							<?php
+							$active = false;
+							foreach($_system['pagina_tipo'] as $tipo => $data)
+							{
+								if($tipo == 'pagina') continue;
+								$tree = categoria::getCategoryStructure($tipo);
+								?>
+								<div id="wrapper-categoria-<?= $tipo ?>" class="wrapper-categoria-list" style="<?= $active ? 'display: none;' : '' ?>">
+									<?= renderCategoryCheckboxes($tree, array(), array(
+										'menu_structure' => true,
+										'tipo' => $tipo,
+										'full_tree' => $tree,
+									)); ?>
+								</div>
+								<?php
+								if(!$active) $active = true;
+							}
+						}
+					?>
+				</div>
+			</div>
+			<hr class="small">
+			<div class="row">
+				<div class="large-12 columns text-right"><span class="button radius small no-margin trigger-adicionar-categorias secondary">Adicionar ao menu <i class="fa-arrow-right fa"></i></span></div>
+			</div>
+		</div>
+	</li>
+	<script>
+		$(document).ready(function(){
+			$(document).on('click', '#seletor-categorias dd:not(.active) a', function(e){
+				e.preventDefault();
+				c = $(this);
+				c.closest('dl').find('dd.active').removeClass('active');
+				c.closest('dd').addClass('active');
+				$('.wrapper-categoria-list:visible').fadeOut('fast', function(){
+					$(this).find('input[type="checkbox"]').prop('checked', false);
+					$(c.data('target')).fadeIn('fast');
+				})
+			});
+
+			$(document).on('click', '.trigger-adicionar-categorias', function(){
+				if($('#nav-menus-disponiveis dd.active').length){
+					pags = $('input[name^="item-categoria"]:checked');
+					if(pags.length){
+						pags.each(function(){
+							adicionarDDItem($(this).data());
+						})
+					}
+					else {
+						alert('Selecione um ou mais itens da lista para adicionar ao menu ativo');
+					}
+				}
+				else {
+					alert('Erro: Não há nenhum menu cadastrado');
+				}
+			});
+		
+		}) //doc.ready	
+	</script>
+	<style>
+		.wrapper-categoria-list ul li ul { margin-left: 20px; }
+		.wrapper-categoria-list input[type="checkbox"] { margin-bottom: 8px; }
+	</style>
+	<?php
 	return ob_get_clean();
 }
 

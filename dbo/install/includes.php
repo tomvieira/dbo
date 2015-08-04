@@ -199,12 +199,6 @@ function makeDefinesFile()
 		fwrite($fh, "define (SYSTEM_DESCRIPTION, '".mySlasher($_SESSION['dbo_install']['SYSTEM_DESCRIPTION'])."'); // System description (be reasonable...)\n");
 		fwrite($fh, "define (DBO_URL, '".mySlasher($_SESSION['dbo_install']['DBO_URL'])."'); // http url to the dbo folder (without the last slash '/')\n");
 		fwrite($fh, "\n");
-		fwrite($fh, "//system colors\n");
-		fwrite($fh, "define (COLOR_MENU, '".(($_SESSION['dbo_install']['COLOR_MENU'])?(mySlasher($_SESSION['dbo_install']['COLOR_MENU'])):(DEFAULT_COLOR_MENU))."'); // color of the menu background (use hexadecimal)\n");
-		fwrite($fh, "define (COLOR_HEADER, '".(($_SESSION['dbo_install']['COLOR_HEADER'])?(mySlasher($_SESSION['dbo_install']['COLOR_HEADER'])):(DEFAULT_COLOR_HEADER))."'); // color of the header background (use hexadecimal)\n");
-		fwrite($fh, "define (COLOR_DESCRIPTION, '".(($_SESSION['dbo_install']['COLOR_DESCRIPTION'])?(mySlasher($_SESSION['dbo_install']['COLOR_DESCRIPTION'])):(DEFAULT_COLOR_DESCRIPTION))."'); // color of the system description in the header (use hexadecimal)\n");
-		fwrite($fh, "define (COLOR_TITLE, '".(($_SESSION['dbo_install']['COLOR_TITLE'])?(mySlasher($_SESSION['dbo_install']['COLOR_TITLE'])):(DEFAULT_COLOR_TITLE))."'); // color for the module and form titles throughout the system (use hexadecimal)\n");
-		fwrite($fh, "\n");
 		fwrite($fh, "//experimental import of dbo libs into another systems like wordpress. DO NOT USE! It's alpha!\n");
 		fwrite($fh, "define (DBO_INLINE_LOCAL_STYLES, FALSE);\n");
 		fwrite($fh, "//system permission module\n");

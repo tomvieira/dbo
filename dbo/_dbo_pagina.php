@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 14/06/2015 02:41:18 */
+/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 04/08/2015 01:25:32 */
 /* ================================================================================================================== */
 
 
@@ -21,8 +21,8 @@ $module->insert = 'Nova Página';
 $module->preload_insert_form = false;
 $module->auto_view = false;
 $module->permissoes_custom = '
-	pagina-aprovar
-	pagina-teste
+	media-manager
+	media-manager-all
 ';
 $module->order_by = '-10';
 
@@ -52,13 +52,13 @@ $field->titulo = 'Título';
 $field->coluna = 'titulo';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
-$field->valida = true;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'VARCHAR(255)';
 $field->interaction = '';
 $field->tipo = 'text';
@@ -71,16 +71,17 @@ $field->titulo = 'Subtítulo';
 $field->coluna = 'subtitulo';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
+$field->edit = false;
+$field->view = false;
 $field->lista = false;
 $field->filter = false;
 $field->order = false;
-$field->type = 'VARCHAR(255)';
+$field->type = 'TEXT';
 $field->interaction = '';
-$field->tipo = 'text';
+$field->tipo = 'textarea';
+$field->rows = 2;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
@@ -90,13 +91,13 @@ $field->titulo = 'Data';
 $field->coluna = 'data';
 $field->pk = false;
 $field->isnull = true;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'DATETIME';
 $field->interaction = '';
 $field->classes = 'datetimepick';
@@ -110,13 +111,13 @@ $field->titulo = 'Tipo de página';
 $field->coluna = 'tipo';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'VARCHAR(255)';
 $field->interaction = '';
 $field->tipo = 'select';
@@ -133,13 +134,13 @@ $field->titulo = 'Slug';
 $field->coluna = 'slug';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
-$field->valida = true;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'VARCHAR(255)';
 $field->interaction = '';
 $field->tipo = 'text';
@@ -152,10 +153,10 @@ $field->titulo = 'Resumo';
 $field->coluna = 'resumo';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
+$field->edit = false;
+$field->view = false;
 $field->lista = false;
 $field->filter = false;
 $field->order = false;
@@ -173,10 +174,10 @@ $field->titulo = 'Texto';
 $field->coluna = 'texto';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
+$field->edit = false;
+$field->view = false;
 $field->lista = false;
 $field->filter = false;
 $field->order = false;
@@ -185,6 +186,35 @@ $field->interaction = '';
 $field->classes = 'tinymce';
 $field->tipo = 'textarea-rich';
 $field->rows = 20;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Autor';
+$field->coluna = 'autor';
+$field->pk = false;
+$field->isnull = true;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT(11)';
+$field->interaction = '';
+$field->tipo = 'join';
+	$join = new Obj();
+	$join->modulo = 'pessoa';
+	$join->chave = 'id';
+	$join->valor = 'nome';
+	$join->ajax = true;
+	$join->select2 = true;
+	$join->tamanho_minimo = '2';
+	$join->tipo = 'select';
+	$join->order_by = 'nome';
+$field->join = $join;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
@@ -329,13 +359,13 @@ $field->titulo = 'Status';
 $field->coluna = 'status';
 $field->pk = false;
 $field->isnull = false;
-$field->add = true;
+$field->add = false;
 $field->valida = false;
-$field->edit = true;
-$field->view = true;
-$field->lista = true;
-$field->filter = true;
-$field->order = true;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
 $field->type = 'VARCHAR(255)';
 $field->interaction = '';
 $field->default_value = 'publicado';
@@ -348,6 +378,157 @@ $field->valores = array(
 	'privado' => 'Privado',
 	'lixeira' => 'Lixeira',
 );
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Idioma';
+$field->coluna = 'dbo_lang';
+$field->pk = false;
+$field->isnull = true;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(10)';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Imagem destaque';
+$field->coluna = 'imagem_destaque';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'media';
+$field->formatos = imagem;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Detail';
+$field->coluna = 'detail';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = true;
+$field->filter = true;
+$field->order = true;
+$field->type = 'TEXT';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Mãe';
+$field->coluna = 'mae';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT(11)';
+$field->interaction = '';
+$field->tipo = 'join';
+	$join = new Obj();
+	$join->modulo = 'pagina';
+	$join->chave = 'id';
+	$join->valor = 'titulo';
+	$join->tipo = 'select';
+	$join->order_by = 'titulo';
+$field->join = $join;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Categoria';
+$field->coluna = 'categoria';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT(11)';
+$field->interaction = '';
+$field->tipo = 'joinNN';
+	$join = new Obj();
+	$join->modulo = 'categoria';
+	$join->chave = 'id';
+	$join->valor = 'nome';
+	$join->tabela_ligacao = 'pagina_categoria';
+	$join->chave1 = 'pagina';
+	$join->chave2 = 'categoria';
+	$join->tipo = 'checkbox';
+	$join->order_by = 'nome';
+$field->join = $join;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Módulo anexado';
+$field->coluna = 'modulo_anexado';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = true;
+$field->filter = true;
+$field->order = true;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Id do Módulo anexado';
+$field->coluna = 'modulo_anexado_id';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = true;
+$field->filter = true;
+$field->order = true;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/

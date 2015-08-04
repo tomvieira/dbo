@@ -29,6 +29,76 @@ if(!class_exists('menu'))
 		}
 
 		//your methods here
+		static function render($slug = false, $params = array())
+		{
+			extract($params);
+			if($slug != false)
+			{
+				$men = new menu("WHERE slug = '".$slug."'");
+				if($men->size())
+				{
+					ob_start();
+					if(!$items_only) { echo '<ul class="menu-root">'; }
+					$items = json_decode($men->estrutura, true);
+					foreach($items as $item)
+					{
+						echo menu::renderItem($item, $params);
+					}
+					if(!$items_only) { echo '</ul>'; }
+					return ob_get_clean();
+				}
+			}
+		}
+
+		static function renderItem($item, $params = array())
+		{
+			extract($params);
+			ob_start();
+			if($item['tipo'] == 'pagina' || $item['tipo'] == 'categoria')
+			{
+				?><li class="<?= ((is_array($item['children']))?('has-dropdown'):('')) ?>"><a href="<?= SITE_URL.($item['slug'] != 'home' ? '/'.$item['slug'] : ($hide_home ? '' : '/'.$item['slug'])) ?>"><?= $item['prepend'] ?><span><?= $item['titulo'] ?></span><?= $item['append'] ?></a><?
+				if(is_array($item['children']))
+				{
+					echo '<ul class="dropdown">';
+					foreach($item['children'] as $item)
+					{
+						echo menu::renderItem($item, $params);
+					}
+					echo '</ul>';
+				}
+				?></li><?
+			}
+			elseif($item['tipo'] == 'link')
+			{
+				?><li class="<?= ((is_array($item['children']))?('has-dropdown'):('')) ?>"><a href="<?= $item['url'] ?>"><?= $item['prepend'] ?><span><?= $item['titulo'] ?></span><?= $item['append'] ?></a><?
+				if(is_array($item['children']))
+				{
+					echo '<ul class="dropdown">';
+					foreach($item['children'] as $item)
+					{
+						echo menu::renderItem($item, $params);
+					}
+					echo '</ul>';
+				}
+				?></li><?
+			}
+			return ob_get_clean();
+		}
+		
+		function getEstruturaAdmin($params = array())
+		{
+			extract($params);
+			$est = json_decode($this->estrutura, true);
+			ob_start();
+			if(is_array($est))
+			{
+				foreach($est as $value)
+				{
+					echo menu::gerarDDItemTemplate($value);
+				}
+			}
+			return ob_get_clean();
+		}
 
 		static function gerarDDItemTemplate($data)
 		{
@@ -37,18 +107,31 @@ if(!class_exists('menu'))
 			//criando a string de data-attributes para o item
 			foreach($data as $key => $value)
 			{
-				$str_data .= 'data-'.$key.'="'.htmlSpecialChars($value).'" ';
+				if(!is_array($value))
+				{
+					$str_data .= 'data-'.$key.'="'.htmlSpecialChars($value).'" ';
+				}				
 			}
 
 			ob_start();
 			?>
 			<li class="dd-item" <?= $str_data ?>>
 				<div class="dd-handle"><?= $titulo ?></div>
-				<div class="dd-tipo closed"><?= (($tipo == 'pagina')?('Página'):((($tipo == 'link')?('Link'):('')))) ?> <i class="fa fa-fw fa-caret-down icon-open"></i><i class="fa fa-fw fa-caret-up icon-closed"></i></div>
+				<div class="dd-tipo closed"><?= (($tipo == 'pagina')?('Página'):((($tipo == 'link')?('Link'):($tipo == 'categoria' ? 'Categoria' : '')))) ?> <i class="fa fa-fw fa-caret-down icon-open"></i><i class="fa fa-fw fa-caret-up icon-closed"></i></div>
 				<div class="panel dd-detalhes hide">
+					<div class="row" style="<?= ((!hasPermission('menu-avancado'))?('display: none;'):('')) ?>">
+						<div class="large-6 columns">
+							<label for="">HTML prepend</label>
+							<input type="text" name="prepend" id="" value="<?= htmlSpecialChars($prepend) ?>"/>
+						</div>
+						<div class="large-6 columns">
+							<label for="">HTML append</label>
+							<input type="text" name="append" id="" value="<?= htmlSpecialChars($append) ?>"/>
+						</div>
+					</div>
 					<div class="row">
 						<div class="large-6 columns">
-							<label><?= $titulo ?></label>
+							<label>Título</label>
 							<input type="text" name="titulo" value="<?= htmlSpecialChars($titulo) ?>"/>
 						</div>
 						<div class="large-6 columns">
@@ -72,7 +155,7 @@ if(!class_exists('menu'))
 					<div class="row">
 						<div class="large-12 columns text-right">
 							<?
-								if($tipo == 'pagina')
+								if($tipo == 'pagina' || $tipo == 'categoria')
 								{
 									?>
 									<a href="<?= SITE_URL ?>/<?= $slug ?>" target="_blank">Visualizar página</a>
@@ -85,13 +168,60 @@ if(!class_exists('menu'))
 									<?
 								}
 							?>
-							| <a href="#">Excluir menu</a>
+							| <a href="#" class="trigger-excluir-item-menu">Excluir item</a>
 						</div>
 					</div>
 				</div>
+				<?
+					if(is_array($children))
+					{
+						echo '<ol class="dd-list">';
+						foreach($children as $child)
+						{
+							echo menu::gerarDDItemTemplate($child);
+						}
+						echo '</ol>';
+					}
+				?>
 			</li>			
 			<?
 			return ob_get_clean();
+		}
+
+		//acerta uma slug de arquivo nos menus do sistema caso seja alterada em alguma página.
+		static function updateSlug($old_slug, $new_slug)
+		{
+			$men = new menu('ORDER BY id');
+			if($men->size())
+			{
+				do {
+					$est = json_decode($men->estrutura, true);
+					if(sizeof($est))
+					{
+						menu::updateSlugArray($est, $old_slug, $new_slug);
+					}
+					$men->estrutura = json_encode($est);
+					$men->update();
+				}while($men->fetch());					
+			}
+		}
+
+		static function updateSlugArray(&$array, $old_slug, $new_slug)
+		{
+			foreach($array as $key => $info)
+			{
+				$parts = explode("/", $info['slug']);
+				$slug = array_pop($parts);
+				if($slug == $old_slug)
+				{
+					$parts[] = $new_slug;
+					$array[$key]['slug'] = implode("/", $parts);
+				}
+				if(is_array($info['children']))
+				{
+					menu::updateSlugArray($array[$key]['children'], $old_slug, $new_slug);
+				}
+			}			
 		}
 
 	} //class declaration
@@ -99,16 +229,21 @@ if(!class_exists('menu'))
 
 function auto_admin_menu()
 {
+	global $_system;
+
 	ob_start();
 	
 	echo dboImportJs('nestable');
 
 	?>
+	<style>
+		.accordion-navigation input[type="checkbox"] { margin-bottom: 8px; }
+	</style>
 	<div class="row">
 		<div class="large-12 columns">
 			<div class="breadcrumb">
 				<ul class="no-margin">
-					<li><a href="cadastros.php">Cadastros</a></li>
+					<li><a href="cadastros.php"><?= DBO_TERM_CADASTROS ?></a></li>
 					<li><a href="#">Menus</a></li>
 				</ul>
 			</div>
@@ -122,55 +257,52 @@ function auto_admin_menu()
 				<?
 					if(class_exists('pagina'))
 					{
-						$pagina = new pagina("WHERE status = 'Publicado' ORDER BY titulo");
-						if($pagina->size())
+						echo pagina::renderMenuAdminStructure('pagina');
+						foreach($_system['pagina_tipo'] as $pagina_tipo => $dados)
 						{
-							?>
-							<li class="accordion-navigation">
-								<a href="#acc-paginas">Páginas</a>
-								<div id="acc-paginas" class="content active">
-									<ul class="no-bullet font-14 no-margin">
-										<?
-											do {
-												?>
-												<li><input type="checkbox" name="item-pagina[<?= $pagina->id ?>]" id="pagina-<?= $pagina->id ?>" data-titulo="<?= htmlSpecialChars($pagina->getTitulo()) ?>" data-slug="<?= $pagina->getSlug(); ?>" data-pagina_id="<?= $pagina->id ?>" data-tipo="pagina"/> <label for="pagina-<?= $pagina->id ?>"><?= $pagina->getTitulo(); ?></label></li>
-												<?
-											}while($pagina->fetch());
-										?>
-									</ul>
-									<hr class="small">
-									<div class="row">
-										<div class="large-5 columns"><a href="#" class="trigger-selecionar-todas-paginas top-2">Selecionar todas</a></div>
-										<div class="large-7 columns text-right"><span class="button radius small no-margin trigger-adicionar-paginas secondary">Adicionar ao menu <i class="fa-arrow-right fa"></i></span></div>
-									</div>
-									<script>
-										$(document).ready(function(){
-								
-											$(document).on('click', '.trigger-adicionar-paginas', function(){
-												pags = $('input[name^="item-pagina"]:checked');
-												if(pags.length){
-													pags.each(function(){
-														adicionarDDItem($(this).data());
-													})
-												}
-												else {
-													alert('Selecione uma ou mais páginas da lista para adicionar ao menu ativo');
-												}
-											});
-								
-											$(document).on('click', '.trigger-selecionar-todas-paginas', function(e){
-												e.preventDefault();
-												$('input[name^="item-pagina"]:not("checked")').each(function(){
-													$(this).attr('checked', true);
-												})
-											});
-								
-										}) //doc.ready
-									</script>
-								</div>
-							</li>
-							<?
+							if($pagina_tipo != 'pagina')
+							{
+								echo pagina::renderMenuAdminStructure($pagina_tipo);
+							}
 						}
+						?>
+						<script>
+							$(document).ready(function(){
+					
+								$(document).on('click', '.trigger-adicionar-paginas', function(){
+									if($('#nav-menus-disponiveis dd.active').length){
+										pags = $('input[name^="item-pagina"]:checked');
+										if(pags.length){
+											pags.each(function(){
+												adicionarDDItem($(this).data());
+											})
+										}
+										else {
+											alert('Selecione um ou mais itens da lista para adicionar ao menu ativo');
+										}
+									}
+									else {
+										alert('Erro: Não há nenhum menu cadastrado');
+									}
+								});
+					
+								$(document).on('click', '.trigger-selecionar-todas-paginas', function(e){
+									e.preventDefault();
+									c = $(this);
+									c.closest('.content').find('input[name^="item-pagina"]:not("checked")').each(function(){
+										$(this).prop('checked', true);
+									})
+								});
+					
+							}) //doc.ready
+						</script>
+						<?php
+					}
+					//verifica a classe categorias e se tem mais de 1 tipo de página alem do padrão
+					if(class_exists('categoria') && sizeof($_system['pagina_tipo']) > 1) 
+					{
+						require_once(DBO_PATH.'/core/dbo-categoria-admin.php');
+						echo renderCategoriaMenuAdminStructure();
 					}
 				?>
 				<li class="accordion-navigation">
@@ -204,7 +336,7 @@ function auto_admin_menu()
 							if($men->size()) {
 								do {
 									?>
-									<dd class="<?= (($men->getIterator() == $men->size())?('active'):('')) ?>" data-menu_id="<?= $men->id ?>"><a href="<?= $men->slug ?>"><?= $men->nome ?></a></dd>
+									<dd class="<?= (($men->getIterator() == $men->size())?('active'):('')) ?>" data-menu_id="<?= $men->id ?>" data-menu_profundidade="<?= $men->profundidade ?>"><a href="<?= $men->slug ?>"><?= $men->nome ?></a></dd>
 									<?
 								}while($men->fetch());								
 							}
@@ -231,13 +363,29 @@ function auto_admin_menu()
 					{
 						?>
 							<div class="dd">
-								<ol class="dd-list" style="min-height: 200px;"></ol>
+								<ol class="dd-list" style="min-height: 200px;" id="menu-canvas">
+									<?
+										echo $men->getEstruturaAdmin();
+									?>
+								</ol>
 							</div>
 							<hr>
 							<div class="row">
 								<div class="large-12 columns text-right">
-									<a href="#" id="button-excluir-menu">Excluir menu</a> &nbsp;&nbsp;&nbsp;&nbsp;
-									<span class="button radius" id="button-salvar-menu">Salvar menu</span>
+									<?
+										if(hasPermission('delete', 'menu'))
+										{
+											?>
+											<a href="#" id="button-excluir-menu">Excluir menu</a> &nbsp;&nbsp;&nbsp;&nbsp;
+											<?
+										}
+										if(hasPermission('update', 'menu'))
+										{
+											?>
+											<span class="button radius" id="button-salvar-menu">Salvar menu</span>
+											<?
+										}
+									?>
 								</div>
 							</div>
 						<?
@@ -250,13 +398,26 @@ function auto_admin_menu()
 					}
 				?>
 			</div>
-			<form method="post" action="ajax-dbo-menu.php?action=novo-menu" class="no-margin peixe-json" id="form-novo-menu" style="display: none;" peixe-log>
+			<form method="post" action="dbo/core/dbo-menu-ajax.php?action=novo-menu" class="no-margin peixe-json" id="form-novo-menu" style="display: none;" peixe-log>
 				<div class="row">
 					<div class="large-8 columns item">
 						<label for="input-novo-menu-nome">Digite o nome do novo menu</label>
 						<input type="text" name="nome" id="input-novo-menu-nome" value="" required/>
 					</div>
 				</div>
+				<?
+					if(hasPermission('menu-avancado'))
+					{
+						?>
+						<div class="row">
+							<div class="large-4 columns item">
+								<label for="input-novo-menu-profunidade">Profundidade máxima do menu</label>
+								<input type="number" name="profundidade" id="input-novo-menu-profunidade" value="5" required/>
+							</div>
+						</div>
+						<?
+					}
+				?>
 				<div class="row">
 					<div class="large-12 columns">
 						<input class="button radius" type="submit" value="Inserir menu"/>
@@ -272,15 +433,33 @@ function auto_admin_menu()
 		}
 
 		function adicionarDDItem(data) {
-			peixeJSON('ajax-dbo-menu.php?action=gerar-dd-item', data, '', false);
-			$('input[name^="item-pagina"]:checked').each(function(){
-				$(this).attr('checked', false);
+			peixeJSON('dbo/core/dbo-menu-ajax.php?action=gerar-dd-item', data, '', false);
+			$('input[name^="item-"]:checked').each(function(){
+				$(this).prop('checked', false);
 			});
+		}
+
+		function ddInit() {
+			//$('.dd').nestable('destroy');
+			$('.dd').nestable({ /*maxDepth: $('#nav-menus-disponiveis dd.active').data('menu_profundidade')*/ });
+		}
+
+		function reloadRightPanel() {
+			peixeGet(document.URL, function(d) {
+				var html = $.parseHTML(d);
+				/* item 1 */
+				handler = '#right-panel';
+				content = $(html).find(handler).html();
+				if(typeof content != 'undefined'){
+					$(handler).fadeHtml(content, function(){ ddInit() });
+				}
+			})
+			return false;
 		}
 
 		$(document).ready(function(){
 
-			$('.dd').nestable({ /* config options */ });
+			ddInit();
 
 			$(document).on('click', '.trigger-serialize', function(){
 				console.log($('.dd').nestable('serialize'));
@@ -289,9 +468,9 @@ function auto_admin_menu()
 			$(document).on('click', '.dd-tipo', function(){
 				clicado = $(this);
 				if(clicado.hasClass('open')){
-					clicado.removeClass('open').addClass('closed').closest('.dd-item').find('.dd-detalhes').slideUp();
+					clicado.removeClass('open').addClass('closed').closest('.dd-item').find('.dd-detalhes').first().slideUp('fast');
 				} else {
-					clicado.removeClass('closed').addClass('open').closest('.dd-item').find('.dd-detalhes').slideDown();
+					clicado.removeClass('closed').addClass('open').closest('.dd-item').find('.dd-detalhes').first().slideDown('fast');
 				}
 			});
 
@@ -304,12 +483,12 @@ function auto_admin_menu()
 			});
 
 			//excluindo os menus
-			$(document).on('click', '.trigger-excluir-menu', function(e){
+			$(document).on('click', '.trigger-excluir-item-menu', function(e){
 				e.preventDefault();
 				var ans = confirm("Tem certeza que deseja excluir este item do menu?");
 				if (ans==true) {
 					clicado = $(this);
-					clicado.closest('.dd-item').fadeOut(function(){
+					clicado.closest('.dd-item').fadeOut('fast', function(){
 						$(this).remove();
 					})
 				} 
@@ -317,18 +496,23 @@ function auto_admin_menu()
 
 			//enviando links personalizados ao menu
 			$(document).on('click', '.trigger-adicionar-link', function(){
-				clicado = $(this);
-				url = clicado.closest('.content').find('input[name="url"]').val();
-				titulo = clicado.closest('.content').find('input[name="titulo"]').val();
-				if($.trim(titulo) != '' && $.trim(url) != ''){
-					adicionarDDItem({
-						tipo: 'link',
-						titulo: titulo,
-						url: url
-					})
+				if($('#nav-menus-disponiveis dd.active')){
+					clicado = $(this);
+					url = clicado.closest('.content').find('input[name="url"]').val();
+					titulo = clicado.closest('.content').find('input[name="titulo"]').val();
+					if($.trim(titulo) != '' && $.trim(url) != ''){
+						adicionarDDItem({
+							tipo: 'link',
+							titulo: titulo,
+							url: url
+						})
+					}
+					else {
+						alert('Preencha um título e uma url para adicionar o item ao menu');
+					}
 				}
 				else {
-					alert('Preencha um título e uma url para adicionar o item ao menu');
+					alert('Erro: não há nenhum menu cadastrado');
 				}
 			});
 
@@ -354,6 +538,30 @@ function auto_admin_menu()
 					$('#form-menu-update').fadeIn('fast');
 				})
 			});			
+
+			//salvando o menu ativo
+			$(document).on('click', '#button-salvar-menu', function(){
+				peixeJSON('dbo/core/dbo-menu-ajax.php?action=salvar-menu&menu_id='+$('#nav-menus-disponiveis dd.active').data('menu_id'), { menu_data: $('.dd').nestable('serialize') }, '', false);
+			});
+
+			//selecionando um menu
+			$(document).on('click', '#nav-menus-disponiveis dd:not(.active) a', function(e){
+				e.preventDefault();
+				$('#nav-menus-disponiveis dd.active').removeClass('active');
+				clicado = $(this).closest('dd');
+				clicado.addClass('active');
+				peixeJSON('dbo/core/dbo-menu-ajax.php?action=load-menu', { menu_id: clicado.data('menu_id') }, '', false);
+			});
+			$(document).on('click', '#nav-menus-disponiveis dd.active a', function(e){ e.preventDefault(); });
+
+			//excluindo um menu
+			$(document).on('click', '#button-excluir-menu', function(e){
+				e.preventDefault();
+				var ans = confirm("Tem certeza que deseja excluir este menu?");
+				if (ans==true) {
+					peixeJSON('dbo/core/dbo-menu-ajax.php?action=delete-menu', { menu_id: $('#nav-menus-disponiveis dd.active').data('menu_id') }, '', true);
+				} 
+			});
 
 		}) //doc.ready
 	</script>

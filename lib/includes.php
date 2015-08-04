@@ -74,4 +74,6 @@ checkDomain();
 //start of the calculations for the script execution... it's always good to know :P
 $start_time = (float) array_sum(explode(' ',microtime()));
 
+$hooks->do_action('dbo_includes_after');
+
 ?>

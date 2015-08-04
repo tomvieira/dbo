@@ -60,6 +60,8 @@
 	function getButtons ($arq)
 	{
 		global $modulos_array;
+		global $_system;
+
 		include(DBO_PATH."/".$arq);
 		$modulos_array[$module->order_by][$module->modulo]['Cockpit'] = 'cockpit';
 		$modulos_array[$module->order_by][$module->modulo]['Sidebar'] = 'sidebar';
@@ -68,11 +70,24 @@
 		$modulos_array[$module->order_by][$module->modulo]['Editar'] = 'update';
 		$modulos_array[$module->order_by][$module->modulo]['Excluir'] = 'delete';
 		$modulos_array[$module->order_by][$module->modulo]['Visualizar'] = 'view';
+
+		//instanciando botoes
 		if(is_array($module->button))
 		{
 			foreach($module->button as $chave => $valor)
 			{
 				$modulos_array[$module->order_by][$module->modulo][$valor->value] = $valor->value;
+			}
+		}
+
+		//instanciando permissoes custom
+		if(strlen(trim($module->permissoes_custom)))
+		{
+			$permissoes_custom = trim($module->permissoes_custom);
+			$permissoes_custom = explode("\n", $permissoes_custom);
+			foreach($permissoes_custom as $permissao_custom)
+			{
+				$_system['module_permissoes_custom'][trim($permissao_custom)] = trim($permissao_custom);
 			}
 		}
 	}
@@ -92,7 +107,7 @@
 
 			<div class="row full">
 				<div class="large-7 columns">
-					<h2><a href="dbo_admin.php?dbo_mod=perfil">Permissões de Perfil:</a> <?= $obj->nome ?></h2>
+					<h2><a href="dbo_admin.php?dbo_mod=perfil">Permissões de perfil:</a> <?= $obj->nome ?></h2>
 				</div><!-- col -->
 				<div class="large-5 columns text-right">
 					<span class="top-15">Copiar permissões de &nbsp;</span> 
@@ -109,6 +124,8 @@
 					</select>
 				</div>
 			</div><!-- row -->
+
+			<hr class="small">
 
 			<div class="row full">
 				<div class="large-12 columns">
@@ -129,7 +146,7 @@
 										{
 										?>
 											<tr>
-												<td style="width: 25%;"><span class="no-margin inline header" id="<?= $chave ?>"><?= $chave ?></span></td>
+												<td style="width: 20%;"><span class="no-margin inline header" id="<?= $chave ?>"><?= $chave ?></span></td>
 												<td>
 												<?
 													foreach($valor as $item_chave => $item_permissao)
@@ -152,6 +169,59 @@
 						</div><!-- col -->
 					</div><!-- row -->
 					<?
+						//paginas
+						if(class_exists('pagina') && sizeof($_system['pagina_tipo']))
+						{
+							
+							$items = array(
+								'cockpit' => 'Cockpit',
+								'sidebar' => 'Sidebar',
+								'insert' => 'Inserir',
+								'update' => 'Editar',
+								'delete' => 'Excluir',
+								'publicar' => 'Publicar',
+								'admin' => 'Gerenciar',
+								'all' => 'Todas'
+							);
+
+							?>
+							<div class="row full">
+								<div class="large-12 columns">
+									<h3>Tipos de página</h3>
+								</div>
+							</div>
+							<div class="row full">
+								<div class="large-12 columns">
+									<table>
+										<tbody>
+											<?
+												foreach($_system['pagina_tipo'] as $pagina_tipo)
+												{
+													?>
+													<tr>
+														<td style="width: 20%;"><span class="header no-margin inline" id="pagina-<?= $pagina_tipo['tipo'] ?>"><?= $pagina_tipo['tipo'] ?></span></td>
+														<td>
+															<?
+																foreach($items as $key => $value)
+																{
+																	$perm = perfilHasPermission($_GET['perfil'], $key, 'pagina-'.$pagina_tipo['tipo']);
+																	?>
+																	<span class="item <?= (($perm)?(""):("off")) ?>"><input type="checkbox" rel="pagina-<?= $pagina_tipo['tipo'] ?>" <?= $perm ? "checked" : "" ?> value="<?= $key ?>" name="permission[pagina-<?= $pagina_tipo['tipo'] ?>][<?= $key ?>]"> <span><?= $value ?></span></span>
+																	<?
+																}
+															?>
+														</td>
+													</tr>
+													<?
+												}
+											?>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<?
+						}
+
 						//custom menus
 						$cm = dboCustomMenus();
 						if(sizeof($cm))
@@ -159,7 +229,7 @@
 							?>
 							<div class="row full">
 								<div class="large-12 columns">
-									<h3>Menus Custom</h3>
+									<h3>Menus custom</h3>
 								</div><!-- col -->
 							</div><!-- row -->
 							<div class="row full">
@@ -176,7 +246,7 @@
 													$perm_sidebar = perfilHasPermission($_GET["perfil"], "sidebar", $item_cm->slug);
 												?>
 												<tr>
-													<td style="width: 25%;"><span class="header no-margin inline" id="<?= $item_cm->slug ?>"><?= $item_cm->slug ?></span></td>
+													<td style="width: 20%;"><span class="header no-margin inline" id="<?= $item_cm->slug ?>"><?= $item_cm->slug ?></span></td>
 													<td>
 														<span class="item <?= (($perm_cockpit)?(""):("off")) ?>"><input type="checkbox" rel="<?= $item_cm->slug ?>" <?= $perm_cockpit ? "CHECKED" : "" ?> value="cockpit" name="permission[<?= $item_cm->slug ?>][Cockpit]"> <span>Cockpit</span></span>
 														<span class="item <?= (($perm_sidebar)?(""):("off")) ?>"><input type="checkbox" rel="<?= $item_cm->slug ?>" <?= $perm_sidebar ? "CHECKED" : "" ?> value="sidebar" name="permission[<?= $item_cm->slug ?>][Sidebar]"> <span>Sidebar</span></span>
@@ -192,42 +262,50 @@
 							</div><!-- row -->
 							<?
 						}
-					
+
+						$perms = (array)($_system['module_permissoes_custom']);
+						
 						$obj = new dbo('permissao');
 						$obj->loadAll('ORDER BY nome');
 						if($obj->size())
 						{
-							?>
-								<div class="row full">
-									<div class="large-12 columns">
-										<h3>Permissões Custom</h3>
-									</div><!-- col -->
-								</div><!-- row -->
-								<div class="row full">
-									<div class="large-12 columns">
-										<table>
-											<tbody>
-											<?
-												do {
+							do {
+								$perms[$obj->nome] = $obj->nome;
+							} while($obj->fetch());
+						}
+						?>
+						<div class="row full">
+							<div class="large-12 columns">
+								<h3>Permissões custom</h3>
+							</div><!-- col -->
+						</div><!-- row -->
+						<div class="row full">
+							<div class="large-12 columns">
+								<table>
+									<tbody>
+										<?
+											if(is_array($perms))
+											{
+												sort($perms);
+												foreach($perms as $key => $value)
+												{
 													$perm = false;
-													$perm = perfilHasPermission($_GET["perfil"], $obj->nome);
+													$perm = perfilHasPermission($_GET["perfil"], $value);
 													?>
 													<tr>
-														<td style="width: 25%"><span class="header inline no-margin" id="permissao-custom-<?= $obj->nome ?>"><?= $obj->nome ?></span></td>
+														<td style="width: 20%"><span class="header inline no-margin" id="permissao-custom-<?= $value ?>"><?= $value ?></span></td>
 														<td>
-															<span class="item <?= ((perfilHasPermission($_GET['perfil'], $obj->nome))?(''):('off')) ?>"><input type="checkbox" rel="permissao-custom-<?= $obj->nome ?>" <?= $perm ? "CHECKED" : "" ?> value="<?= $obj->nome ?>" name="permission[<?= $obj->nome ?>]"></span>
+															<span class="item <?= ((perfilHasPermission($_GET['perfil'], $value))?(''):('off')) ?>"><input type="checkbox" rel="permissao-custom-<?= $value ?>" <?= $perm ? "CHECKED" : "" ?> value="<?= $value ?>" name="permission[<?= $value ?>]"></span>
 														</td>
 													</tr>
 													<?
-												} while($obj->fetch());
-											?>
-											</tbody>
-										</table>
-									</div>
-								</div><!-- row -->
-							<?
-						}
-					?>
+												}
+											}
+										?>
+									</tbody>
+								</table>
+							</div>
+						</div><!-- row -->
 				</div>
 				<div class="row full">
 					<div class="large-12 columns">

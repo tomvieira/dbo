@@ -1,7 +1,36 @@
-//função para mostrar e esconder as mensagens de erro/etc.
+
+//modificando o prototype de algumas classes
+Date.prototype.dateTime = function() {
+	var y = this.getFullYear().toString();
+	var m = (this.getMonth()+1).toString(); // getMonth() is zero-based
+	var d = this.getDate().toString();
+	var h = this.getHours().toString();
+	var i = this.getMinutes().toString();
+	return y + '-' + (m[1] ? m : '0'+m) + '-' + (d[1] ? d : '0'+d) + ' ' + (h[1] ? h : '0'+h) + ':' + (i[1] ? i : '0'+i);
+};
+
+Array.prototype.list = function()
+{
+	var 
+		limit = this.length,
+		orphans = arguments.length - limit,
+		scope = orphans > 0  && typeof(arguments[arguments.length-1]) != "string" ? arguments[arguments.length-1] : window 
+	;
+
+	while(limit--) scope[arguments[limit]] = this[limit];
+
+	if(scope != window) orphans--;
+
+	if(orphans > 0)
+	{
+		orphans += this.length;
+		while(orphans-- > this.length) scope[arguments[orphans]] = null;  
+	}  
+}
 
 var peixe_message_timer;
 var wrapper_peixe_message;
+var peixe_current_url = document.URL;
 
 function showPeixeMessage() {
 	clearTimeout(peixe_message_timer);
@@ -29,6 +58,41 @@ function slidePeixeMessageUp() {
 	}, 1500);
 }
 
+function peixeQueryString(obj){
+	ret = {};
+	if(obj){
+		parts = obj.split('&');
+		parts.forEach(function(foo) {
+			foo.split(/=(.*)/).list('key', 'value');
+			ret[key] = value;
+		});
+	}
+	return ret;
+}
+
+function keepUrl(foo, url) {
+	peixe_current_url.split('?').list('host', 'query_string');
+	query_string = peixeQueryString(query_string);
+	if(typeof foo != 'undefined' && foo.length){
+		vars = foo.split('&');
+		vars.forEach(function(foo2) {
+			if(foo2[0] == '!'){
+				delete query_string[foo2.replace('!', '')];
+			}
+			else {
+				foo2.split('=').list('k', 'v');
+				query_string[k] = v;
+			}
+		});
+	}
+	ar = [];
+	for(var key in query_string)
+	{
+		ar.push(key+'='+query_string[key]);
+	}
+	return host+(ar.length ? '?' : '')+ar.join('&');
+}
+
 function peixeJSON(action, args, callback, log, method, error_message) {
 	if(typeof method == 'undefined' || method == 'post'){
 		function_name = 'peixePost';
@@ -52,7 +116,8 @@ function peixeJSON(action, args, callback, log, method, error_message) {
 				}
 				if(result.reload){
 					var html = '';
-					peixeGet(document.URL, function(d) {
+					url = typeof result.reload_url == 'undefined' ? peixe_current_url : result.reload_url;
+					peixeGet(url, function(d) {
 						html = $.parseHTML(d);
 						result.reload.forEach(function(value) {
 							peixeReload(value, html);
@@ -83,7 +148,7 @@ function peixeJSON(action, args, callback, log, method, error_message) {
 					callback(result);
 				}
 				else if(typeof window[callback] == 'function'){
-					window[callback]();
+					window[callback](result);
 				}
 				else if(typeof callback == 'string'){
 					eval(callback);
@@ -255,7 +320,7 @@ function supportAjaxUploadWithProgress() {
 	}
 }
 
-function peixeAjaxFileUploadSingleFile(input_id, action) {
+function peixeAjaxFileUploadSingleFile(input_id, action, data) {
 
 	//console.log(action);
 	input = $('#'+input_id);
@@ -264,6 +329,11 @@ function peixeAjaxFileUploadSingleFile(input_id, action) {
 	// FormData only has the file
 	formData.append('peixe_ajax_file_upload_file', input[0].files[0]);
 
+	for(var prop in data) { 
+		if (data.hasOwnProperty(prop)) {
+			formData.append(prop, data[prop]);
+		}
+	}
 	// Code common to both variants
 	peixeAjaxFileUploadSendXHRequest(formData, action, input_id);
 }
@@ -330,13 +400,13 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 	}
 
 	if (readyState == 4 && status == '200' && evt.target.responseText) {
-		//console.log(evt.target.responseText);
+		console.log(evt.target.responseText);
 		var data = $.parseJSON(evt.target.responseText);
 		if(data.error){
 			//erro de qualquer natureza na hora do upload
-			container.find('.upload-progress').fadeOut();
-			container.find('.upload-sending').fadeOut(function(){
-				container.find('.upload-error').fadeIn().find('span').text(data.error);
+			container.find('.upload-progress').fadeOut('fast');
+			container.find('.upload-sending').fadeOut('fast', function(){
+				container.find('.upload-error').fadeIn('fast').find('span').text(data.error);
 			});
 			$("#"+evt.target.input_id).trigger('uploadCanceled', {});
 		}
@@ -344,14 +414,14 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 			//tudo ok, disparar evento
 			//var event = new CustomEvent('upload-done', { 'detail': { 'old_file_name': data.old_name, 'new_file_name': data.name } });
 			//$("#"+evt.target.input_id)[0].dispatchEvent(event);
-			$("#"+evt.target.input_id).trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name, data: data });
+			$("#"+evt.target.input_id).val('').trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name, data: data });
 
 			container.find('input[type="text"]').val(data.name);
 			container.find('.upload-sending').hide();
 			container.find('.upload-success').show();
-			container.find('.upload-success').fadeOut(function(){
-				container.find('.upload-progress').fadeOut(function(){
-					container.find('.upload-file-placeholder').fadeIn().find('.uploaded-file').text(data.old_name);
+			container.find('.upload-success').fadeOut('fast', function(){
+				container.find('.upload-progress').fadeOut('fast', function(){
+					container.find('.upload-file-placeholder').fadeIn('fast').find('.uploaded-file').text(data.old_name);
 				})
 			})
 		}
@@ -370,7 +440,7 @@ function peixeAjaxFileUploadRetry(input_id) {
 	container.find('.upload-error:visible').hide();
 	container.find('.upload-file-placeholder:visible').hide();
 	container.find('input[type="text"]').val('');
-	input.val('').fadeIn();
+	input.val('').fadeIn('fast');
 }
 
 function peixeAjaxFileUploadInit() {
@@ -400,6 +470,12 @@ function peixeMediaQuery() {
 	else {
 		return 'large';
 	}
+}
+
+function peixeUpdateCurrentUrl(url) {
+	peixe_current_url = url;
+	//console.log(url);
+	//window.history.pushState('', '', url);
 }
 
 function peixeInit() {
@@ -447,7 +523,7 @@ $(document).ready(function(){
 	$(document).on('change', '[peixe-ajax-file-upload]', function(){
 		input = $(this);
 		action = ((typeof input.data('action') != 'undefined')?(input.data('action')):('peixe-ajax-file-upload.php'));
-		peixeAjaxFileUploadSingleFile(input.attr('id'), action);
+		peixeAjaxFileUploadSingleFile(input.attr('id'), action, input.data());
 	});
 
 	//resetando o formulário quando dá algum erro de upload
@@ -460,7 +536,9 @@ $(document).ready(function(){
 		e.preventDefault();
 		var ans = confirm("Tem certeza que deseja remover este arquivo?");
 		if (ans==true) {
-			peixeAjaxFileUploadRetry($(this).closest('.peixe-ajax-upload-status').prev('input[type="file"]').attr('id'));
+			input = $(this).closest('.peixe-ajax-upload-status').prev('input[type="file"]');
+			peixeAjaxFileUploadRetry(input.attr('id'));
+			input.trigger('fileRemoved', {})
 		} 
 	});
 
@@ -537,8 +615,26 @@ $(document).ready(function(){
 		}
 	});
 
+	//alterando o current url para reloads e afins
+	$(document).on('click', '.peixe-current-url', function(e){
+		c = $(this);
+		peixeUpdateCurrentUrl((c.attr('href'))?(c.attr('href')):((c.data('url'))?(c.data('url')):(document.URL)));
+	});
+
+	$(document).on('click', '.peixe-reload', function(e){
+		e.preventDefault();
+		c = $(this);
+		peixeUpdateCurrentUrl(c.data('keep-url') ? keepUrl(c.data('keep-url')) : (c.attr('href'))?(c.attr('href')):((c.data('url'))?(c.data('url')):(document.URL)));
+		peixeGet(peixe_current_url, function(d){
+			d = $.parseHTML(d);
+			c.attr('peixe-reload').split(',').forEach(function(v){
+				peixeReload(v, d);
+			})
+		})
+	});
+
 	//colcando ajax loader e screen freezer
-	$('body:not(:has(.peixe-ajax-loader))').prepend('<div class="peixe-ajax-loader"><i class="fa-spinner fa-spin"></i> <span>Carregando...</span></div>');
+	$('body:not(:has(.peixe-ajax-loader))').prepend('<div class="peixe-ajax-loader"><i class="fa fa-spinner fa-spin"></i> <span>Carregando...</span></div>');
 	$('body:not(:has(.peixe-screen-freezer))').prepend('<div class="peixe-screen-freezer"></div>');
 	$('body:not(:has(.wrapper-message))').prepend('<div class="wrapper-message closed"></div>');
 

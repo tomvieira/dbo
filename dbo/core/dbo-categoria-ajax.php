@@ -1,6 +1,6 @@
 <?php 
 	require_once('../../lib/includes.php'); 
-	require_once(DBO_PATH.'/core/dbo-categoria-backend.php');
+	require_once(DBO_PATH.'/core/dbo-categoria-admin.php');
 	dboAuth('json');
 	CSRFCheckJson();
 
