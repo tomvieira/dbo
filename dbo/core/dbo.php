@@ -49,6 +49,76 @@ class Obj {}
 /*
 * ===============================================================================================================================================
 * ===============================================================================================================================================
+* Objeto para transformar qualquer atributo em objeto ===========================================================================================
+* ===============================================================================================================================================
+* ===============================================================================================================================================
+*/
+class DboFieldType {
+
+	var $value;
+	var $data;
+
+	function __construct($value, $det)
+	{
+		$this->value = $value;
+		$this->data = $det;
+	}
+
+	function value()
+	{
+		//para selects e radios
+		if($this->data->tipo == 'select' || $this->data->tipo == 'radio')
+		{
+			return $this->data->valores[$this->value];
+		}
+	}
+
+	function url($params = array())
+	{
+		extract($params);
+
+		//checa qual o tipo de midia
+		if($this->data->tipo == 'media')
+		{
+			//se o usuário escolheu um tamanho
+			if($size)
+			{
+				$url = DBO_URL."/upload/dbo-media-manager/thumbs/".$size.'-'.$this->value;
+				$path = DBO_PATH."/upload/dbo-media-manager/thumbs/".$size.'-'.$this->value;
+			}
+			else
+			{
+				$url = DBO_URL."/upload/dbo-media-manager/".$this->value;
+				$path = DBO_PATH."/upload/dbo-media-manager/".$this->value;
+			}
+		}
+		//se o usuário pediu placeholder, verifica se o arquivo existe antes de mais nada.
+		if($placeholder !== false)
+		{
+			if(!file_exists($path))
+			{
+				$url = DBO_IMAGE_PLACEHOLDER;
+			}
+		}
+		return $url;
+	}
+
+	//retorna a tag img
+	function imagem($params = array())
+	{
+		extract($params);
+		return '<img src="'.$this->url($params).'" class="'.$classes.'" style="'.$styles.'">';
+	}
+
+	function imagemAjustada($params = array())
+	{
+		return imagemAjustada($this->url($params), $params);
+	}
+}
+
+/*
+* ===============================================================================================================================================
+* ===============================================================================================================================================
 * DBO ===========================================================================================================================================
 * ===============================================================================================================================================
 * ===============================================================================================================================================
@@ -249,18 +319,26 @@ class Dbo extends Obj
 			{
 				//removendo o _
 				$name = substr($name, 1);
-
-				//verificando se este join já está instanciado neste objeto.
-				if($this->__joins[$name])
+				
+				//verifica se é um join
+				$det = $this->getDetails($name);
+				if($det->tipo == 'join')
 				{
+					//verificando se este join já está instanciado neste objeto.
+					if($this->__joins[$name])
+					{
+						return $this->__joins[$name];
+					}
+
+					//se não estava, tem que instanciar.
+					$module = $this->getJoinModule($name, false);
+					$this->__joins[$name] = new $module($this->__data[$name]);
 					return $this->__joins[$name];
 				}
-
-				//se não estava, tem que instanciar.
-				$module = $this->getJoinModule($name, false);
-				$this->__joins[$name] = new $module($this->__data[$name]);
-				return $this->__joins[$name];
-				
+				else
+				{
+					return new DboFieldType($this->{$name}, $det);
+				}
 			}
 			elseif($this->hasField($name))
 			{
