@@ -786,6 +786,7 @@
 	function peixeAjaxFileUploadInput($name, $id, $tipo = 'required', $db_data = '', $params = array())
 	{
 		extract($params);
+		$data_attributes = $data_attributes !== null ? $data_attributes : array(); 
 		//se houver arquivo setado, mostra a estrutura do peixelaranja pronta.
 		if(strlen(trim($db_data)))
 		{

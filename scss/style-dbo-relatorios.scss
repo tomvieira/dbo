@@ -49,15 +49,15 @@ a.alert { color: $alert-color; font-weight: bold; }
 .page-break-after, .page-break { page-break-after: always; }
 .page-break-avoid { page-break-inside: avoid; }
 .cutter { border-top: 1px dashed #000; height: 0; margin-bottom: 1cm; }
-.button-print { background: #333; text-align: center; position: fixed; top: -60px; right: 10px; color: #fff; padding: 10px 20px; border-radius: 10px; cursor: pointer; z-index: 1000; @include transition(all .15s ease 0s);
+.button-print { background: #333; text-align: center; position: fixed; top: -60px; right: 60px; color: #fff; padding: 10px 20px; border-radius: 10px; cursor: pointer; z-index: 1000; @include transition(all .15s ease 0s);
 	i { display: block; margin: 0 auto; font-size: 50px; line-height: 50px; }
 	&:hover { color: #fff; background: #000; top: 10px; }
 }
 
 @media print {
 	.no-print { display: none; }
-	body { padding: 0; }
-	p { font-size: emCalc(12); }
+	body { padding: 0; font-family: Arial, Sans-serif; }
+	p { font-size: emCalc(12); line-height: 1.5; }
 	table {
 		thead tr th { font-size: emCalc(10); }
 		tr {

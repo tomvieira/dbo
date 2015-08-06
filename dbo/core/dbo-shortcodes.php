@@ -422,4 +422,21 @@ function scBotao($atts, $content = null) {
 }
 dboAddShortcode('botao','scBotao');
 
+//criação de helpers no meio do texto
+function scHelper($atts, $content = null) {
+	extract(dboShortcodeAtts(array(
+		'max_width' => '100%', //default atts values
+		'arrow' => false,
+		'classes' => false,
+		'styles' => false,
+	), $atts));
+
+	ob_start();
+	?>
+	<div class="helper <?= $arrow ? 'arrow-'.$arrow : '' ?> <?= $classes ?>" style="<?= $max_width ? 'max-width: '.$max_width.';' : '' ?> <?= $styles ?>"><?= $content ?></div>
+	<?php
+	return ob_get_clean();
+}
+dboAddShortcode('helper','scHelper');
+
 //end of shortcodes.php
