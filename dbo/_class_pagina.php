@@ -219,6 +219,22 @@ if(!class_exists('pagina'))
 			{
 				pagina::paginaEngine();
 			}
+			elseif(thisPage().".php" == PAGINA_ADMIN_FILE && $_GET['dbo_mod'] == 'pagina' && $_GET['dbo_new'] == 1)
+			{
+				pagina::redirecionarParaNovaPagina();
+			}
+		}
+
+		static function redirecionarParaNovaPagina()
+		{
+			require_once(DBO_PATH.'/core/dbo-pagina-admin.php');
+			$pag = paginaCriarRascunhoAutomatico(array(
+				'created_by' => loggedUser(),
+				'tipo' => $_GET['dbo_pagina_tipo'],
+			));
+			//hedirecionando para a página nova
+			header("Location: ".PAGINA_ADMIN_FILE.'?dbo_mod=pagina&dbo_pagina_tipo='.$pag->tipo.'&dbo_update='.$pag->id);
+			exit();
 		}
 
 		static function paginaEngine()
@@ -297,7 +313,8 @@ if(!class_exists('pagina'))
 					".$this->getTable()."
 					".((!hasPermission('all', 'pagina-'.$tipo))?(" AND autor = '".loggedUser()."'"):(''))."
 				WHERE
-					tipo = '".$tipo."'
+					tipo = '".$tipo."' AND
+					status <> 'rascunho-automatico'
 				GROUP BY
 					status
 			";
@@ -449,6 +466,10 @@ if(!class_exists('pagina'))
 					$pag = new pagina($id);
 					if(hasPermission('delete', 'pagina-'.$pag->tipo) && (hasPermission('all', 'pagina-'.$pag->tipo) || $pag->autor == loggedUser()))
 					{
+						if($pag->hasExtensionModule())
+						{
+							$pag->deleteExtensionModule();
+						}
 						$pag->forceDelete();
 						if($single)
 						{
@@ -489,6 +510,44 @@ if(!class_exists('pagina'))
 				}
 			}
 			return $nro_restaurados;
+		}
+
+		static function excluirNaoSalvos($params = array())
+		{
+			global $_system;
+			extract($params);
+			$pag = new pagina();
+			$sql = "
+				SELECT id, tipo FROM ".$pag->getTable()." WHERE status = 'rascunho-automatico' AND created_by = '".$created_by."' AND tipo = '".$tipo."';
+			";
+			$pag->query($sql);
+			if($pag->size())
+			{
+				do {
+					if($pag->hasExtensionModule())
+					{
+						$pag->deleteExtensionModule();
+					}
+					$pag->forceDelete();
+				}while($pag->fetch());
+			}
+		}
+
+		function hasExtensionModule()
+		{
+			global $_system;
+			return $_system['pagina_tipo'][$this->tipo]['extension_module'];
+		}
+
+		function deleteExtensionModule()
+		{
+			global $_system;
+			$ext = $_system['pagina_tipo'][$this->tipo]['extension_module'];
+			$ext = new $ext("WHERE pagina = '".$this->id."'");
+			if($ext->size())
+			{
+				$ext->forceDelete();
+			}
 		}
 
 		static function renderMenuAdminStructure($pagina_tipo)
@@ -672,6 +731,7 @@ if(!class_exists('pagina'))
 
 //definindo o nome padrão para o arquivo de processamento de página
 define(PAGINA_ENGINE_FILE, 'pagina.php');
+define(PAGINA_ADMIN_FILE, 'dbo_admin.php');
 
 //funções para templating
 function pagina()

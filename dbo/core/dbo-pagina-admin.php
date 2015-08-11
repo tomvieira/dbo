@@ -6,6 +6,36 @@
 		global $hooks;
 		global $_pes;
 
+		$iniciar_editor = false;
+		?>
+		<script>
+			var iniciar_editor = false;
+		
+			function trocaEditor() {
+				if(iniciar_editor == false){
+					editorInit();
+					iniciar_editor = true;
+					$('#ed_toolbar_texto').hide();
+				}
+				else {
+					var ed = tinymce.activeEditor;
+					if(ed && ed.isHidden()){
+						ed.show();
+						$('#ed_toolbar_texto').hide();
+					}
+					else {
+						mce_container = $(ed.getContainer());
+						code_container = $('#texto');
+						code_container.height(mce_container.height()-100);
+						$('#ed_toolbar_texto').show();
+						ed.hide();
+					}
+				}
+			}
+
+		</script>
+		<?php
+
 		extract($params);
 
 		$operation = $pag->id ? 'update' : 'insert';
@@ -14,7 +44,7 @@
 
 		echo dboImportJs(array(
 			'scrolllock',
-			'colorbox',
+			'quicktags',
 		));
 
 		?>
@@ -31,7 +61,7 @@
 				<div class="large-9 columns">
 					<div class="row">
 						<div class="large-12 columns">
-							<h3><?= ($operation == 'update' ? 'Editar' : 'Adicionar nov'.$genero)." ".$titulo ?></h3>
+							<h3><?= ($pag->status != 'rascunho-automatico' ? 'Editar' : 'Adicionar nov'.$genero)." ".$titulo ?></h3>
 						</div>
 					</div>
 					
@@ -39,11 +69,11 @@
 			
 					<div class="row" id="wrapper-titulo">
 						<div class="large-12 columns">
-							<input type="text" name="titulo" id="pagina-titulo" data-generate_slug="<?= $operation == 'insert' ? 'true' : 'false' ?>" value="<?= $pag->titulo != '(sem título)' ? htmlSpecialChars($pag->titulo) : '' ?>" placeholder="Digite aqui o título" autofocus class="font-20" style="margin-bottom: 5px;"/>
+							<input type="text" name="titulo" id="pagina-titulo" data-generate_slug="<?= $pag->status == 'rascunho-automatico' ? 'true' : 'false' ?>" value="<?= $pag->titulo != '(sem título)' ? htmlSpecialChars($pag->titulo) : '' ?>" placeholder="Digite aqui o título" autofocus class="font-20" style="margin-bottom: 5px;"/>
 						</div>
 					</div>
 
-					<div class="row" style="<?= $operation == 'insert' ? 'opacity: 0;' : '' ?>" id="wrapper-pagina-slug">
+					<div class="row" style="<?= $pag->status == 'rascunho-automatico' ? 'opacity: 0;' : '' ?>" id="wrapper-pagina-slug">
 						<div class="large-12 columns">
 							<div class="font-12">
 								<span class="color medium">Link permanente: <?= SITE_URL ?>/</span><span id="wrapper-slug-view"><strong id="slug-label" class="color" style="padding-right: 7px;"><?= $pag->slug ?></strong><span class="button radius secondary no-margin tiny font-10 trigger-slug-edit">EDITAR</span></span><span id="wrapper-slug-edit" style="display: none;"><input type="text" name="slug" id="pagina-slug" value="<?= $pag->slug ?>" data-slug_atual="<?= $pag->slug ?>" style="width: auto; display: inline-block; height: 21px;" class="no-margin"/> <span class="button radius secondary no-margin tiny font-10 trigger-slug-save">SALVAR</span> <a href="" class="underline trigger-slug-edit" style="position: relative; left: 5px;">cancelar</a></span>
@@ -66,23 +96,28 @@
 			
 					<div class="row">
 						<div class="large-6 columns">
-							<span class="button small secondary trigger-colorbox-modal" data-width="100%" data-height="100%" data-url="dbo-media-manager.php?dbo_modal=1&modulo=pagina&modulo_id=<?= $pag->id ?>&destiny=tinymce&external_button=1" data-transition="none" data-fadeout="1" style="margin-bottom: 5px;"><i class="fa fa-fw fa-image top-1"></i> Adicionar mídia</span>
+							<span class="ed_button font-14 trigger-colorbox-modal" data-width="100%" data-height="100%" data-url="dbo-media-manager.php?dbo_modal=1&modulo=pagina&modulo_id=<?= $pag->id ?>&destiny=tinymce&external_button=1" data-transition="none" data-fadeout="1"><i class="fa fa-fw fa-image top-1"></i> Adicionar mídia</span>
 						</div>
 						<div class="large-6 columns">
 							<dl class="sub-nav right no-margin top-9">
-								<dd class="active"><a href="#" tabindex="-1" class="trigger-editor-visual">Visual</a></dd>
-								<dd><a href="#" tabindex="-1" class="trigger-editor-codigo">Código</a></dd>
+								<dd class="<?= $iniciar_editor ? 'active' : '' ?>"><a href="#" tabindex="-1" class="trigger-editor-visual">Visual</a></dd>
+								<dd class="<?= $iniciar_editor ? '' : 'active' ?>"><a href="#" tabindex="-1" class="trigger-editor-codigo">Código</a></dd>
 							</dl>
 						</div>
 					</div>
 			
 					<div class="row">
 						<div class="large-12 columns">
+							<script>edToolbar('texto', {
+								styles: (!iniciar_editor ? '' : 'display: none;'),
+							})
+								console.log(iniciar_editor);		
+							</script>
 							<?= $pag->getFormElement($operation, 'texto', array(
-								'classes' => 'editor',
-								'styles' => 'height: 300px; opacity: 0;',
+								'classes' => 'editor code-editor',
+								'styles' => ($iniciar_editor ? 'height: 300px; opacity: 0;' : 'height: 600px;'),
 								'input_id' => 'texto',
-								'edit_function' => 'dboAutop',
+								//'edit_function' => ($iniciar_editor ? 'dboAutop' : null),
 								'init_js' => false,
 							)) ?>
 							<textarea name="texto_codigo" id="texto-codigo" spellcheck='false' class="code-editor" style="display: none;"></textarea>
@@ -233,7 +268,7 @@
 										<div class="row" id="">
 											<div class="large-6 columns">
 												<?
-													if($operation == 'update' && $pag->status != 'lixeira')
+													if($pag->status != 'rascunho-automatico' && $pag->status != 'lixeira')
 													{
 														?>
 														<a href="#" class="top-9"><i class="fa-trash font-14 fa-fw"></i> Lixeira</a>
@@ -243,7 +278,7 @@
 											</div>
 											<div class="large-6 columns text-right">
 												<?
-													if(!$pag->status || $pag->status == 'rascunho' || $pag->status == 'pendente' || $pag->status == 'lixeira')
+													if(!$pag->status || $pag->status == 'rascunho' || $pag->status == 'rascunho-automatico' || $pag->status == 'pendente' || $pag->status == 'lixeira')
 													{
 														?>
 														<span data-status="publicado" id="button-publicar" class="button radius no-margin trigger-form-submit" accesskey="s">Publicar</span>
@@ -309,97 +344,15 @@
 				}, null, true);
 			}
 
-			function autop (pee) {
-				var preserve_linebreaks = false
-				var preserve_br = false
-				var blocklist = 'table|thead|tfoot|caption|col|colgroup|tbody|tr|td|th|div|dl|dd|dt|ul|ol|li|pre' +
-							'|form|map|area|blockquote|address|math|style|p|h[1-6]|hr|fieldset|legend|section' +
-							'|article|aside|hgroup|header|footer|nav|figure|figcaption|details|menu|summary'
-
-				if (pee.indexOf('<object') !== -1) {
-					pee = pee.replace(/<object[\s\S]+?<\/object>/g, function (a) {
-						return a.replace(/[\r\n]+/g, '')
-					})
-				}
-
-				pee = pee.replace(/<[^<>]+>/g, function (a) {
-					return a.replace(/[\r\n]+/g, ' ')
-				})
-
-				// Protect pre|script tags
-				if (pee.indexOf('<pre') !== -1 || pee.indexOf('<script') !== -1) {
-					preserve_linebreaks = true
-					pee = pee.replace(/<(pre|script)[^>]*>[\s\S]+?<\/\1>/g, function (a) {
-						return a.replace(/(\r\n|\n)/g, '<wp-line-break>')
-					})
-				}
-
-				// keep <br> tags inside captions and convert line breaks
-				if (pee.indexOf('[caption') !== -1) {
-					preserve_br = true
-					pee = pee.replace(/\[caption[\s\S]+?\[\/caption\]/g, function (a) {
-						// keep existing <br>
-						a = a.replace(/<br([^>]*)>/g, '<wp-temp-br$1>')
-						// no line breaks inside HTML tags
-						a = a.replace(/<[a-zA-Z0-9]+( [^<>]+)?>/g, function (b) {
-							return b.replace(/[\r\n\t]+/, ' ')
-						})
-						// convert remaining line breaks to <br>
-						return a.replace(/\s*\n\s*/g, '<wp-temp-br />')
-					})
-				}
-
-				pee = pee + '\n\n'
-				pee = pee.replace(/<br \/>\s*<br \/>/gi, '\n\n')
-				pee = pee.replace(new RegExp('(<(?:' + blocklist + ')(?: [^>]*)?>)', 'gi'), '\n$1')
-				pee = pee.replace(new RegExp('(</(?:' + blocklist + ')>)', 'gi'), '$1\n\n')
-				pee = pee.replace(/<hr( [^>]*)?>/gi, '<hr$1>\n\n') // hr is self closing block element
-				pee = pee.replace(/\s*<option/gi, '<option') // No <p> or <br> around <option>
-				pee = pee.replace(/<\/option>\s*/gi, '</option>')
-				pee = pee.replace(/\r\n|\r/g, '\n')
-				pee = pee.replace(/\n\s*\n+/g, '\n\n')
-				pee = pee.replace(/([\s\S]+?)\n\n/g, '<p>$1</p>\n')
-				pee = pee.replace(/<p>\s*?<\/p>/gi, '')
-				pee = pee.replace(new RegExp('<p>\\s*(</?(?:' + blocklist + ')(?: [^>]*)?>)\\s*</p>', 'gi'), '$1')
-				pee = pee.replace(/<p>(<li.+?)<\/p>/gi, '$1')
-				pee = pee.replace(/<p>\s*<blockquote([^>]*)>/gi, '<blockquote$1><p>')
-				pee = pee.replace(/<\/blockquote>\s*<\/p>/gi, '</p></blockquote>')
-				pee = pee.replace(new RegExp('<p>\\s*(</?(?:' + blocklist + ')(?: [^>]*)?>)', 'gi'), '$1')
-				pee = pee.replace(new RegExp('(</?(?:' + blocklist + ')(?: [^>]*)?>)\\s*</p>', 'gi'), '$1')
-				pee = pee.replace(/\s*\n/gi, '<br />\n')
-				pee = pee.replace(new RegExp('(</?(?:' + blocklist + ')[^>]*>)\\s*<br />', 'gi'), '$1')
-				pee = pee.replace(/<br \/>(\s*<\/?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)/gi, '$1')
-				pee = pee.replace(/(?:<p>|<br ?\/?>)*\s*\[caption([^\[]+)\[\/caption\]\s*(?:<\/p>|<br ?\/?>)*/gi, '[caption$1[/caption]')
-
-				pee = pee.replace(/(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)<\/p>/g, function (a, b, c) {
-					if (c.match(/<p( [^>]*)?>/)) {
-						return a
-					}
-
-					return b + '<p>' + c + '</p>'
-				})
-
-				// put back the line breaks in pre|script
-				if (preserve_linebreaks) {
-					pee = pee.replace(/<wp-line-break>/g, '\n')
-				}
-
-				if (preserve_br) {
-					pee = pee.replace(/<wp-temp-br([^>]*)>/g, '<br$1>')
-				}
-
-				return pee
-			}
-
-			function updateVisualEditor() {
+			/*function updateVisualEditor() {
 				mce_container = $(tinyMCE.activeEditor.getContainer());
 				code_container = $('#texto-codigo');
 
 				html_code = autop(code_container.val());
 				tinyMCE.activeEditor.setContent(html_code);
-			}
+			}*/
 
-			function updateCodeEditor() {
+			/*function updateCodeEditor() {
 				mce_container = $(tinyMCE.activeEditor.getContainer());
 				code_container = $('#texto-codigo');
 				//console.log(tinyMCE.activeEditor.getHeight());
@@ -414,7 +367,7 @@
 				clean_code = clean_code.replace(/>\n</gim,">__dbo-line-break-flag__<");
 				clean_code = clean_code.replace(/>\n(\S)/gim,">\n\n$1");
 				clean_code = clean_code.replace(/__dbo-line-break-flag__/gim,"\n");
-			}
+			}*/
 
 			$(document).ready(function(){
 
@@ -523,15 +476,13 @@
 					e.preventDefault();
 					c = $(this);
 					dd = c.closest('dd');
-					dd.closest('dl').find('dd.active').removeClass('active');
 					if(dd.hasClass('active')){
 						return;
 					}
 					else {
+						dd.closest('dl').find('dd.active').removeClass('active');
 						dd.addClass('active');
-						updateCodeEditor();
-						code_container.val(clean_code).show().css('opacity', 1);
-						code_container.focus();
+						trocaEditor();
 					}
 				});
 
@@ -539,19 +490,17 @@
 					e.preventDefault();
 					c = $(this);
 					dd = c.closest('dd');
-					dd.closest('dl').find('dd.active').removeClass('active');
 					if(dd.hasClass('active')){
 						return;
 					}
 					else {
+						dd.closest('dl').find('dd.active').removeClass('active');
 						dd.addClass('active');
-						updateVisualEditor();
-						mce_container.show();
-						code_container.hide();
+						trocaEditor();
 					}
 				});
 
-				$(document).delegate('#texto-codigo', 'keydown', function(e) {
+				$(document).delegate('.code-editor', 'keydown', function(e) {
 					var keyCode = e.keyCode || e.which;
 
 					if (keyCode == 9) {
@@ -572,7 +521,8 @@
 
 				setTimeout(function(){
 					$('#texto_ifr').scrollLock();
-					$('#texto-codigo').scrollLock();
+					//$('#texto-codigo').scrollLock();
+					$('#texto').scrollLock();
 				}, 1000);
 
 			}) //doc.ready
@@ -676,6 +626,15 @@
 				//listagem
 				if(!$_GET['dbo_new'] && !$_GET['dbo_update'])
 				{
+					//removendo todos os rascunho automaticos do usuário ativo
+					if($_GET['pagina_status'] == 'lixeira')
+					{
+						pagina::excluirNaoSalvos(array(
+							'tipo' => $_GET['dbo_pagina_tipo'],
+							'created_by' => loggedUser(),
+						));
+					}
+
 					meta::set('listagem_options_'.$tipo, json_encode(array(
 						'titulo' => true,
 						'descricao' => true,
@@ -726,6 +685,7 @@
 										tipo = '".$tipo."'
 										".$sql_part_status."
 										".$sql_part_search."
+										AND pag.status != 'rascunho-automatico'
 									GROUP BY mes
 									ORDER BY mes DESC;
 								";
@@ -752,6 +712,7 @@
 										".$sql_part_status."
 										".$sql_part_data."
 										".$sql_part_search."
+										AND pag.status != 'rascunho-automatico'
 									ORDER BY
 										".($_GET['order_by'] ? dboescape($_GET['order_by']) : $order_by)." ".($_GET['order'] ? dboescape($_GET['order']) : $order)."
 								";
@@ -1133,26 +1094,27 @@
 							"save advlist lists link image charmap preview hr anchor pagebreak",
 							"searchreplace wordcount visualblocks visualchars code fullscreen",
 							"media nonbreaking save table contextmenu directionality",
-							"emoticons template paste textcolor dbo_media_manager dbo_column_manager autoresize"
+							"emoticons template paste textcolor dbo_media_manager dbo_column_manager autoresize dbo_editor"
 						],
 						toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | dbo_column_manager | link media dbo_media_manager | fullscreen"
 					})
 				})
+				$('#texto').animate({ opacity: 1 }, 50).attr('spellcheck', false);
 			}
 
 			function paginaInit() {
-				editorInit();
-
 				if(typeof dboInit == 'function'){
 					dboInit();
 				}
-
 				peixeInit();
 			}
 
 			$(document).ready(function(){
 
 				paginaInit();
+				if(typeof iniciar_editor !== 'undefined' && iniciar_editor){
+					editorInit();
+				}
 
 			}) //doc.ready
 
@@ -1161,6 +1123,36 @@
 		</script>
 		<?
 		return ob_get_clean();
+	}
+
+	function paginaCriarRascunhoAutomatico($params = array())
+	{
+		global $hooks;
+		extract($params);
+
+		$pag = pagina::smartLoad(array(
+			'tipo' => $tipo,
+		));
+
+		$pag->setAutoFields();
+
+		$pag->tipo = $tipo;
+		$pag->titulo = '(sem título)';
+		//$pag->data = !strlen(trim($_POST['data'])) ? $pag->now() : $pag->data;
+		$pag->status = 'rascunho-automatico';
+		$pag->autor = loggedUser();
+
+		//hook que faz alterações no objeto logo antes do save/update
+		$pag = $hooks->apply_filters('dbo_pagina_pre_save', $pag);
+		$pag = $hooks->apply_filters('dbo_pagina_'.$tipo.'_pre_save', $pag);
+
+		$pag->saveOrUpdate();
+		if($pag->mais())
+		{
+			$pag->mais()->saveOrUpdate();
+		}
+
+		return $pag;
 	}
 
 ?>

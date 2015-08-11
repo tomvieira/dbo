@@ -107,6 +107,11 @@
 			$return .= "<script src=\"".$js_url."/jquery.maskedinput.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "maskedinput";
 		}
+		if(!in_array("quicktags", $_system['dbo_imported_js']) && (in_array("quicktags", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/quicktags.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "quicktags";
+		}
 		if(!in_array("mousewheel", $_system['dbo_imported_js']) && (in_array("mousewheel", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.mousewheel.js\"></script>\n";

@@ -84,7 +84,7 @@
 			$pag->autor = hasPermission('admin', 'pagina-'.$tipo) && $_POST['autor'] ? $_POST['autor'] : loggedUser();
 
 			//Fazendo o unautop do conteudo da página
-			$pag->texto = dboUnautop($pag->texto);
+			//$pag->texto = dboUnautop($pag->texto);
 
 			//hook que faz alterações no objeto logo antes do save/update
 			$pag = $hooks->apply_filters('dbo_pagina_pre_save', $pag);

@@ -75,7 +75,7 @@ class dboUI
 		elseif($field_type == 'textarea-rich')
 		{
 			?>
-			<textarea rows="<?= (($rows)?($rows):('5')) ?>" name="<?= $name ?>" class="<?= (($required)?('required'):(''))." ".(($classes)?($classes):('tinymce')) ?>" id="<?= $input_id ? $input_id : $operation.'-'.$name ?>" data-name="<?= $titulo ?>" style="<?= $styles ? $styles : 'opacity: 0; margin-bottom: 179px;' ?>"><?= (($edit_function)?($edit_function($value)):($value)) ?></textarea>
+			<textarea rows="<?= (($rows)?($rows):('5')) ?>" name="<?= $name ?>" class="<?= (($required)?('required'):(''))." ".(($classes)?($classes):('tinymce')) ?>" id="<?= $input_id ? $input_id : $operation.'-'.$name ?>" data-name="<?= $titulo ?>" style="<?= $styles ? $styles : 'opacity: 0; margin-bottom: 179px;' ?>"><?= (($edit_function)?($edit_function(htmlSpecialChars($value))):(htmlSpecialChars($value))) ?></textarea>
 			<?
 			if($init_js !== false)
 			{

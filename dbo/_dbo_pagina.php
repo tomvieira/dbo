@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 04/08/2015 01:25:32 */
+/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 07/08/2015 14:31:34 */
 /* ================================================================================================================== */
 
 
@@ -371,6 +371,7 @@ $field->interaction = '';
 $field->default_value = 'publicado';
 $field->tipo = 'select';
 $field->valores = array(
+	'rascunho-automatico' => 'Não salvo',
 	'publicado' => 'Publicado',
 	'agendado' => 'Agendado',
 	'rascunho' => 'Rascunho',
