@@ -130,6 +130,7 @@
 			<div class="row full">
 				<div class="large-12 columns">
 					<h3>Módulos</h3>
+					<p class="color medium font-14">As permissões desta seção dão acesso aos formulários de cadastro automáticos dos módulos sistema.<br />Elas também valem para módulos que são extensões de páginas.</p>
 				</div><!-- col -->
 			</div><!-- row -->
 			
@@ -138,6 +139,9 @@
 					<div class="row full">
 						<div class="large-12 columns">
 							<table>
+								<thead>
+									<th colspan="2"></th>
+								</thead>
 								<tbody>
 								<?
 									foreach($modulos_array as $modulo)
@@ -188,11 +192,15 @@
 							<div class="row full">
 								<div class="large-12 columns">
 									<h3>Tipos de página</h3>
+									<p class="color medium font-14">As permissões desta seção dão acesso aos tipos específicos de página. Por padrão somente o tipo "Página" está definido.<br />Os demais tipos devem ser configurados no arquivo de defines.</p>
 								</div>
 							</div>
 							<div class="row full">
 								<div class="large-12 columns">
 									<table>
+										<thead>
+											<th colspan="2"></th>
+										</thead>
 										<tbody>
 											<?
 												foreach($_system['pagina_tipo'] as $pagina_tipo)
@@ -224,7 +232,7 @@
 
 						//custom menus
 						$cm = dboCustomMenus();
-						if(sizeof($cm))
+						if(sizeof($cm) && 1==2)
 						{
 							?>
 							<div class="row full">
@@ -235,6 +243,9 @@
 							<div class="row full">
 								<div class="large-12 columns">
 									<table>
+										<thead>
+											<th colspan="2"></th>
+										</thead>
 										<tbody>
 											<tr>
 											<?
@@ -263,25 +274,36 @@
 							<?
 						}
 
-						$perms = (array)($_system['module_permissoes_custom']);
-						
+						$perms_raw = (array)($_system['module_permissoes_custom']);
+						foreach($perms_raw as $value)
+						{
+							list($permissao, $ajuda) = explode(" | ", $value);
+							$perms[$permissao] = $permissao;
+							$perms_ajuda[$permissao] = $ajuda;
+						}
+
 						$obj = new dbo('permissao');
 						$obj->loadAll('ORDER BY nome');
 						if($obj->size())
 						{
 							do {
 								$perms[$obj->nome] = $obj->nome;
+								$perms_ajuda[$obj->nome] = $obj->ajuda;
 							} while($obj->fetch());
 						}
 						?>
 						<div class="row full">
 							<div class="large-12 columns">
 								<h3>Permissões custom</h3>
+								<p class="color medium font-14">Permissões customizadas podem ser usadas cadastradas no sistema ou definidas por módulos específicos.<br />São usadas para diversos fins na lógica do sistema.</p>
 							</div><!-- col -->
 						</div><!-- row -->
 						<div class="row full">
 							<div class="large-12 columns">
 								<table>
+									<thead>
+										<th colspan="2"></th>
+									</thead>
 									<tbody>
 										<?
 											if(is_array($perms))
@@ -296,6 +318,7 @@
 														<td style="width: 20%"><span class="header inline no-margin" id="permissao-custom-<?= $value ?>"><?= $value ?></span></td>
 														<td>
 															<span class="item <?= ((perfilHasPermission($_GET['perfil'], $value))?(''):('off')) ?>"><input type="checkbox" rel="permissao-custom-<?= $value ?>" <?= $perm ? "CHECKED" : "" ?> value="<?= $value ?>" name="permission[<?= $value ?>]"></span>
+															<span class="color medium font-12"><?= $perms_ajuda[$value] ?></span>
 														</td>
 													</tr>
 													<?

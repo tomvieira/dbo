@@ -138,4 +138,32 @@ $(document).ready(function(){
 		}
 	});
 
+	//Settings boxes
+	$(document).on('click', '.toggle-settings-box', function(){
+		c = $(this);
+		t = $('#'+c.data('settings-box'));
+		if(t.is(':visible')){
+			t.slideUp('fast', 'easeInCubic');
+		}
+		else {
+			t.slideDown('fast', 'easeOutCubic');
+		}
+	});
+
+	//Preferences
+	$(document).on('click', '.set-dbo-pref', function(e){
+		c = this;
+		mk = (typeof c.dataset.meta_key !== undefined ? c.dataset.meta_key : null);
+		jk = c.dataset.pref_key;
+		jv = c.dataset.pref_value;
+		peixeJSONSilent(DBO_URL+'/core/dbo-meta-ajax.php?action=set-pref', {
+			meta_key: mk,
+			json_key: jk,
+			json_value: jv
+		}, null, true);
+		if(typeof c.dataset.toggle !== undefined){
+			c.dataset.pref_value = jv == 'true' ? 'false' : 'true';
+		}
+	});
+
 });

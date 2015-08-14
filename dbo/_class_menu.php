@@ -56,7 +56,7 @@ if(!class_exists('menu'))
 			ob_start();
 			if($item['tipo'] == 'pagina' || $item['tipo'] == 'categoria')
 			{
-				?><li class="<?= ((is_array($item['children']))?('has-dropdown'):('')) ?> <?= $item['slug'] == $active_slug ? 'active' : '' ?>"><a href="<?= SITE_URL.($item['slug'] != 'home' ? '/'.$item['slug'] : ($hide_home ? '' : '/'.$item['slug'])) ?>"><?= $item['prepend'] ?><span><?= $item['titulo'] ?></span><?= $item['append'] ?></a><?
+				?><li class="<?= trim((is_array($item['children']) ? 'has-dropdown' : '').' '.($item['slug'] == $active_slug ? 'active' : '').' '.$item['classes']) ?> slug-<?= $item['slug'] ?>"><a href="<?= SITE_URL.($item['slug'] != 'home' ? '/'.$item['slug'] : ($hide_home ? '' : '/'.$item['slug'])) ?>"><?= $item['prepend'] ?><span><?= $item['titulo'] ?></span><?= $item['append'] ?></a><?
 				if(is_array($item['children']))
 				{
 					echo '<ul class="dropdown">';

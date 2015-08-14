@@ -93,7 +93,11 @@ function keepUrl(foo, url) {
 	return host+(ar.length ? '?' : '')+ar.join('&');
 }
 
-function peixeJSON(action, args, callback, log, method, error_message) {
+function peixeJSONSilent(action, args, callback, log, method, error_message, mode) {
+	return peixeJSON(action, args, callback, log, method, error_message, 'silent');
+}
+
+function peixeJSON(action, args, callback, log, method, error_message, mode) {
 	if(typeof method == 'undefined' || method == 'post'){
 		function_name = 'peixePost';
 	}
@@ -122,7 +126,7 @@ function peixeJSON(action, args, callback, log, method, error_message) {
 						result.reload.forEach(function(value) {
 							peixeReload(value, html);
 						});
-					})
+					}, null, mode)
 				}
 				if(result.html){
 					for(var key in result.html)
@@ -160,7 +164,8 @@ function peixeJSON(action, args, callback, log, method, error_message) {
 					alert(e); //error in the above string(in this case,yes)!
 				}
 			}
-		}
+		},
+		mode
 	)
 	return false;
 }
@@ -279,14 +284,14 @@ function hidePeixeLoader() {
 }
 
 //funciona igual ao .post() de jQuery, mas com loader
-function peixePost(url, args, callback) {
-	showPeixeLoader();
+function peixePost(url, args, callback, mode) {
+	if(mode != 'silent') showPeixeLoader(); 
 	$.post(url,args,callback).complete(function(){ hidePeixeLoader() });
 }
 
 //funciona igual ao .get() de jQuery, mas com loader
-function peixeGet(url, args, callback) {
-	showPeixeLoader();
+function peixeGet(url, args, callback, mode) {
+	if(mode != 'silent') showPeixeLoader(); 
 	$.get(url,args,callback).complete(function(){ hidePeixeLoader() });
 }
 
@@ -570,7 +575,15 @@ $(document).ready(function(){
 			}
 		}
 		if(!error){
-			peixeJSON(form.attr('action'), form.serialize(), '', ((typeof form.attr('peixe-log') != 'undefined')?(true):(false)), 'post', ((typeof form.data('json_error_message') != 'undefined')?(form.data('json_error_message').replace(/\\n/g, '\n')):(false)));
+			peixeJSON(
+				form.attr('action'), 
+				form.serialize(), 
+				'', 
+				(typeof form.attr('peixe-log') != 'undefined' ? true : false), 
+				'post', 
+				(typeof form.data('json_error_message') != 'undefined' ? form.data('json_error_message').replace(/\\n/g, '\n') : false),
+				(typeof form.attr('peixe-silent') != 'undefined' ? 'silent' : null)
+			);
 		}
 		return false;
 	});
@@ -588,7 +601,15 @@ $(document).ready(function(){
 			}
 		}
 		if(!error){
-			peixeJSON(clicado.attr('href'), '', ((typeof clicado.data('callback') != 'undefined')?(clicado.data('callback')):('')), ((typeof clicado.attr('peixe-log') != 'undefined')?(true):(false)), 'get', ((typeof clicado.data('json_error_message') != 'undefined')?(clicado.data('json_error_message').replace(/\\n/g, '\n')):(false)));
+			peixeJSON(
+				clicado.attr('href'), 
+				'', 
+				(typeof clicado.data('callback') != 'undefined' ? clicado.data('callback') : ''), 
+				(typeof clicado.attr('peixe-log') != 'undefined' ? true : false), 
+				'get', 
+				(typeof clicado.data('json_error_message') != 'undefined' ? clicado.data('json_error_message').replace(/\\n/g, '\n') : false),
+				(typeof clicado.attr('peixe-silent') != 'undefined' ? 'silent' : null)
+			);
 		}
 		return false;
 	});
@@ -630,7 +651,7 @@ $(document).ready(function(){
 			c.attr('peixe-reload').split(',').forEach(function(v){
 				peixeReload(v, d);
 			})
-		})
+		}, null, c.attr('peixe-silent') ? 'silent' : '')
 	});
 
 	//colcando ajax loader e screen freezer

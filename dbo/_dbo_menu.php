@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'menu' ======================================== AUTO-CREATED ON 24/07/2015 11:57:42 */
+/* DBO DEFINITION FILE FOR MODULE 'menu' ======================================== AUTO-CREATED ON 14/08/2015 16:58:53 */
 /* ================================================================================================================== */
 
 
@@ -21,7 +21,7 @@ $module->insert = 'Novo Menu';
 $module->preload_insert_form = true;
 $module->auto_view = true;
 $module->permissoes_custom = '
-	menu-avancado
+	menu-avancado | Permite o acesso a opções avançadas no gerenciados de menus, como appends de html.
 ';
 $module->bibliotecas_js = '
 	nestable

@@ -206,6 +206,37 @@ if(!class_exists('meta'))
 			return true;
 		}
 
+		static function setPreference($json_key, $value, $meta_key = null)
+		{
+			$meta_key = $meta_key === null ? 'global_preferences' : $meta_key;
+			$meta = new meta();
+			$meta->meta_key = $meta_key;
+			$meta->created_by = loggedUser();
+			$meta->loadAll();
+			$json = json_decode($meta->meta_value, true);
+			$json[$json_key] = $value;
+			$meta->meta_value = json_encode($json);
+			$meta->saveOrUpdate();
+		}
+
+		static function getPreference($json_key, $meta_key = null)
+		{
+			global $_system;
+
+			$meta_key = $meta_key === null ? 'global_preferences' : $meta_key;
+
+			if(!$_system['preferences'][loggedUser()][$meta_key])
+			{
+				$meta = new meta();
+				$meta->meta_key = $meta_key;
+				$meta->created_by = loggedUser();
+				$meta->loadAll();
+				$_system['preferences'][loggedUser()][$meta_key] = $meta;
+			}
+			$json = json_decode($_system['preferences'][loggedUser()][$meta_key]->meta_value, true);
+			return $json[$json_key];
+		}
+
 	} //class declaration
 } //if ! class exists
 

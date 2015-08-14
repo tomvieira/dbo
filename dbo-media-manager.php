@@ -132,7 +132,7 @@
 									<div class="inner-wrap">
 										<div class="text-center">
 											<div id="main-pic">
-												<img src="<?= $media_folder_url.$selected_file ?>?=<?= $img_token ?>" id="selected-image" data-width="<?= $width ?>" data-height="<?= $height ?>" data-file="<?= $selected_file ?>"/>
+												<img src="<?= $media_folder_url.$selected_file ?>?=<?= $img_token ?>" id="selected-image" data-width="<?= $width ?>" data-height="<?= $height ?>" data-file="<?= $selected_file ?>" style="background-color: #fff;"/>
 											</div>
 											<img src="<?= $media_folder_url.'thumbs/medium-'.$selected_file ?>?=<?= $img_token ?>" style="height: 0; width: 0; overflow: hidden;"/>
 											<img src="<?= $media_folder_url.'thumbs/large-'.$selected_file ?>?=<?= $img_token ?>" style="height: 0; width: 0; overflow: hidden;"/>

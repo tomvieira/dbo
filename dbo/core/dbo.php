@@ -2143,6 +2143,8 @@ class Dbo extends Obj
 	{
 		$this->__data = array();
 		$this->__iterator = 0;
+		$this->__ipp = null;
+		$this->__size = null;
 		$this->clearJoins();
 	}
 

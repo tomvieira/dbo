@@ -6,10 +6,10 @@
 		global $hooks;
 		global $_pes;
 
-		$iniciar_editor = false;
+		$iniciar_editor = meta::getPreference('editor_type') == 'codigo' ? false : true;
 		?>
 		<script>
-			var iniciar_editor = false;
+			var iniciar_editor = <?= $iniciar_editor ? 'true' : 'false' ?>;
 		
 			function trocaEditor() {
 				if(iniciar_editor == false){
@@ -56,7 +56,7 @@
 			#wrapper-categorias-da-pagina input[type="checkbox"] { margin-bottom: 8px; }
 		</style>
 
-		<form id="form-pagina" method="post" action="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=salvar-pagina&tipo='.$tipo.'&pagina_id='.$pag->id."&full_url=".base64_encode($pag->keepUrl())) ?>" peixe-log>
+		<form id="form-pagina" method="post" action="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=salvar-pagina&tipo='.$tipo.'&pagina_id='.$pag->id."&full_url=".base64_encode($pag->keepUrl())) ?>" peixe-log peixe-silent>
 			<div class="row almost full">
 				<div class="large-9 columns">
 					<div class="row">
@@ -67,21 +67,22 @@
 					
 					<? $hooks->do_action('dbo_'.$tipo.'_form_titulo_before', $pag, $params); ?>
 			
-					<div class="row" id="wrapper-titulo">
-						<div class="large-12 columns">
-							<input type="text" name="titulo" id="pagina-titulo" data-generate_slug="<?= $pag->status == 'rascunho-automatico' ? 'true' : 'false' ?>" value="<?= $pag->titulo != '(sem título)' ? htmlSpecialChars($pag->titulo) : '' ?>" placeholder="Digite aqui o título" autofocus class="font-20" style="margin-bottom: 5px;"/>
+					<div class="margin-bottom">
+						<div class="row" id="wrapper-titulo">
+							<div class="large-12 columns">
+								<input type="text" name="titulo" id="pagina-titulo" data-generate_slug="<?= $pag->status == 'rascunho-automatico' ? 'true' : 'false' ?>" value="<?= $pag->titulo != '(sem título)' ? htmlSpecialChars($pag->titulo) : '' ?>" placeholder="Digite aqui o título" autofocus class="font-20" style="margin-bottom: 5px;"/>
+							</div>
 						</div>
-					</div>
-
-					<div class="row" style="<?= $pag->status == 'rascunho-automatico' ? 'opacity: 0;' : '' ?>" id="wrapper-pagina-slug">
-						<div class="large-12 columns">
-							<div class="font-12">
-								<span class="color medium">Link permanente: <?= SITE_URL ?>/</span><span id="wrapper-slug-view"><strong id="slug-label" class="color" style="padding-right: 7px;"><?= $pag->slug ?></strong><span class="button radius secondary no-margin tiny font-10 trigger-slug-edit">EDITAR</span></span><span id="wrapper-slug-edit" style="display: none;"><input type="text" name="slug" id="pagina-slug" value="<?= $pag->slug ?>" data-slug_atual="<?= $pag->slug ?>" style="width: auto; display: inline-block; height: 21px;" class="no-margin"/> <span class="button radius secondary no-margin tiny font-10 trigger-slug-save">SALVAR</span> <a href="" class="underline trigger-slug-edit" style="position: relative; left: 5px;">cancelar</a></span>
+						<div class="row wrapper-pagina-field-slug" style="<?= $pag->status == 'rascunho-automatico' ? 'opacity: 0;' : '' ?> <?= $pag->hideFormField('slug') ? 'display: none;' : '' ?>" id="wrapper-pagina-slug">
+							<div class="large-12 columns">
+								<div class="font-12">
+									<span class="color medium">Link permanente: <?= SITE_URL ?>/</span><span id="wrapper-slug-view"><strong id="slug-label" class="color" style="padding-right: 7px;"><?= $pag->slug ?></strong><span class="button radius secondary no-margin tiny font-10 trigger-slug-edit">EDITAR</span></span><span id="wrapper-slug-edit" style="display: none;"><input type="text" name="slug" id="pagina-slug" value="<?= $pag->slug ?>" data-slug_atual="<?= $pag->slug ?>" style="width: auto; display: inline-block; height: 21px;" class="no-margin"/> <span class="button radius secondary no-margin tiny font-10 trigger-slug-save">SALVAR</span> <a href="" class="underline trigger-slug-edit" style="position: relative; left: 5px;">cancelar</a></span>
+								</div>
 							</div>
 						</div>
 					</div>
 
-					<div class="row" id="wrapper-subtitulo">
+					<div class="row wrapper-pagina-field-subtitulo" id="wrapper-subtitulo" style="<?= $pag->hideFormField('subtitulo') ? 'display: none;' : '' ?>">
 						<div class="large-12 columns">
 							<?= $pag->getFormElement($operation, 'subtitulo', array(
 								'placeholder' => 'Digite aqui o subtítulo',
@@ -94,33 +95,35 @@
 					
 					<? $hooks->do_action('dbo_'.$tipo.'_form_conteudo_before', $pag, $params); ?>
 			
-					<div class="row">
-						<div class="large-6 columns">
-							<span class="ed_button font-14 trigger-colorbox-modal" data-width="100%" data-height="100%" data-url="dbo-media-manager.php?dbo_modal=1&modulo=pagina&modulo_id=<?= $pag->id ?>&destiny=tinymce&external_button=1" data-transition="none" data-fadeout="1"><i class="fa fa-fw fa-image top-1"></i> Adicionar mídia</span>
+					<div style="<?= $pag->hideFormField('texto') ? 'display: none;' : '' ?>" class="wrapper-pagina-field-texto">
+						<div class="row">
+							<div class="large-6 columns">
+								<span class="ed_button font-14 trigger-colorbox-modal" data-width="100%" data-height="100%" data-url="dbo-media-manager.php?dbo_modal=1&modulo=pagina&modulo_id=<?= $pag->id ?>&destiny=tinymce&external_button=1" data-transition="none" data-fadeout="1"><i class="fa fa-fw fa-image top-1"></i> Adicionar mídia</span>
+							</div>
+							<div class="large-6 columns">
+								<dl class="sub-nav right no-margin top-9">
+									<dd class="<?= $iniciar_editor ? 'active' : '' ?>"><a href="#" tabindex="-1" class="trigger-editor-visual set-dbo-pref" data-pref_key="editor_type" data-pref_value="visual">Visual</a></dd>
+									<dd class="<?= $iniciar_editor ? '' : 'active' ?>"><a href="#" tabindex="-1" class="trigger-editor-codigo set-dbo-pref" data-pref_key="editor_type" data-pref_value="codigo">Código</a></dd>
+								</dl>
+							</div>
 						</div>
-						<div class="large-6 columns">
-							<dl class="sub-nav right no-margin top-9">
-								<dd class="<?= $iniciar_editor ? 'active' : '' ?>"><a href="#" tabindex="-1" class="trigger-editor-visual">Visual</a></dd>
-								<dd class="<?= $iniciar_editor ? '' : 'active' ?>"><a href="#" tabindex="-1" class="trigger-editor-codigo">Código</a></dd>
-							</dl>
-						</div>
-					</div>
-			
-					<div class="row">
-						<div class="large-12 columns">
-							<script>edToolbar('texto', {
-								styles: (!iniciar_editor ? '' : 'display: none;'),
-							})
-								console.log(iniciar_editor);		
-							</script>
-							<?= $pag->getFormElement($operation, 'texto', array(
-								'classes' => 'editor code-editor',
-								'styles' => ($iniciar_editor ? 'height: 300px; opacity: 0;' : 'height: 600px;'),
-								'input_id' => 'texto',
-								//'edit_function' => ($iniciar_editor ? 'dboAutop' : null),
-								'init_js' => false,
-							)) ?>
-							<textarea name="texto_codigo" id="texto-codigo" spellcheck='false' class="code-editor" style="display: none;"></textarea>
+									
+						<div class="row">
+							<div class="large-12 columns">
+								<script>edToolbar('texto', {
+									styles: (!iniciar_editor ? '' : 'display: none;'),
+								})
+									console.log(iniciar_editor);		
+								</script>
+								<?= $pag->getFormElement($operation, 'texto', array(
+									'classes' => 'editor code-editor',
+									'styles' => ($iniciar_editor ? 'height: 300px; opacity: 0;' : 'height: 600px;'),
+									'input_id' => 'texto',
+									//'edit_function' => ($iniciar_editor ? 'dboAutop' : null),
+									'init_js' => false,
+								)) ?>
+								<textarea name="texto_codigo" id="texto-codigo" spellcheck='false' class="code-editor" style="display: none;"></textarea>
+							</div>
 						</div>
 					</div>
 			
@@ -169,7 +172,7 @@
 							if(hasPermission('admin', 'pagina-'.$tipo))
 							{
 								?>
-								<div class="large-6 columns">
+								<div class="large-6 columns wrapper-pagina-field-autor" style="<?= $pag->hideFormField('autor') ? 'display: none;' : '' ?>">
 									<label for="">Autor desta publicação</label>
 									<div id="wrapper-autor">
 										<?
@@ -298,16 +301,18 @@
 							</div>
 						</div>
 			
-						<?php
-							//implementação de categorias, vai ter que ficar para depois. Fazer páginas como categorias está resolvendo por enquanto.
-							if($tipo != 'pagina' && class_exists('categoria'))
-							{
-								require_once(DBO_PATH.'/core/dbo-categoria-admin.php');
-								echo renderCategoriaPaginaFormWidget($pag, $tipo);
-							}
-						?>
+						<div style="<?= $pag->hideFormField('categorias') || $pag->hideFormField('atributos') ? 'display: none;' : '' ?>" class="wrapper-pagina-field-<?= $pag->tipo == 'pagina' ? 'atributos' : 'categorias' ?>">
+							<?php
+								//implementação de categorias, vai ter que ficar para depois. Fazer páginas como categorias está resolvendo por enquanto.
+								if($tipo != 'pagina' && class_exists('categoria'))
+								{
+									require_once(DBO_PATH.'/core/dbo-categoria-admin.php');
+									echo renderCategoriaPaginaFormWidget($pag, $tipo);
+								}
+							?>
+						</div>
 
-						<div class="panel font-13 radius" id="wrapper-imagem-destacada">
+						<div class="panel font-13 radius wrapper-pagina-field-imagem_destaque" id="wrapper-imagem-destacada" style="<?= $pag->hideFormField('imagem_destaque') ? 'display: none;' : '' ?>">
 							<div class="row">
 								<div class="large-12 columns">
 									<strong>Imagem destacada</strong>
@@ -338,7 +343,7 @@
 			}
 			
 			function getNewSlug(slug) {
-				peixeJSON('dbo/core/dbo-pagina-ajax.php?action=get-new-slug', {
+				peixeJSONSilent('dbo/core/dbo-pagina-ajax.php?action=get-new-slug', {
 					slug: slug,
 					DBO_CSRF_token: '<?= CSRFGetToken() ?>'
 				}, null, true);
@@ -389,11 +394,6 @@
 				$(document).on('click', '.trigger-form-submit', function(){
 					clicado = $(this);
 					form = $('#form-pagina');
-
-					//atualizando o valor do tinymce
-					if($('#texto-codigo').is(':visible')){
-						updateVisualEditor();
-					}
 
 					//atualizando o status dependendo de qual botão clicar.
 					if(clicado.data('status')){
@@ -598,7 +598,7 @@
 
 		ob_start();
 		?>
-		<div class="row">
+		<div class="row" style="position: relative;">
 			<div class="large-9 columns">
 				<div class="breadcrumb">
 					<ul class="no-margin">
@@ -620,6 +620,20 @@
 				<?= (($_GET['dbo_new'] || $_GET['dbo_update'])?('<a href="'.$dbo->keepUrl('!dbo_new&!dbo_update').'" class="button small radius no-margin top-less-15 secondary"><i class="fa-arrow-left"></i> Voltar</a>'):('')) ?>
 			</div>
 		</div>
+		<div class="row almost full" style="position: relative;">
+			<div class="settings-toolbar">
+				<?php
+					if($_GET['dbo_update'])
+					{
+						?><span class="color light pointer tip-top toggle-settings-box" data-settings-box="settings-form-pagina" title="Configurações do formulário"><i class="fa-eye"></i> Campos</span><?php
+					}
+					else
+					{
+						?><span class="color light pointer tip-top toggle-settings-box" data-settings-box="settings-list-pagina" title="Configurações de exibição e leitura d<?= $_system['pagina_tipo'][$tipo]['genero'] ?>s <?= $_system['pagina_tipo'][$tipo]['titulo_plural'] ?>"><i class="fa fa-cog"></i> Configurações</span><?php
+					}
+				?>
+			</div>
+		</div>
 		<hr class="small">
 		<div id="pagina-canvas" style="padding-bottom: 200px;">
 			<?
@@ -634,24 +648,21 @@
 							'created_by' => loggedUser(),
 						));
 					}
-
-					meta::set('listagem_options_'.$tipo, json_encode(array(
-						'titulo' => true,
-						'descricao' => true,
-						'categorias' => true,
-					)), array(
-						'created_by' => loggedUser(),
-						'meta_details' => array(
-							'data_type' => 'JSON',
-						),
-					));
 					?>
 					<style>
 						.list-pagina td { vertical-align: top; }
 						tfoot th { border-bottom: 1px solid #ddd; }
 						thead th { border-top: 1px solid #ddd; }
 					</style>
-					<div class="row almost full list-pagina" id="list-<?= $tipo ?>" class="list-pagina">
+					<div class="settings-box closed" id="settings-list-pagina">
+						<div class="row">
+							<div class="large-12 columns">
+								<h3>Configurações</h3>
+								<p class="font-14">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore voluptatem illo deleniti consequatur aperiam numquam a sit odit nesciunt iste et temporibus tempora accusantium laborum unde animi voluptatum amet adipisci quasi repudiandae ipsam laudantium ab officia qui expedita facere ratione libero dolore reprehenderit enim. Id officiis praesentium enim totam doloribus repellat molestiae placeat eius nobis magni temporibus dignissimos commodi eaque odio inventore deserunt sequi a. Labore qui architecto omnis eos rerum modi unde eum fugit repellat nemo consectetur veritatis. Placeat quam culpa corporis cumque facere illo eos doloremque minus nihil beatae explicabo odio quaerat laboriosam impedit aut inventore reprehenderit ad?</p>
+							</div>
+						</div>
+					</div>
+					<div class="row almost full list-pagina" id="list-<?= $tipo ?>" class="list-pagina" style="position: relative;">
 						<div class="large-12 columns">
 							<?
 
@@ -1059,6 +1070,54 @@
 				//mostrando o formulário de inserção
 				elseif($_GET['dbo_new'] || $_GET['dbo_update'])
 				{
+					?>
+					<div class="settings-box closed" id="settings-form-pagina">
+						<div class="row">
+							<div class="large-12 columns">
+								<h3>Campos exibidos</h3>
+								<div class="font-14">
+									<p>Selecione abaixo os campos que você gostaria de ver neste formulário.</p>
+									<?php
+
+										$campos = array(
+											array(
+												'name' => 'slug',
+												'label' => 'Slug',
+											),
+											array(
+												'name' => 'subtitulo',
+												'label' => 'Subtítulo',
+											),
+											array(
+												'name' => 'texto',
+												'label' => 'Texto',
+											),
+											array(
+												'name' => 'autor',
+												'label' => 'Autor',
+											),
+											array(
+												'name' => ($tipo == 'pagina' ? 'atributos' : 'categorias'),
+												'label' => ($tipo == 'pagina' ? 'Atributos' : 'Categorias'),
+											),
+											array(
+												'name' => 'imagem_destaque',
+												'label' => 'Imagem destacada',
+											),
+										);
+
+										foreach($campos as $campo)
+										{
+											?>
+											<input type="checkbox" id="preference-hidden-field-<?= $campo['name'] ?>" <?= $pag->hideFormField($campo['name']) ? '' : 'checked' ?>/><label for="preference-hidden-field-<?= $campo['name'] ?>" class="set-dbo-pref" data-meta_key="form_pagina_<?= $tipo ?>_prefs" data-pref_key="hide_<?= $campo['name'] ?>" data-pref_value="<?= $pag->hideFormField($campo['name']) ? 'false' : 'true' ?>" data-toggle onClick="togglePaginaFormField('<?= $campo['name'] ?>')"><?= $campo['label'] ?></label>
+											<?php
+										}
+									?>
+								</div>
+							</div>
+						</div>
+					</div>
+					<?php
 					echo paginaForm($pag, $params);
 				}
 			?>
@@ -1072,6 +1131,16 @@
 				form = $('#form-pagina');
 				peixeJSON(form.attr('action'), form.serialize(), '', true);
 				return false;
+			}
+
+			//mostrando ou ocultando campos do formulário
+			function togglePaginaFormField(id) {
+				w = $('.wrapper-pagina-field-'+id);
+				if(w.is(':visible')){
+					w.slideUp('fast');
+				} else {
+					w.slideDown('fast');
+				}
 			}
 
 			function editorInit(){

@@ -16,6 +16,32 @@
 	//'slug_prefix' => 'plantel', //incluido antes do slug no permalink
 	//'default_list_view' => 'gallery', //list | details | gallery
 	//'paginacao' => 20
+	//'hidden_fields' => array( //array contendo o campos que não devem ser exibidos por padrão no formulário.
+		//'slug',
+		//'subtitulo',
+		//'texto',
+		//'autor',
+		//'atributos',
+		//'categorias',
+		//'imagem_destaque',
+		//'categorias',
+	//), 
+//);
+
+//tamanhos cutomizados de imagens do sistema
+//$_system['media_manager']['image_sizes'] = array(
+	//'gigante' => array(
+		//'name' => 'Gigante',
+		//'max_width' => '3000',
+		//'max_height' => '3000',
+		//'quality' => '90'
+	//),
+	//'wide' => array(
+		//'name' => 'Widescreen',
+		//'max_width' => '1920',
+		//'max_height' => '1080',
+		//'quality' => '80'
+	//)
 //);
 
 //define se as páginas devem ser cacheadas ou não
@@ -32,4 +58,5 @@
 	//'menu',
 	//'categoria',
 //);
+
 ?>

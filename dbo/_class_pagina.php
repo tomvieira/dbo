@@ -91,6 +91,8 @@ if(!class_exists('pagina'))
 			global $_system;
 			extract($params);
 
+			$this->clearData();
+
 			$part_where = array();
 
 			//valores default
@@ -152,7 +154,7 @@ if(!class_exists('pagina'))
 				GROUP BY
 					pagina.slug
 				ORDER BY 
-					".$order_by." ".$order."
+					".$order_by." 
 				".($limit ? "LIMIT ".$limit : "")."
 			";
 
@@ -724,6 +726,16 @@ if(!class_exists('pagina'))
 				return $links;
 			}
 			return false;
+		}
+
+		function hideFormField($field)
+		{
+			global $_system;
+			//primeiro verifica a permissão específica do usuário
+			$pref = meta::getPreference('hide_'.$field, 'form_pagina_'.$this->tipo.'_prefs');
+			if($pref === null) //não foi setado pelo usuário
+				$pref = in_array($field, (array)$_system['pagina_tipo'][$this->tipo]['hidden_fields']);
+			return $pref;
 		}
 
 	} //class declaration

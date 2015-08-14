@@ -62,6 +62,11 @@
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery-ui/jquery-ui.css\">\n";
 			$_system['dbo_imported_js'][] = "jquery-ui";
 		}
+		if(!in_array("easing", $_system['dbo_imported_js']) && (in_array("easing", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/jquery.easing.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "easing";
+		}
 		if(!in_array("peixelaranja", $_system['dbo_imported_js']) && (in_array("peixelaranja", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/peixelaranja.js\"></script>\n";
