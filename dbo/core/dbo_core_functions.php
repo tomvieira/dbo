@@ -383,6 +383,71 @@
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function getPrettyHeaderSetting($setting)
+	{
+		global $_system;
+		return $_system['pretty_header'][$setting];
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function hasPrettyHeader()
+	{
+		global $_system;
+		return is_array($_system['pretty_header']);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function prettyHeaderAtts()
+	{
+		global $_system;
+		if(hasPrettyHeader())
+		{
+			extract($_system['pretty_header']);
+			$classes .= ' pretty-header';
+			if($theme) $classes .= ' '.$theme.'-theme';
+			if($hide_menu) $classes .= ' hide-menu';
+			if($height) $styles .= ' height: '.$height.'px;';
+		}
+		return ' class="'.trim($classes).'" style="'.trim($styles).'"';
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function prettyHeaderLogo()
+	{
+		ob_start();
+		if(hasPrettyHeader())
+		{
+			?>
+			<div class="row">
+				<div class="large-12 columns">
+					<a href="index.php" id="pretty-logo" style="position: absolute; top: <?= getPrettyHeaderSetting('logo_offset') ?>px; left: 15px; z-index: 50;"><img src="images/admin-logo.png" alt="" style="max-height: <?= getPrettyHeaderSetting('logo_height') ?>px;"></a>
+				</div>
+			</div>
+			<?php
+		}
+		return ob_get_clean();
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function getGravatar( $email, $s = 200, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+		$url = 'http://www.gravatar.com/avatar/';
+		$url .= md5( strtolower( trim( $email ) ) );
+		$url .= "?s=$s&d=$d&r=$r";
+		if ( $img ) {
+			$url = '<img src="' . $url . '"';
+			foreach ( $atts as $key => $val )
+				$url .= ' ' . $key . '="' . $val . '"';
+			$url .= ' />';
+		}
+		return $url;
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function marca ($hailshack, $needle)
 	{
 		return str_replace($needle, "<span class='marca'>".$needle."</span>", $hailshack);
@@ -2243,6 +2308,22 @@
 				'colorbox',
 			)); ?>
 		<?
+		if(getPrettyHeaderSetting('parallax'))
+		{
+			echo dboImportJs(array(
+				'smooth-scroll',
+				'stellar',
+			));
+			?>
+			<script>
+				$(document).ready(function(){
+					$(window).stellar({
+						horizontalScrolling: false
+					});
+				}) //doc.ready
+			</script>
+			<?php
+		}
 		$hooks->do_action('dbo_head');
 	}
 

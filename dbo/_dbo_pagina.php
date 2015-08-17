@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 14/08/2015 16:53:07 */
+/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 15/08/2015 17:31:09 */
 /* ================================================================================================================== */
 
 
@@ -24,7 +24,7 @@ $module->permissoes_custom = '
 	media-manager | Permissão de acesso ao gerenciador de mídia do site.
 	media-manager-all | Esta permissão permite que o usuário tenha acesso e controle sobre todas as mídias de todos os outros usuários, e não somente às criadas por ele.
 ';
-$module->order_by = '-10';
+$module->order_by = '0';
 
 /* FIELDS =========================================================================================================== */
 

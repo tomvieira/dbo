@@ -9,7 +9,7 @@
 	{
 		?>
 		<li class="has-dropdown">
-			<a>Olá, <?= $_pes->nome; ?>.</a>
+			<a><span style="display: inline-block; width: 22px; margin-right: 3px;"><img src="<?= $_pes->foto() ?>" alt="" class="round"></span> <?= $_pes->nome; ?></a>
 			<ul class="dropdown">
 				<li><label>Opções</label></li>
 				<li><a href="#" class="trigger-change-password"><i class="fa-key"></i> Alterar senha</a></li>

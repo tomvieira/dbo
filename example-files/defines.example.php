@@ -5,6 +5,18 @@
 /* sets the main word defining the admin cockpit */
 //define(DBO_TERM_CADASTROS, 'Cadastros');
 
+//definições de um header customizado para o admin 
+//colocar as imagens admin-bg.jpg e admin-logo.png dentro da pasta admin/images
+//$_system['pretty_header'] = array(
+	//'theme' => 'dark',
+	//'hide_menu' => true,
+	//'height' => 210, //valor inteiro, sem px
+	//'logo_height' => 140,
+	//'logo_offset' => 85,
+	//'parallax' => true,
+	//'styles' => 'background-size: cover;',
+//);
+
 /* definindo tipos especiais de páginas no sistema */
 //$_system['pagina_tipo']['animal'] = array(
 	//'tipo' => 'animal',

@@ -103,28 +103,38 @@
 	{
 		ksort($modulos_array);
 		?>
-		<div class="wrapper-permissions">
+			<div class="wrapper-permissions">
 
-			<div class="row full">
+				<div class="row" style="position: relative;">
 				<div class="large-7 columns">
-					<h2><a href="dbo_admin.php?dbo_mod=perfil">Permissões de perfil:</a> <?= $obj->nome ?></h2>
-				</div><!-- col -->
-				<div class="large-5 columns text-right">
-					<span class="top-15">Copiar permissões de &nbsp;</span> 
-					<select id="copiar" class="no-margin top-15" style="width: auto; display: inline-block">
-						<option value="">...</option>
-						<?
-							$perf = new perfil('ORDER BY nome');
-							do {
-								?>
-								<option value="<?= $perf->id ?>"><?= $perf->nome ?></option>								
-								<?
-							}while($perf->fetch());
-						?>
-					</select>
+					<div class="breadcrumb">
+						<ul class="no-margin">
+							<li><a href="cadastros.php"><?= DBO_TERM_CADASTROS ?></a></li>
+							<li><a href="dbo_admin.php?dbo_mod=perfil">Perfis</a></li>
+							<li><a href="dbo_admin.php?dbo_mod=perfil&dbo_update=<?= $obj->id ?>"><?= $obj->nome ?></a></li>
+							<li><a href="#">Permissões</a></li>
+						</ul>
+					</div>
 				</div>
-			</div><!-- row -->
-
+				<div class="large-5 columns text-right">
+					<div class="top-less-10">
+						<i class="fa fa-sign-out fa-fw pointer color medium tip-top font-14 trigger-exportar-permissoes" data-tooltip title="Exportar permissões"></i>
+						<i class="fa fa-sign-in fa-fw pointer color medium tip-top font-14 trigger-importar-permissoes" data-tooltip title="Importar permissões" style="margin-right: 5px;"></i>
+						<select id="copiar" class="font-12" style="width: auto; display: inline-block; margin-bottom: 4px;">
+							<option value="">Copiar permissões de ...</option>
+							<?
+								$perf = new perfil('ORDER BY nome');
+								do {
+									if(!logadoNoPerfil('Desenv') && $perf->dbo_flag_desenv == '1') continue;
+									?>
+									<option value="<?= $perf->id ?>"><?= $perf->nome ?></option>								
+									<?
+								}while($perf->fetch());
+							?>
+						</select>
+					</div>
+				</div>
+			</div>
 			<hr class="small">
 
 			<div class="row full">
@@ -134,7 +144,7 @@
 				</div><!-- col -->
 			</div><!-- row -->
 			
-			<form method="POST" action="dbo_permissions.php?perfil=<?= $_GET['perfil'] ?>">
+			<form method="POST" action="dbo_permissions.php?perfil=<?= $_GET['perfil'] ?>" id="form-permissions">
 				<div id="wrapper-all-permissions">
 					<div class="row full">
 						<div class="large-12 columns">
@@ -158,7 +168,7 @@
 														$perm = false;
 														$perm = perfilHasPermission($_GET["perfil"], $item_permissao, $chave);
 													?>
-														<span class="item <?= (($perm)?(''):('off')) ?>"><input rel="<?= $chave ?>" type="checkbox" <?= $perm ? 'CHECKED' : '' ?> value="<?= $item_permissao ?>" name="permission[<?= $chave ?>][<?= $item_chave ?>]"> <span><?= $item_chave ?></span></span>
+														<span class="item <?= (($perm)?(''):('off')) ?>"><input rel="<?= $chave ?>" type="checkbox" <?= $perm ? 'CHECKED' : '' ?> value="<?= $item_permissao ?>" name="permission[<?= $chave ?>][<?= $item_permissao ?>]"> <span><?= $item_chave ?></span></span>
 													<?
 													}
 												?>
@@ -345,6 +355,10 @@
 ?>
 
 <script>
+
+	//serializejson
+	!function(e){"use strict";e.fn.serializeJSON=function(n){var r,t,s,a,i,u,o;return u=e.serializeJSON,o=u.setupOpts(n),t=this.serializeArray(),u.readCheckboxUncheckedValues(t,this,o),r={},e.each(t,function(e,n){s=u.splitInputNameIntoKeysArray(n.name,o),a=s.pop(),"skip"!==a&&(i=u.parseValue(n.value,a,o),o.parseWithFunction&&"_"===a&&(i=o.parseWithFunction(i,n.name)),u.deepSet(r,s,i,o))}),r},e.serializeJSON={defaultOptions:{checkboxUncheckedValue:void 0,parseNumbers:!1,parseBooleans:!1,parseNulls:!1,parseAll:!1,parseWithFunction:null,customTypes:{},defaultTypes:{string:function(e){return String(e)},number:function(e){return Number(e)},"boolean":function(e){var n=["false","null","undefined","","0"];return-1===n.indexOf(e)},"null":function(e){var n=["false","null","undefined","","0"];return-1===n.indexOf(e)?e:null},array:function(e){return JSON.parse(e)},object:function(e){return JSON.parse(e)},auto:function(n){return e.serializeJSON.parseValue(n,null,{parseNumbers:!0,parseBooleans:!0,parseNulls:!0})}},useIntKeysAsArrayIndex:!1},setupOpts:function(n){var r,t,s,a,i,u;u=e.serializeJSON,null==n&&(n={}),s=u.defaultOptions||{},t=["checkboxUncheckedValue","parseNumbers","parseBooleans","parseNulls","parseAll","parseWithFunction","customTypes","defaultTypes","useIntKeysAsArrayIndex"];for(r in n)if(-1===t.indexOf(r))throw new Error("serializeJSON ERROR: invalid option '"+r+"'. Please use one of "+t.join(", "));return a=function(e){return n[e]!==!1&&""!==n[e]&&(n[e]||s[e])},i=a("parseAll"),{checkboxUncheckedValue:a("checkboxUncheckedValue"),parseNumbers:i||a("parseNumbers"),parseBooleans:i||a("parseBooleans"),parseNulls:i||a("parseNulls"),parseWithFunction:a("parseWithFunction"),typeFunctions:e.extend({},a("defaultTypes"),a("customTypes")),useIntKeysAsArrayIndex:a("useIntKeysAsArrayIndex")}},parseValue:function(n,r,t){var s,a;return a=e.serializeJSON,s=t.typeFunctions&&t.typeFunctions[r],s?s(n):t.parseNumbers&&a.isNumeric(n)?Number(n):!t.parseBooleans||"true"!==n&&"false"!==n?t.parseNulls&&"null"==n?null:n:"true"===n},isObject:function(e){return e===Object(e)},isUndefined:function(e){return void 0===e},isValidArrayIndex:function(e){return/^[0-9]+$/.test(String(e))},isNumeric:function(e){return e-parseFloat(e)>=0},optionKeys:function(e){if(Object.keys)return Object.keys(e);var n,r=[];for(n in e)r.push(n);return r},splitInputNameIntoKeysArray:function(n,r){var t,s,a,i,u;return u=e.serializeJSON,i=u.extractTypeFromInputName(n,r),s=i[0],a=i[1],t=s.split("["),t=e.map(t,function(e){return e.replace(/\]/g,"")}),""===t[0]&&t.shift(),t.push(a),t},extractTypeFromInputName:function(n,r){var t,s,a;if(t=n.match(/(.*):([^:]+)$/)){if(a=e.serializeJSON,s=a.optionKeys(r?r.typeFunctions:a.defaultOptions.defaultTypes),s.push("skip"),-1!==s.indexOf(t[2]))return[t[1],t[2]];throw new Error("serializeJSON ERROR: Invalid type "+t[2]+" found in input name '"+n+"', please use one of "+s.join(", "))}return[n,"_"]},deepSet:function(n,r,t,s){var a,i,u,o,l,c;if(null==s&&(s={}),c=e.serializeJSON,c.isUndefined(n))throw new Error("ArgumentError: param 'o' expected to be an object or array, found undefined");if(!r||0===r.length)throw new Error("ArgumentError: param 'keys' expected to be an array with least one element");a=r[0],1===r.length?""===a?n.push(t):n[a]=t:(i=r[1],""===a&&(o=n.length-1,l=n[o],a=c.isObject(l)&&(c.isUndefined(l[i])||r.length>2)?o:o+1),""===i?(c.isUndefined(n[a])||!e.isArray(n[a]))&&(n[a]=[]):s.useIntKeysAsArrayIndex&&c.isValidArrayIndex(i)?(c.isUndefined(n[a])||!e.isArray(n[a]))&&(n[a]=[]):(c.isUndefined(n[a])||!c.isObject(n[a]))&&(n[a]={}),u=r.slice(1),c.deepSet(n[a],u,t,s))},readCheckboxUncheckedValues:function(n,r,t){var s,a,i,u,o;null==t&&(t={}),o=e.serializeJSON,s="input[type=checkbox][name]:not(:checked):not([disabled])",a=r.find(s).add(r.filter(s)),a.each(function(r,s){i=e(s),u=i.attr("data-unchecked-value"),u?n.push({name:s.name,value:u}):o.isUndefined(t.checkboxUncheckedValue)||n.push({name:s.name,value:t.checkboxUncheckedValue})})}}}(window.jQuery||window.Zepto||window.$);
+
 	$('.header').click(function(){
 		var id = $(this).attr('id');
 		$('input[rel='+id+']').each(function(){
@@ -391,6 +405,44 @@
 				}
 			})
 			return false;
+		}
+	});
+
+	$(document).on('click', '.trigger-exportar-permissoes', function(){
+		string = JSON.stringify($('#form-permissions').serializeJSON());
+		console.log(string);
+		var ans = prompt("Pressione CTRL + C para copiar as permissões", string);
+	});
+
+	$(document).on('click', '.trigger-importar-permissoes', function(){
+		string = $('#form-permissions').serialize();
+		var ans = prompt("Pressione CTRL + V para colar as permissões, em seguida pressione \"OK\"");
+		if (ans!=null)
+		{
+			permissions = JSON.parse(ans);
+			for(var prop in permissions) { 
+				if (permissions.hasOwnProperty(prop)) {
+					if(prop == 'permission'){
+						first_level = permissions[prop];
+						for(var macro in first_level) { 
+							if (first_level.hasOwnProperty(macro)) {
+								//prop, obj[prop]
+								second_level = first_level[macro];
+								if(typeof second_level == 'object'){
+									for(var micro in second_level) {
+										if (second_level.hasOwnProperty(micro)) {
+											$('input[name="permission\\['+macro+'\\]\\['+second_level[micro]+'\\]"]').prop('checked', true).trigger('change');
+										}
+									}
+								}
+								else {
+									$('input[name="permission\\['+second_level+'\\]"]').prop('checked', true).trigger('change');
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	});
 

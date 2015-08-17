@@ -29,6 +29,33 @@ if(!class_exists('pessoa'))
 		}
 
 		//your methods here
+		//encriptando o password
+		function update($rest = '')
+		{
+			if(strlen(trim($this->pass)) != '128' && strlen(trim($this->pass)) > 0)
+			{
+				$this->pass = dbo::cryptPassword($this->pass);
+			}
+			return parent::update();
+		}
+
+		//mostrando a foto do usuário
+		function foto($params = array())
+		{
+			extract($params);
+			//params
+			//size - small, medium, large
+			//gravatar_size - px value, default 200
+			if(strlen(trim($this->foto)))
+			{
+				return $this->_foto->url($params);
+			}
+			else
+			{
+				return getGravatar($this->email, ($gravatar_size ? $gravatar_size : 200));
+			}
+		}
+
 
 	} //class declaration
 } //if ! class exists

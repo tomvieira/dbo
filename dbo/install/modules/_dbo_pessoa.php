@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'pessoa' ====================================== AUTO-CREATED ON 07/12/2014 13:50:35 */
+/* DBO DEFINITION FILE FOR MODULE 'pessoa' ====================================== AUTO-CREATED ON 16/08/2015 03:02:01 */
 /* ================================================================================================================== */
 
 
@@ -20,7 +20,13 @@ $module->delete = true;
 $module->insert = 'Nova Pessoa';
 $module->preload_insert_form = false;
 $module->auto_view = true;
-$module->order_by = '0';
+$module->permissoes_custom = '
+	painel-cadastros | Permissão que dá acesso ao painel principal de cadastros do site
+';
+$module->restricao = '
+	if(!pessoaHasPerfil($_SESSION[\'user_id\'], \'Desenv\')) $rest = "WHERE dbo_flag_desenv = 0";
+';
+$module->order_by = '2';
 
 /* FIELDS =========================================================================================================== */
 
@@ -39,6 +45,26 @@ $field->order = false;
 $field->type = 'INT NOT NULL auto_increment';
 $field->interaction = '';
 $field->tipo = 'pk';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Foto';
+$field->coluna = 'foto';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'media';
+$field->formatos = imagem;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
@@ -108,7 +134,7 @@ $field->coluna = 'pass';
 $field->pk = false;
 $field->isnull = false;
 $field->add = true;
-$field->valida = true;
+$field->valida = false;
 $field->edit = true;
 $field->view = false;
 $field->lista = false;
@@ -149,6 +175,53 @@ $field->tipo = 'joinNN';
 	$join->tipo = 'select';
 	$join->order_by = 'id';
 $field->join = $join;
+$field->restricao = '
+	if(!pessoaHasPerfil($_SESSION[\'user_id\'], \'Desenv\')) $rest = "WHERE dbo_flag_desenv = 0";
+';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Descrição';
+$field->coluna = 'descricao';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'TEXT';
+$field->interaction = '';
+$field->tipo = 'textarea';
+$field->rows = 6;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Restrito ao desenvolvimento';
+$field->coluna = 'dbo_flag_desenv';
+$field->perfil = array('Desenv');
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'não',
+	'1' => 'sim',
+);
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
@@ -158,7 +231,10 @@ $module->campo[$field->coluna] = $field;
 $grid = array();
 
 $grid[] = array('12');
+$grid[] = array('12');
 $grid[] = array('4','4','4');
+$grid[] = array('12');
+$grid[] = array('12');
 $grid[] = array('12');
 
 $module->grid = $grid;
@@ -185,12 +261,7 @@ if(!function_exists('pessoa_pos_insert'))
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
-		if(!empty($_POST[pass])) {
-			if(strlen($_POST[pass]) != 128) {
-				$obj->pass = $obj->cryptPassword($_POST[pass]);
-				$obj->update();
-			}
-		}
+
 
 	// ----------------------------------------------------------------------------------------------------------
 	}
@@ -214,12 +285,7 @@ if(!function_exists('pessoa_pos_update'))
 	{ global $dbo;
 	// ----------------------------------------------------------------------------------------------------------
 
-		if(!empty($_POST[pass])) {
-			if(strlen($_POST[pass]) != 128) {
-				$obj->pass = $obj->cryptPassword($_POST[pass]);
-				$obj->update();
-			}
-		}
+
 
 	// ----------------------------------------------------------------------------------------------------------
 	}

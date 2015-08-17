@@ -45,7 +45,9 @@
 
 	<?= dboBody(); ?>
 
-	<div id="main-header">
+	<div id="main-header" <?= prettyHeaderAtts() ?> data-stellar-background-ratio="0.5">
+		
+		<?= prettyHeaderLogo() ?>
 
 		<div class='row first-row hide-for-small'>
 			<div class='large-10 columns'>

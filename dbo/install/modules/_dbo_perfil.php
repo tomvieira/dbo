@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'perfil' ====================================== AUTO-CREATED ON 07/12/2014 13:53:24 */
+/* DBO DEFINITION FILE FOR MODULE 'perfil' ====================================== AUTO-CREATED ON 16/08/2015 03:02:28 */
 /* ================================================================================================================== */
 
 
@@ -20,7 +20,10 @@ $module->delete = true;
 $module->insert = 'Novo Perfil';
 $module->preload_insert_form = false;
 $module->auto_view = false;
-$module->order_by = '10';
+$module->restricao = '
+	if(!pessoaHasPerfil($_SESSION[\'user_id\'], \'Desenv\')) $rest = "WHERE dbo_flag_desenv = 0";
+';
+$module->order_by = '4';
 
 /* FIELDS =========================================================================================================== */
 
@@ -109,11 +112,43 @@ $field->tipo = 'joinNN';
 	$join->tipo = 'select';
 	$join->order_by = 'id';
 $field->join = $join;
+$field->restricao = '
+	if(!pessoaHasPerfil($_SESSION[\'user_id\'], \'Desenv\')) $rest = "WHERE dbo_flag_desenv = 0";
+';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Restrito ao desenvolvimento';
+$field->coluna = 'dbo_flag_desenv';
+$field->perfil = array('Desenv');
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'não',
+	'1' => 'sim',
+);
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
 
 /* GRID FOR THE FORM LAYOUT ========================================================================================= */
+
+$grid = array();
+
+
+$module->grid = $grid;
 
 /* MODULE LIST BUTTONS ============================================================================================== */
 
