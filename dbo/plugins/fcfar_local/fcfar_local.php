@@ -60,7 +60,7 @@ class dbo_fcfar_local
 		ob_start();
 		?>
 		<div class='row collapse'>
-			<div class='small-9 large-10 columns'><input type='text' data-name="<?= $coluna ?>" name='aux_<?= $coluna ?>' value="" class="required aux-<?= $coluna ?>" placeholder='Digite algumas letras para procurar...'/></div>
+			<div class='small-9 large-10 columns'><input type='text' data-name="<?= $coluna ?>" name='aux_<?= $coluna ?>' value="" class="aux-<?= $coluna ?>" placeholder='Digite algumas letras para procurar...'/></div>
 			<div class='small-3 large-2 columns'><input type='button' name='' tabindex='-1' value="Alterar" class="local-clearer button disabled postfix radius"/></div>
 		</div>
 		<input type='hidden' name='<?= $coluna ?>' value=""/>
@@ -78,7 +78,7 @@ class dbo_fcfar_local
 		ob_start();
 		?>
 		<div class='row collapse'>
-			<div class='small-9 large-10 columns'><input type='text' data-name="<?= $coluna ?>" name='aux_<?= $coluna ?>' value="<?= (($local)?(htmlSpecialChars($this->local->getSmartLocal())):('')) ?>" class="required aux-<?= $coluna ?> <?= (($this->local->id)?("ok"):('')) ?>" placeholder='Digite algumas letras para procurar...' <?= (($this->local->id)?('readonly'):('')) ?> /></div>
+			<div class='small-9 large-10 columns'><input type='text' data-name="<?= $coluna ?>" name='aux_<?= $coluna ?>' value="<?= (($local)?(htmlSpecialChars($this->local->getSmartLocal())):('')) ?>" class="aux-<?= $coluna ?> <?= (($this->local->id)?("ok"):('')) ?>" placeholder='Digite algumas letras para procurar...' <?= (($this->local->id)?('readonly'):('')) ?> /></div>
 			<div class='small-3 large-2 columns'><input type='button' name='' tabindex='-1' value="Alterar" class="local-clearer button <?= (($this->local->id)?(''):('disabled')) ?> postfix radius"/></div>
 		</div>
 		<input type='hidden' name='<?= $coluna ?>' value="<?= $this->local->id ?>"/>

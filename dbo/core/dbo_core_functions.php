@@ -2337,8 +2337,8 @@
 		{
 			?>
 			<div id="wrapper-dbo-top-dock" class="hide-for-small" style="<?= (($_GET['dbo_modal'])?('display: none;'):('')) ?>">
-				<div class="row">
-					<div class="large-12 columns">
+				<div class="row" style="height: 0;">
+					<div class="large-12 columns" style="height: 0;">
 						<ul id="dbo-top-dock">
 							<?= isSuperAdmin() ? '<li><a href="'.DBO_URL.'/dbomaker/?reffered=1" target="dbomaker" class="color light pointer" title="Gerador de módulos do DBO" data-tooltip><i class="fa fa-fw fa-cube"></i></a></li>' : '' ?>
 							<?php $hooks->do_action('dbo_top_dock'); ?>
