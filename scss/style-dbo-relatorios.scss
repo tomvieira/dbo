@@ -55,6 +55,8 @@ a.alert { color: $alert-color; font-weight: bold; }
 }
 
 @media print {
+	.page-break-after, .page-break { page-break-after: always; }
+	.page-break-avoid { page-break-inside: avoid; }
 	.no-print { display: none; }
 	body { padding: 0; font-family: Arial, Sans-serif; }
 	p { font-size: emCalc(12); line-height: 1.5; }

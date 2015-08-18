@@ -1733,8 +1733,6 @@
 	function getLoginForm($tipo = '')
 	{
 
-		global $dbo_context_allowed_email_domains;
-
 		echo getDboAccessLockLoginMessage();
 		
 		if(outdatedBrowser())
@@ -1761,7 +1759,7 @@
 				</ul>
 				<p>Se optar por continuar usando o navegador atual, qualquer problema resultante será de sua responsabilidade.</p>
 				<?
-					if($tipo == 'fcfar' || $tipo == 'iq')
+					if(getDboContext())
 					{
 						?><p><strong><?= WARNING_OUTDATED_BROWSER_SUPPORT ?></strong></p><?
 					}
@@ -1772,7 +1770,7 @@
 			</div>
 			<?
 		}
-		if($tipo == 'fcfar' || $tipo == 'iq')
+		if(getDboContext())
 		{
 			?>
 			<form action='login.php' method='POST' id='login-form' style="<?= ((outdatedBrowser())?('display: none;'):('')) ?>">
@@ -1784,7 +1782,7 @@
 					<div class='small-6 columns' id='wrapper-dominio'>
 						<select name="dominio" tabindex='-1'>
 						<?
-							foreach($dbo_context_allowed_email_domains as $key => $value)
+							foreach(getDboContextAllowedEmailDomains() as $key => $value)
 							{
 								?>
 								<option value='<?= $value ?>'><?= str_replace("@", "@ ", $value) ?></option>
@@ -1841,7 +1839,6 @@
 						<?
 					}
 				?>
-				<input type='hidden' name='context' value='<?= $tipo ?>'/>
 
 			</form>
 			<?
@@ -1919,8 +1916,14 @@
 		{
 			if($_POST)
 			{
-				if($_POST['context'] == 'fcfar')
+				if(getDboContext())
 				{
+					//definindo padrões da FCFAR caso nada esteja definido nos defines.php
+					if(!defined('HOST_MAIL_SERVER')) define(HOST_MAIL_SERVER, 'zimbra.fcfar.unesp.br'); 
+					if(!defined('IMAP_AUTH_STRING')) define(IMAP_AUTH_STRING, '993/imap/ssl/novalidate-cert');
+					if(!defined('TELEFONE_ASSISTENCIA_DTI')) define(TELEFONE_ASSISTENCIA_DTI, '3301.4651'); //telefone do zé
+					if(!defined('ERROR_MAIL_UNSYNC')) define(ERROR_MAIL_UNSYNC, 'Erro: E-mail não sincronizado. Contate a DTI (ramal: '.TELEFONE_ASSISTENCIA_DTI.').');
+					
 					/* primeiramente chegando se o usuário digitou alguma coisa... */
 					if(!strlen(trim($_POST['email'])) || !strlen(trim($_POST['pass'])))
 					{
@@ -1938,23 +1941,18 @@
 					}
 
 					/* setando dominios permitidos */
-					$allowed_domains = array('@fcfar.unesp.br', '@aluno.fcfar.unesp.br');
+					$allowed_domains = getDboContextAllowedEmailDomains();
 
 					/* primeiramente, checando se o usuário escolheu um dominio pre-definido */
 					if(
-						in_array($_POST['dominio'], $allowed_domains) || 
-						strpos($_POST['email'], $allowed_domains[0]) || 
-						strpos($_POST['email'], $allowed_domains[1])
+						in_array($_POST['dominio'], $allowed_domains) ||
+						(str_ireplace($allowed_domains, '', $_POST['email']) !== $_POST['email'])
 					)
 					{
 						/* se sim, fazer autenticação usando o webmail */
 						/* montando o email completo, quando aplicavel */
 						$full_mail = dboescape($_POST['email']).(($_POST['dominio'] > -1)?($_POST['dominio']):(''));
 
-						if(!defined('HOST_MAIL_SERVER'))
-						{
-							define(HOST_MAIL_SERVER, '200.145.71.222');
-						}
 						//preferencia por autenticação imap
 						if(function_exists('imap_open'))
 						{
@@ -2029,98 +2027,7 @@
 						}
 					}
 				}
-				elseif($_POST['context'] == 'iq')
-				{
-					/* primeiramente chegando se o usuário digitou alguma coisa... */
-					if(!strlen(trim($_POST['email'])) || !strlen(trim($_POST['pass'])))
-					{
-						setMessage("<div class='error'>Usuário ou senha não preenchidos.</div>");
-						header("Location: login.php");
-						exit();
-					}
-
-					/* setando dominios permitidos */
-					$allowed_domains = array('@iq.unesp.br');
-
-					/* primeiramente, checando se o usuário escolheu um dominio pre-definido */
-					if(
-						in_array($_POST['dominio'], $allowed_domains) || 
-						strpos($_POST['email'], $allowed_domains[0]) || 
-						strpos($_POST['email'], $allowed_domains[1])
-					)
-					{
-						/* se sim, fazer autenticação usando o webmail */
-						/* montando o email completo, quando aplicavel */
-						$full_mail = dboescape($_POST['email']).(($_POST['dominio'] > -1)?($_POST['dominio']):(''));
-
-						include('socket-mail.php');
-						if(!defined('HOST_MAIL_SERVER'))
-						{
-							define(HOST_MAIL_SERVER, 'mail.iq.unesp.br');
-						}
-						$pop3=new POP3Mail(HOST_MAIL_SERVER, $full_mail, dboescape($_POST['pass']));
-						$pop3->Connect();
-						$result = $pop3->getStat();
-						$pop3->Disconnect();
-						if($result || masterLogin(dboescape($_POST['pass']))) { /* o usário é valido no webmail, agora verificar se está cadastrado no banco de dados também. */
-							$pes = new pessoa();
-							$pes->email = $full_mail;
-							if($pes->hasInativo()) /* checando se a tabela pessoa tem o campo inativo */
-							{
-								$pes->inativo = 0;
-							}
-							$pes->loadAll();
-							if($pes->size())
-							{
-								$_SESSION['user'] = $pes->email;
-								$_SESSION['user_id'] = $pes->id;
-								setMessage("<div class='success'>Login efetuado com sucesso. Bem-vindo(a), ".$pes->nome.".</div>");
-								header("Location: ".(($_POST['dbo_redirect'])?(urldecode($_POST['dbo_redirect'])):('index.php')));
-								exit();
-							}
-							else
-							{
-								setMessage("<div class='error'>".ERROR_MAIL_UNSYNC."</div>");
-								header("Location: login.php");
-								exit();
-							}
-						} else {
-							setMessage("<div class='error'>Usuário ou Senha inválidos.</div>");
-							header("Location: login.php");
-							exit();
-						}
-					}
-					else
-					{
-						/* senão, fazer a comparação do email com a senha encriptada com sha512 */
-						$pes = new pessoa();
-						$pes->email = dboescape($_POST['email']);
-						if(!masterLogin(dboescape($_POST['pass'])))
-						{
-							$pes->pass = hash('sha512', dboescape($_POST['pass']));
-						}
-						if($pes->hasInativo()) /* checando se a tabela pessoa tem o campo inativo */
-						{
-							$pes->inativo = 0;
-						}
-						$pes->loadAll();
-						if($pes->size())
-						{
-							$_SESSION['user'] = $pes->email;
-							$_SESSION['user_id'] = $pes->id;
-							setMessage("<div class='success'>Login efetuado com sucesso. Bem-vindo(a), ".$pes->nome.".</div>");
-							header("Location: ".(($_POST['dbo_redirect'])?(urldecode($_POST['dbo_redirect'])):('index.php')));
-							exit();
-						}
-						else
-						{
-							setMessage("<div class='error'>Permissão de acesso negada. Contate o administrador (ramal: 4651).</div>");
-							header("Location: login.php");
-							exit();
-						}
-					}
-				}
-				else /* fora do contexto da FCFAR */
+				else /* fora do contexto da UNESP */
 				{
 					if(!strlen(trim($_POST['user'])) || !strlen(trim($_POST['pass'])))
 					{
@@ -2677,30 +2584,28 @@
 
 	function getDboContext()
 	{
-
-		$context = '';
-
-		//variavel com os dominios de autenticação de webmail permitidos para este contexto
-		global $dbo_context_allowed_email_domains; 
-
-		// --------------------------------------------------------------------------------------------------------
-		// este bloco só serve para login dentro da FCFar. Se estiver fora, pode deletar, ou deixe ai. como queira.
-		// --------------------------------------------------------------------------------------------------------
-		if(strstr($_SERVER['SERVER_NAME'], '.fcfar.unesp.br'))
+		if(defined('DBO_CONTEXT'))
 		{
-			$context = 'fcfar';
-			$dbo_context_allowed_email_domains = array('@fcfar.unesp.br', '@aluno.fcfar.unesp.br');
+			return DBO_CONTEXT;
+		}
+		elseif(strstr($_SERVER['SERVER_NAME'], '.fcfar.unesp.br'))
+		{
+			define(DBO_CONTEXT, 'fcfar'); //contexto do sistema
+			define(DBO_CONTEXT_ALLOWED_EMAIL_DOMAINS, '@fcfar.unesp.br,@aluno.fcfar.unesp.br');
 			define(DBO_ACCESS_LOCK_PATH, '/www/portal2/central/access_locks');
 			define(DBO_ACCESS_LOCK_TIMEOUT, 60); //em minutos
+			return DBO_CONTEXT;
 		}
-		elseif(strstr($_SERVER['SERVER_NAME'], '.iq.unesp.br'))
+		return false;
+	}
+
+	function getDboContextAllowedEmailDomains()
+	{
+		if(defined('DBO_CONTEXT_ALLOWED_EMAIL_DOMAINS'))
 		{
-			$context = 'iq';
-			$dbo_context_allowed_email_domains = array('@iq.unesp.br');
+			return explode(',', DBO_CONTEXT_ALLOWED_EMAIL_DOMAINS);
 		}
-
-		return $context;
-
+		return array();
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -2755,8 +2660,7 @@
 			return $_pes->id;
 		}
 
-		$context = getDboContext();
-		if($context == 'fcfar' || $context == 'iq')
+		if(getDboContext())
 		{
 			if($_SESSION['user'])
 			{
