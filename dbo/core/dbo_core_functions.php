@@ -976,11 +976,13 @@
 		/* checando tabem permissoes de grupo, mas só quando o modulo existe. */
 		if(class_exists('grupo') && !sizeof($_sys[sysId()]['modulos']['grupo']))
 		{
-			$grp = new grupo();
-			$perf = new perfil();
+			$grp = eval("?>".file_get_contents(DBO_PATH.'/_dbo_grupo.php')."<?");
+			$grp = $module;
+			$perf = eval("?>".file_get_contents(DBO_PATH.'/_dbo_perfil.php')."<?");
+			$perf = $module;
 
-			$_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'] = $grp->__module_scheme->campo[pessoa]->join->tabela_ligacao;
-			$_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'] = $perf->__module_scheme->campo[grupo]->join->tabela_ligacao;
+			$_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'] = $grp->campo[pessoa]->join->tabela_ligacao;
+			$_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'] = $perf->campo[grupo]->join->tabela_ligacao;
 		}
 		if(strlen(trim($_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'])) && strlen(trim($_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'])))
 		{
@@ -2710,11 +2712,13 @@
 		//tratando grupos
 		if(class_exists('grupo') && !sizeof($_sys[sysId()]['modulos']['grupo']))
 		{
-			$grp = new grupo();
-			$perf = new perfil();
+			$grp = eval("?>".file_get_contents(DBO_PATH.'/_dbo_grupo.php')."<?");
+			$grp = $module;
+			$perf = eval("?>".file_get_contents(DBO_PATH.'/_dbo_perfil.php')."<?");
+			$perf = $module;
 
-			$_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'] = $grp->__module_scheme->campo[pessoa]->join->tabela_ligacao;
-			$_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'] = $perf->__module_scheme->campo[grupo]->join->tabela_ligacao;
+			$_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'] = $grp->campo[pessoa]->join->tabela_ligacao;
+			$_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'] = $perf->campo[grupo]->join->tabela_ligacao;
 		}
 		if(strlen(trim($_sys[sysId()]['modulos']['grupo']['scheme']['tabela_ligacao'])) && strlen(trim($_sys[sysId()]['modulos']['perfil']['scheme']['tabela_ligacao'])))
 		{
