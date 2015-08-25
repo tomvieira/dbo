@@ -620,6 +620,7 @@
 				<?= (($_GET['dbo_new'] || $_GET['dbo_update'])?('<a href="'.$dbo->keepUrl('!dbo_new&!dbo_update').'" class="button small radius no-margin top-less-15 secondary"><i class="fa-arrow-left"></i> Voltar</a>'):('')) ?>
 			</div>
 		</div>
+		<hr class="small">
 		<div class="row almost full" style="position: relative;">
 			<div class="settings-toolbar">
 				<?php
@@ -634,7 +635,6 @@
 				?>
 			</div>
 		</div>
-		<hr class="small">
 		<div id="pagina-canvas" style="padding-bottom: 200px;">
 			<?
 				//listagem

@@ -302,8 +302,7 @@ function getModuleForm ($module)
 				<div class='anchor' id='anchor-module-basic-info'>
 					<div class='row'>
 						<div class='item'>
-							<div class='dica'>Nome amigável ao usuário do sistema</div>
-							<label>Nome do Módulo</label>
+							<label title="Nome amigável ao usuário do sistema.">Nome do Módulo</label>
 							<div class='input'><input type='text' name='titulo' value="<?= (($module->titulo != '&nbsp;')?(htmlspecialchars($module->titulo)):('')) ?>"></div>
 						</div>
 					</div><!-- row -->
@@ -404,8 +403,17 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Texto que será mostrado no botão de inserção do módulo.</div>
-							<label>Botão de inserção</label>
+							<label title="Se marcado como 'sim', este módulo não irá aparecer no gerenciamento de permissões.">Ignorar permissões?</label>
+							<div class='input'>
+								<input type='radio' name='ignore_permissions' value='1' <?= ($module->ignore_permissions === true)?('CHECKED'):('') ?>> Sim &nbsp;&nbsp;&nbsp;
+								<input type='radio' name='ignore_permissions' value='0' <?= (!isset($module->ignore_permissions) || $module->ignore_permissions === false)?('CHECKED'):('') ?>> Não
+							</div>
+						</div>
+					</div><!-- row -->
+
+					<div class='row standard'>
+						<div class='item'>
+							<label title="Texto que será mostrado no botão de inserção do módulo.">Botão de inserção</label>
 							<div class='input'>
 								<input type='text' name='insert_button_text' value="<?= htmlspecialchars($module->insert_button_text) ?>"/>
 							</div>
@@ -414,8 +422,7 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Título que será mostrado no Big Button.</div>
-							<label>Titulo Big Button</label>
+							<label title="Título que será mostrado no Big Button.">Titulo Big Button</label>
 							<div class='input'>
 								<input type='text' name='titulo_big_button' value="<?= htmlspecialchars($module->titulo_big_button) ?>"/>
 							</div>
@@ -424,8 +431,7 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Título que será mostrado na listagem. Se omitido, gera um título automárico.</div>
-							<label>Titulo da Listagem</label>
+							<label title="Título que será mostrado na listagem. Se omitido, gera um título automárico.">Titulo da Listagem</label>
 							<div class='input'>
 								<input type='text' name='titulo_listagem' value="<?= htmlspecialchars($module->titulo_listagem) ?>"/>
 							</div>
@@ -434,8 +440,7 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Classes CSS que serão aplicadas na listagem desta foto</div>
-							<label>Classes CSS da list.</label>
+							<label title="Classes CSS que serão aplicadas na listagem deste módulo.">Classes CSS da list.</label>
 							<div class='input'>
 								<input type='text' name='classes_listagem' value="<?= htmlspecialchars($module->classes_listagem) ?>"/>
 							</div>
@@ -444,8 +449,7 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Permissões custom que serão criadas para este módulo</div>
-							<label>Permissões custom</label>
+							<label title="Permissões custom que serão criadas para este módulo. Uma por linha separando a descriçao com pipe.">Permissões custom</label>
 							<div class='input'>
 								<?
 									if($module->permissoes_custom)
@@ -474,8 +478,7 @@ function getModuleForm ($module)
 
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Bibliotecas JS necessárias para este módulo</div>
-							<label>Bibliotecas JS</label>
+							<label title="Bibliotecas JS necessárias para este módulo.">Bibliotecas JS</label>
 							<div class='input'>
 								<?
 									if($module->bibliotecas_js)
@@ -504,8 +507,7 @@ function getModuleForm ($module)
 
 					<div class='row'>
 						<div class='item'>
-							<div class='dica'>Salve a restrição em uma variável $rest</div>
-							<label>Restrição do Módulo</label>
+							<label title="Salve a restrição em uma variável $rest">Restrição do Módulo</label>
 							<div class='input'>
 								<?
 									if($module->restricao)
@@ -971,24 +973,21 @@ function getFieldForm ($mod,$field)
 			<div class='anchor' style='<?= ($_SESSION['dbomaker_controls']['show_field_advanced'])?('display: block;'):('') ?>'>
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Título mostrado na coluna da listagem. Se omitido, o nome do campo será mostrado.</div>
-						<label>Título da Listagem</label>
+						<label title="Título mostrado na coluna da listagem. Se omitido, o nome do campo será mostrado.">Título da Listagem</label>
 						<div class='input'><input type='text' name='titulo_listagem' value="<?= htmlspecialchars($campo->titulo_listagem) ?>"></div>
 					</div>
 				</div><!-- row -->
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Dica que será exibida ao usuário no momento do cadastro.</div>
-						<label>Dica</label>
+						<label title="Dica que será exibida ao usuário no momento do cadastro.">Dica</label>
 						<div class='input'><input type='text' name='dica' value="<?= htmlspecialchars($campo->dica) ?>"></div>
 					</div>
 				</div><!-- row -->
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Tipo de dado no MYSQL, para o script que irá gerar a tabela.</div>
-						<label>Type</label>
+						<label title="Tipo de dado no MYSQL, para o script que irá gerar a tabela.">Type</label>
 
 						<?
 
@@ -1037,7 +1036,6 @@ function getFieldForm ($mod,$field)
 				<div class='row'>
 					<div class='item'>
 						<label>Null</label>
-						<div class='dica'>Selecione para definir esse campo como chave primária do módulo atual.</div>
 						<div class='input'>
 							<input type='radio' name='isnull' value="1" <?= ($campo->isnull)?('CHECKED'):('') ?>/>Sim &nbsp;&nbsp;&nbsp;
 							<input type='radio' name='isnull' value="0" <?= (!$campo->isnull)?('CHECKED'):('') ?>/>Não
@@ -1047,8 +1045,7 @@ function getFieldForm ($mod,$field)
 
 				<div class='row'>
 					<div class='item'>
-						<label>Chave Primária</label>
-						<div class='dica'>Selecione para definir esse campo como chave primária do módulo atual.</div>
+						<label title="Selecione para definir esse campo como chave primária do módulo atual.">Chave Primária</label>
 						<div class='input'>
 							<select name='pk'>
 								<option value='1' <?= ($campo->pk)?('SELECTED'):('') ?>>Sim</option>
@@ -1060,8 +1057,7 @@ function getFieldForm ($mod,$field)
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Selecione uma opção para definir esse campo como o padrão de ordenação inicial da listagem. Ascendente, ou Descendente.</div>
-						<label>Padrão de Ordenação</label>
+						<label title="Selecione uma opção para definir esse campo como o padrão de ordenação inicial da listagem. Ascendente, ou Descendente.">Padrão de Ordenação</label>
 						<div class='input'>
 							<select name='default'>
 								<option value='-1'></option>
@@ -1078,8 +1074,7 @@ function getFieldForm ($mod,$field)
 				?>
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Perfis pré-existentes no sistema que podem ter acesso ao campo</div>
-						<label>Perfis com acesso ao campo</label>
+						<label title="Perfis pré-existentes no sistema que podem ter acesso ao campo.">Perfis com acesso ao campo</label>
 						<div class='input'>
 							<div class='perfil_todos' style='float: left;'>
 								<input type='checkbox' name='perfil_todos' value='1' <?= (!$campo->perfil)?('CHECKED'):('') ?>> Todos
@@ -1102,8 +1097,7 @@ function getFieldForm ($mod,$field)
 
 				<div class='row'>
 					<div class='item'>
-						<label>Interação do campo</label>
-						<div class='dica'>Define o tipo de interação do campo</div>
+						<label title="Define o tipo de interação do campo.">Interação do campo</label>
 						<div class='input'>
 							<input type="radio" name="interaction" value="readonly" <?= (($campo->interaction == 'readonly')?('checked'):('')) ?>/>Read only &nbsp;&nbsp;&nbsp;
 							<input type="radio" name="interaction" value="insertonly" <?= (($campo->interaction == 'insertonly')?('checked'):('')) ?>/>Insert only &nbsp;&nbsp;&nbsp;
@@ -1115,40 +1109,35 @@ function getFieldForm ($mod,$field)
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Função usada para mostrar o dado na listagem. Recebe o dado puro como parâmetro</div>
-						<label>Função de Listagem</label>
+						<label title="Função usada para mostrar o dado na listagem. Recebe os parâmetros $obj e $column.">Função de Listagem</label>
 						<div class='input'><input type='text' name='list_function' value="<?= htmlspecialchars($campo->list_function) ?>"></div>
 					</div>
 				</div><!-- row -->
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Função usada para mostrar o dado no campo de edição. Recebe o dado puro como parâmetro</div>
-						<label>Função de Edição</label>
+						<label title="Função usada para mostrar o dado no campo de edição. Recebe os parâmetros $obj e $column.">Função de Edição</label>
 						<div class='input'><input type='text' name='edit_function' value="<?= htmlspecialchars($campo->edit_function) ?>"></div>
 					</div>
 				</div><!-- row -->
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Valor padrão na inserção do dado, caso não seja digitado pelo usuário</div>
-						<label>Valor Padrão na Inserção</label>
+						<label title="Valor padrão na inserção do dado, caso não seja digitado pelo usuário.">Valor Padrão na Inserção</label>
 						<div class='input'><input type='text' name='default_value' value="<?= htmlspecialchars($campo->default_value) ?>"></div>
 					</div>
 				</div><!-- row -->
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Caracteres coringa:<br>9 = qualquer número<br>a = qualquer letra<br>* = qualquer número ou letra</div>
-						<label>Máscara</label>
+						<label title="Caracteres coringa:9 = qualquer número; a = qualquer letra; * = qualquer número ou letra.">Máscara</label>
 						<div class='input'><input type='text' name='mask' value="<?= htmlspecialchars($campo->mask) ?>"></div>
 					</div>
 				</div><!-- row -->
 
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Classes que serão exibidas na criação do formulário. Separadas por espaço</div>
-						<label>Classes</label>
+						<label title="Classes que serão exibidas na criação do formulário. Separadas por espaço.">Classes</label>
 						<div class='input'><input type='text' name='classes' value="<?= htmlspecialchars($campo->classes) ?>"></div>
 					</div>
 				</div><!-- row -->
@@ -1163,8 +1152,7 @@ function getFieldForm ($mod,$field)
 			<div class='anchor' style='<?= ($_SESSION['dbomaker_controls']['show_field_type'])?('display: block;'):('') ?>'>
 				<div class='row'>
 					<div class='item'>
-						<div class='dica'>Tipo do campo, entre os pré-definidos da ferramenta e plugins.</div>
-						<label>Tipo</label>
+						<label title="Tipo do campo, entre os pré-definidos da ferramenta e plugins.">Tipo</label>
 						<div class='input'>
 							<select name='tipo'>
 								<option value='pk' <?= ($campo->tipo == 'pk')?('SELECTED'):('') ?>>Chave Primária A.I.</option>
@@ -1245,8 +1233,7 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 		?>
 					<div class='row wide'>
 						<div class='item'>
-							<div class='dica'>1 por linha. Se desejar índices não numericos, utilize a forma "indice => Valor"</div>
-							<label>Valores</label>
+							<label title="1 por linha. Se desejar índices não numericos, utilize a forma 'indice => Valor'">Valores</label>
 							<div class='input'>
 								<div class='wrapper-field-type-detail'>
 									<div class='row'>
@@ -1290,8 +1277,7 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 		?>
 					<div class='row wide'>
 						<div class='item'>
-							<div class='dica'>Não utilize prefixo para o primeiro elemento. As dimensões representam dimensões máximas que a imagem pode ter</div>
-							<label>Dimensões</label>
+							<label title="Não utilize prefixo para o primeiro elemento. As dimensões representam dimensões máximas que a imagem pode ter.">Dimensões</label>
 							<div class='input' style='position: relative; padding-bottom: 20px;'>
 							<a href='#' class='image-new-size'><span>Novo tamanho</span></a>
 							<?
@@ -1340,7 +1326,6 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 		?>
 					<div class='row wide'>
 						<div class='item'>
-							<div class='dica'>...</div>
 							<label>Configurações</label>
 							<div class='input'>
 								<div class='wrapper-field-type-detail'>
@@ -1436,22 +1421,18 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 										</div><!-- row -->
 										<div class='row'>
 											<div class='item item-25'>
-												<div class='dica'>Irá conter a chave do campo atual</div>
-												<label>Campo 1 (modulo atual)</label>
+												<label title="Irá conter a chave do campo atual.">Campo 1 (modulo atual)</label>
 												<input type='text' name='join[chave1]' value='<?= $campo->join->chave1 ?>'>
 											</div><!-- item -->
 											<div class='item item-25'>
-												<div class='dica'>Irá conter a chave do campo relacionado</div>
-												<label>Campo 2 (modulo extrangeiro)</label>
+												<label title="Irá conter a chave do campo relacionado">Campo 2 (modulo extrangeiro)</label>
 												<input type='text' name='join[chave2]' value='<?= $campo->join->chave2 ?>'>
 											</div><!-- item -->
 											<div class='item item-25'>
-												<div class='dica'>Irá conter a chave do campo relacionado</div>
 												<label>PK 1 (PK no mód. atual (id))</label>
 												<input type='text' name='join[chave1_pk]' value='<?= $campo->join->chave1_pk ?>'>
 											</div><!-- item -->
 											<div class='item item-25'>
-												<div class='dica'>Irá conter a chave do campo relacionado</div>
 												<label>PK 2 (PK no mód. extrangeiro (id))</label>
 												<input type='text' name='join[chave2_pk]' value='<?= $campo->join->chave2_pk ?>'>
 											</div><!-- item -->
@@ -1468,8 +1449,7 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 
 									<div class='row'>
 										<div class='item'>
-											<div class='dica'>Restrição opctional. <br>Salvar a restrição em uma variável '$rest'.<br>Variáveis disponíveis para uso:<br></div>
-											<label>Restrição (opcional)</label>
+											<label title="Restrição opcional. Salvar a restrição em uma variável '$rest'.">Restrição (opcional)</label>
 											<textarea name='restricao' class='code' rows='1'><?= $restricao ?></textarea>
 										</div><!-- item -->
 									</div><!-- row -->
@@ -1484,8 +1464,7 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 		?>
 					<div class='row wide'>
 						<div class='item'>
-							<div class='dica'>O resultado da sua query deve ser salva no campo 'val'</div>
-							<label>Código da Query</label>
+							<label title="O resultado da sua query deve ser salva no campo 'val'.">Código da Query</label>
 							<textarea name='query' class='code' rows='1'><?= unident($campo->query) ?></textarea>
 						</div>
 					</div><!-- row -->
@@ -1495,7 +1474,6 @@ function getFieldTypeDetail ($type = '', $mod = '',$field = '')
 		?>
 					<div class='row standard'>
 						<div class='item'>
-							<div class='dica'>Plugin personalizado</div>
 							<label>Plugin</label>
 							<div class='input'>
 								<select name='plugin_selector'>
@@ -2612,6 +2590,7 @@ function runUpdateModule($post_data)
 	$_SESSION['dbomaker_modulos'][$mod]->delete = (($post_data['delete'])?(true):(false));
 	$_SESSION['dbomaker_modulos'][$mod]->preload_insert_form = (($post_data['preload_insert_form'])?(true):(false));
 	$_SESSION['dbomaker_modulos'][$mod]->auto_view = (($post_data['auto_view'])?(true):(false));
+	$_SESSION['dbomaker_modulos'][$mod]->ignore_permissions = (($post_data['ignore_permissions'])?(true):(false));
 
 	$_SESSION['dbomaker_modulos'][$mod]->titulo_big_button = stripslashes($post_data['titulo_big_button']);
 	$_SESSION['dbomaker_modulos'][$mod]->titulo_listagem = stripslashes($post_data['titulo_listagem']);
@@ -2931,6 +2910,7 @@ function writeModuleFile($mod)
 		fwrite($fh, "\$module->insert = 'Nov".($module->genero)." ".singleScape($module->titulo)."';\n");
 		fwrite($fh, "\$module->preload_insert_form = ".(($module->preload_insert_form)?('true'):('false')).";\n");
 		fwrite($fh, "\$module->auto_view = ".(($module->auto_view)?('true'):('false')).";\n");
+		fwrite($fh, "\$module->ignore_permissions = ".(($module->ignore_permissions)?('true'):('false')).";\n");
 		if(strlen($module->permissoes_custom))
 		{
 			fwrite($fh, "\$module->permissoes_custom = '\n");

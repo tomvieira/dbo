@@ -284,15 +284,15 @@ function hidePeixeLoader() {
 }
 
 //funciona igual ao .post() de jQuery, mas com loader
-function peixePost(url, args, callback, mode) {
+function peixePost(url, args, callback, mode, done) {
 	if(mode != 'silent') showPeixeLoader(); 
-	$.post(url,args,callback).complete(function(){ hidePeixeLoader() });
+	$.post(url,args,callback).done(function(){ hidePeixeLoader() });
 }
 
 //funciona igual ao .get() de jQuery, mas com loader
-function peixeGet(url, args, callback, mode) {
+function peixeGet(url, args, callback, mode, d) {
 	if(mode != 'silent') showPeixeLoader(); 
-	$.get(url,args,callback).complete(function(){ hidePeixeLoader() });
+	$.get(url,args,callback).done(function(){ hidePeixeLoader(); if(typeof d == 'function') d() });
 }
 
 function peixeAddRequiredBullets() {
@@ -642,16 +642,17 @@ $(document).ready(function(){
 		peixeUpdateCurrentUrl((c.attr('href'))?(c.attr('href')):((c.data('url'))?(c.data('url')):(document.URL)));
 	});
 
-	$(document).on('click', '.peixe-reload', function(e){
+	$(document).on('click', '[peixe-reload]', function(e){
 		e.preventDefault();
 		c = $(this);
+		if(c.attr('peixe-done')) var d = eval("("+c.attr('peixe-done')+")");
 		peixeUpdateCurrentUrl(c.data('keep-url') ? keepUrl(c.data('keep-url')) : (c.attr('href'))?(c.attr('href')):((c.data('url'))?(c.data('url')):(document.URL)));
 		peixeGet(peixe_current_url, function(d){
 			d = $.parseHTML(d);
 			c.attr('peixe-reload').split(',').forEach(function(v){
 				peixeReload(v, d);
 			})
-		}, null, c.attr('peixe-silent') ? 'silent' : '')
+		}, null, (c.attr('peixe-silent') ? 'silent' : ''), (typeof d == 'function' ? d : null))
 	});
 
 	//colcando ajax loader e screen freezer

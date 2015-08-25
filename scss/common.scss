@@ -65,6 +65,10 @@ html > object { display: none !important; }
 .fleft { float: left; }
 .fright { float: right; }
 
+.inline-block { display: inline-block !important; }
+.w-auto { width: auto !important; }
+.h-auto { height: auto !important; }
+
 /* estilos peixe laranja */
 
 //section (like accordions)
@@ -121,6 +125,13 @@ input, a, select {
 	&:hover { outline: 1px solid $primary-color; }
 }
 
+/* centralizando qualquer coisa verticalmente */
+.text-middle-container { -webkit-transform-style: preserve-3d; -moz-transform-style: preserve-3d; transform-style: preserve-3d; } 
+.text-middle { position: relative; top: 50%; transform: translateY(-50%); }
+.align-middle-container { 
+	* { vertical-align: middle; }
+}
+
 /* --------------------------------------------------------------------------------------------------------*/
 /* ALGUNS RESETS PARA O FOUNDATION ------------------------------------------------------------------------*/
 /* --------------------------------------------------------------------------------------------------------*/
@@ -140,7 +151,14 @@ fieldset { -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5
 }
 
 /* e uma para margem embaixo */
+.margin-top { margin-top: 1em !important; }
 .margin-bottom { margin-bottom: 1em !important; }
+.margin-top-20 { margin-top: 20px; }
+.margin-bottom-20 { margin-bottom: 20px; }
+.margin-top-bottom-auto { margin-top: auto; margin-bottom: auto; }
+.margin-left-right-auto { margin-left: auto; margin-right: auto; }
+
+.relative { position: relative; }
 
 /* paddings auxiliares */
 .padding-top { padding-top: 1em; }
@@ -383,7 +401,40 @@ hr.tiny { margin: 0.50em 0; }
 		input, select, textarea { width: auto; display: inline-block; }
 	}
 
+	//experimental, flexbox
+	//container
+	.flex-container { display: flex; 
+		//& > *  { outline: 1px solid red; padding: 5px; }
+	}
+	.flex-direction-row { flex-direction: row; }
+	.flex-direction-column { flex-direction: column; }
+
+	.flex-wrap { flex-wrap: wrap; }
+	.flex-nowrap { flex-wrap: nowrap; }
+
+	.flex-start { justify-content: flex-start; }
+	.flex-end { justify-content: flex-end; }
+	.flex-center { justify-content: center; }
+	.flex-space-between { justify-content: space-between; }
+	.flex-space-around { justify-content: space-around; }
+
+	.flex-align-start { align-items: flex-start; }
+	.flex-align-end { align-items: flex-end; }
+	.flex-align-center { align-items: center; }
+	.flex-align-baseline { align-items: baseline; }
+	.flex-align-stretch { align-items: stretch; }
+
+	//children
+	.flex-grow-1 { flex-grow: 1; width: 20%; }
+	.flex-grow-2 { flex-grow: 2; width: 20%; }
+	.flex-grow-3 { flex-grow: 3; width: 20%; }
+
+	//ordenacao
+	.flex-order-1 { order: 1; }
+	.flex-order-2 { order: 2; }
+	.flex-order-3 { order: 3; }
 }
+
 
 //media query especifica para situações small que tem que seguir a abordagem "mobile last (not...)"
 

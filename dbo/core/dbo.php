@@ -3421,11 +3421,6 @@ class Dbo extends Obj
 						{
 						?>
 						<div class='<?= !$_GET['dbo_new'] ? 'hidden' : '' ?>' id='novo-<?= $scheme->modulo ?>'>
-							<div class='row'>
-								<div class='large-12 columns'>
-									<h3>Nov<?= $scheme->genero ?> <?= dboStrToLower($scheme->titulo) ?></h3>
-								</div>
-							</div><!-- row -->
 							<?
 								if(!$_GET['dbo_update'])
 								{
@@ -3436,6 +3431,13 @@ class Dbo extends Obj
 									}
 									else
 									{
+										?>
+										<div class='row'>
+											<div class='large-12 columns'>
+												<h3>Nov<?= $scheme->genero ?> <?= dboStrToLower($scheme->titulo) ?></h3>
+											</div>
+										</div><!-- row -->
+										<?php
 										echo $this->getInsertForm();
 									}
 								}
@@ -3472,19 +3474,22 @@ class Dbo extends Obj
 							{
 								?>
 								<?= $this->getBarraAcoesUpdate($this->getButtonScheme($this)) ?>
-								<div class='row'>
-									<div class='large-12 columns'>
-										<h3>Alterar <?= dboStrToLower($scheme->titulo) ?></h3>
-									</div><!-- col -->
-								</div><!-- row -->
 								<?
 									if(function_exists('form_'.$this->getModule().'_update'))
 									{
 										$function_name = 'form_'.$this->getModule().'_update';
-										echo $function_name($this);
+										$class_name = get_class($this);
+										echo $function_name(new $class_name(dboescape($_GET['dbo_update'])));
 									}
 									else
 									{
+										?>
+										<div class='row'>
+											<div class='large-12 columns'>
+												<h3>Alterar <?= dboStrToLower($scheme->titulo) ?></h3>
+											</div><!-- col -->
+										</div><!-- row -->
+										<?php
 										$this->getUpdateForm();
 									}
 							}
@@ -4592,14 +4597,16 @@ class Dbo extends Obj
 			if($this->id)
 			{
 				$new = $this->update();
+				$operation = 'update';
 			}
 			else
 			{
 				$new = $this->save();
+				$operation = 'save';
 			}
 
 			//executando pos_update e pos_insert
-			if($this->id) { //update
+			if($operation == 'update') { //update
 				$func = $this->getModule()."_pos_update";
 				if(function_exists($func))
 				{
@@ -4619,7 +4626,7 @@ class Dbo extends Obj
 				$function_name = $_GET['dbo_return_function'];
 				if(function_exists($function_name))
 				{
-					$function_name((($this->id)?('update'):('insert')), $this);
+					$function_name($operation, $this);
 				}
 			}
 
@@ -4641,7 +4648,7 @@ class Dbo extends Obj
 			{
 				if(function_exists(setMessage))
 				{
-					if($this->id)
+					if($operation == 'update')
 					{
 						setMessage("<div class='success'>".$this->__module_scheme->titulo." de ".$this->getFieldName($this->getPK())." ".$new." alterado com sucesso.</div>");
 						$url = (($this->__module_scheme->auto_view)?($this->keepUrl(array('dbo_view='.$new, '!dbo_update'))):($this->keepUrl()));
@@ -4654,7 +4661,7 @@ class Dbo extends Obj
 				}
 				else
 				{
-					if($this->id)
+					if($operation == 'update')
 					{
 						$url = $this->keepUrl(array('sucesso='.$new, '!dbo_update'));
 					}

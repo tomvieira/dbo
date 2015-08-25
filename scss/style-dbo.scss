@@ -85,6 +85,13 @@ a {
 
 [tabindex] { outline: 0; }
 
+.dbo-tab-bar { border-bottom: 1px solid #ddd; @extend .no-select;
+	.dbo-tab { padding: 12px 16px; font-size: 11px; text-transform: uppercase; display: inline-block; color: #999; cursor: pointer; margin-bottom: -1px; border: 1px solid transparent;
+		&.active { border: 1px solid #ddd; color: #222; cursor: default; border-bottom-color: #fff; }
+		&:hover { color: #222; }
+	}
+}
+
 /* modal */
 body {
 	&.dbo.modal { 
@@ -232,18 +239,27 @@ i[class^=fa-].big-icon { font-size: 25px; }
 .anchor-get-list { display: block; }
 
 /* barra de configurações auxiliar */
-.settings-box { background: #333; margin-bottom: 16px; margin-top: -16px; box-shadow: inset 0px 3px 10px rgba(1,1,1,.75); color: #eee; overflow: hidden; display: none; padding-bottom: 2px; @extend .no-select;
+.settings-box { background: #333; margin-bottom: 16px; margin-top: -16px; box-shadow: inset 0px 3px 10px rgba(1,1,1,.75); color: #eee; overflow: hidden; display: none; padding-bottom: 10px; @extend .no-select; position: relative;
+	&.open { display: block; }
 	h1, h2, h3, h4, h5, h6, label { color: #eee !important; }
 	input[type="checkbox"] { display: none;
 		&:checked+label { color: #eee !important;
 			&:before { content: '\f046'; } 
 		}
 		&+label { color: #777 !important;
-			&:before { content: '\f096'; font-family: 'FontAwesome'; font-size: 14px; width: 20px; display: inline-block; margin-bottom: 20px; }
+			&:before { content: '\f096'; font-family: 'FontAwesome'; font-size: 14px; width: 20px; display: inline-block; margin-bottom: 7px; }
+		}
+	}
+	input[type="radio"] { display: none;
+		&:checked+label { color: #eee !important;
+			&:before { content: '\f192'; } 
+		}
+		&+label { color: #777 !important;
+			&:before { content: '\f10c'; font-family: 'FontAwesome'; font-size: 14px; width: 20px; display: inline-block; margin-bottom: 7px; }
 		}
 	}
 }
-.settings-toolbar { padding: 5px 7px; background: #fff; border-radius: 1000px; position: absolute; bottom: -28px; right: 15px; z-index: 100; font-size: 11px; text-transform: uppercase; @extend .no-select;
+.settings-toolbar { padding: 5px 7px; background: #fff; border-radius: 1000px; position: absolute; top: -28px; right: 15px; z-index: 100; font-size: 11px; text-transform: uppercase; @extend .no-select;
 	i { font-size: 14px; text-align: middle; }
 }
 

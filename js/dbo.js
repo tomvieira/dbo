@@ -38,7 +38,6 @@ function openDboModal(url, tamanho, callback) {
 function openColorBoxModal(url, width, height, params) {
 	var width = ((typeof width != 'undefined')?(width):(1000));
 	var height = ((typeof height != 'undefined')?(height):('98%'));
-	console.log(params);
 	height = (($(window).width() < 810)?('90%'):(height));
 	$.colorbox({
 		href: url,
@@ -50,7 +49,7 @@ function openColorBoxModal(url, width, height, params) {
 		overlayClose: false,
 		escKey: false,
 		fixed: true,
-		transition: params.transition || 'elastic'
+		transition: (params && params.transition) || 'elastic'
 	});
 }
 

@@ -60,39 +60,45 @@
 	function getButtons ($arq)
 	{
 		global $modulos_array;
+		global $modulos_array_nomes;
 		global $_system;
 
 		include(DBO_PATH."/".$arq);
-		$modulos_array[$module->order_by][$module->modulo]['Cockpit'] = 'cockpit';
-		$modulos_array[$module->order_by][$module->modulo]['Sidebar'] = 'sidebar';
-		$modulos_array[$module->order_by][$module->modulo]['Acesso'] = 'access';
-		$modulos_array[$module->order_by][$module->modulo]['Inserir'] = 'insert';
-		$modulos_array[$module->order_by][$module->modulo]['Editar'] = 'update';
-		$modulos_array[$module->order_by][$module->modulo]['Excluir'] = 'delete';
-		$modulos_array[$module->order_by][$module->modulo]['Visualizar'] = 'view';
-
-		//instanciando botoes
-		if(is_array($module->button))
+		if($module->ignore_permissions !== true)
 		{
-			foreach($module->button as $chave => $valor)
+			$modulos_array[$module->order_by][$module->modulo]['Cockpit'] = 'cockpit';
+			$modulos_array[$module->order_by][$module->modulo]['Sidebar'] = 'sidebar';
+			$modulos_array[$module->order_by][$module->modulo]['Acesso'] = 'access';
+			$modulos_array[$module->order_by][$module->modulo]['Inserir'] = 'insert';
+			$modulos_array[$module->order_by][$module->modulo]['Editar'] = 'update';
+			$modulos_array[$module->order_by][$module->modulo]['Excluir'] = 'delete';
+			$modulos_array[$module->order_by][$module->modulo]['Visualizar'] = 'view';
+			$modulos_array_nomes[$module->modulo]['nome'] = $module->titulo;
+
+			//instanciando botoes
+			if(is_array($module->button))
 			{
-				$modulos_array[$module->order_by][$module->modulo][$valor->value] = $valor->value;
+				foreach($module->button as $chave => $valor)
+				{
+					$modulos_array[$module->order_by][$module->modulo][$valor->value] = $valor->value;
+				}
 			}
-		}
 
-		//instanciando permissoes custom
-		if(strlen(trim($module->permissoes_custom)))
-		{
-			$permissoes_custom = trim($module->permissoes_custom);
-			$permissoes_custom = explode("\n", $permissoes_custom);
-			foreach($permissoes_custom as $permissao_custom)
+			//instanciando permissoes custom
+			if(strlen(trim($module->permissoes_custom)))
 			{
-				$_system['module_permissoes_custom'][trim($permissao_custom)] = trim($permissao_custom);
+				$permissoes_custom = trim($module->permissoes_custom);
+				$permissoes_custom = explode("\n", $permissoes_custom);
+				foreach($permissoes_custom as $permissao_custom)
+				{
+					$_system['module_permissoes_custom'][trim($permissao_custom)] = trim($permissao_custom);
+				}
 			}
 		}
 	}
 
 	$modulos_array = array();
+	$modulos_array_nomes = array();
 
 	foreach($arq_modulos as $arq)
 	{
@@ -160,7 +166,7 @@
 										{
 										?>
 											<tr>
-												<td style="width: 20%;"><span class="no-margin inline header" id="<?= $chave ?>"><?= $chave ?></span></td>
+												<td style="width: 20%;"><span class="no-margin inline header" id="<?= $chave ?>" title="<?= $chave ?>"><?= $modulos_array_nomes[$chave]['nome'] ?></span></td>
 												<td>
 												<?
 													foreach($valor as $item_chave => $item_permissao)
@@ -217,7 +223,7 @@
 												{
 													?>
 													<tr>
-														<td style="width: 20%;"><span class="header no-margin inline" id="pagina-<?= $pagina_tipo['tipo'] ?>"><?= $pagina_tipo['tipo'] ?></span></td>
+														<td style="width: 20%;"><span class="header no-margin inline" id="pagina-<?= $pagina_tipo['tipo'] ?>"><?= ucfirst($pagina_tipo['titulo']) ?></span></td>
 														<td>
 															<?
 																foreach($items as $key => $value)

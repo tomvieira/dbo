@@ -97,6 +97,12 @@
 			$return .= "<script src=\"".$js_url."/jquery.autosize.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "autosize";
 		}
+		if(!in_array("slick-carousel", $_system['dbo_imported_js']) && (in_array("slick-carousel", $libs) || $import_all))
+		{
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/slick/slick.css\">\n";
+			$return .= "<script src=\"".$js_url."/slick/slick.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "slick-carousel";
+		}
 		if(!in_array("color", $_system['dbo_imported_js']) && (in_array("color", $libs) || $import_all))
 		{
 			$return .= "<script src=\"".$js_url."/jquery.color.js\"></script>\n";
@@ -243,6 +249,14 @@
 
 	// ----------------------------------------------------------------------------------------------------------------
 
+	function keepUrl($args = array(), $params = array())
+	{
+		global $dbo;
+		return $dbo->keepUrl($args, $params);
+	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
 	function dboRegisterJS($code, $once = false, $id)
 	{
 		global $_system;
@@ -377,6 +391,12 @@
 			</script>
 			<!-- DBO REGISTERED JS (END) -->
 			<?
+		}
+		else
+		{
+			?>
+			<script> function dboInit() {} </script>
+			<?php
 		}
 		return ob_get_clean();
 	}
@@ -1471,6 +1491,18 @@
 		}
 		return ob_get_clean();
 	}
+	
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboEncode($data) { 
+		return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); 
+	} 
+
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function dboDecode($data) { 
+		return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT)); 
+	} 
 	
 	// ----------------------------------------------------------------------------------------------------------------
 
@@ -2910,6 +2942,18 @@
 		}
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------
+
+	function secureURLCheck($params = array())
+	{
+		if(!secureUrl())
+		{
+			$json_result['message'] = '<div class="error">Tentativa de acesse insegura</div>';
+			echo json_encode($json_result);
+			exit();
+		}
+	}
+	
 	// ----------------------------------------------------------------------------------------------------------------
 
 	function singleLine($var)
