@@ -24,17 +24,43 @@ require_once('auth.php');
 		<div class='row'>
 			<div class='large-12 columns'>
 				<label>Nome do requisitante</label>
-				<div class='row collapse'>
-					<div class='small-9 large-10 columns'><input type='text' name='nome_requisitante' value="<?= htmlSpecialChars($_pes->nome) ?>" class="required ok" readonly/></div>
-					<div class='small-3 large-2 columns'><input type='button' name='' tabindex='-1' value="Alterar" class="nome-clearer button postfix radius"/></div>
-				</div>				
+				<?php
+					if(PERMITIR_REQUISICOES_PARA_TERCEIROS === false)
+					{
+						?>
+						<span class="fake-input ok"><?= $_pes->nome ?></span>
+						<?php
+					}
+					else
+					{
+						?>
+						<div class='row collapse'>
+							<div class='small-9 large-10 columns'><input type='text' name='nome_requisitante' value="<?= htmlSpecialChars($_pes->nome) ?>" class="required ok" readonly/></div>
+							<div class='small-3 large-2 columns'><input type='button' name='' tabindex='-1' value="Alterar" class="nome-clearer button postfix radius"/></div>
+						</div>				
+						<?php
+					}
+				?>
 			</div>
 		</div><!-- row -->
 		
 		<div class='row'>
 			<div class='large-6 columns'>
 				<label>E-mail do requisitante</label>
-				<input type='email' name='email_requisitante' value="<?= $_pes->email ?>" class='required ok'/>
+				<?php
+					if(PERMITIR_REQUISICOES_PARA_TERCEIROS === false)
+					{
+						?>
+						<span class="fake-input ok"><?= $_pes->email ?></span>						
+						<?php
+					}
+					else
+					{
+						?>
+						<input type='email' name='email_requisitante' value="<?= $_pes->email ?>" class='required ok'/>
+						<?php
+					}
+				?>
 			</div>
 
 			<div class='large-6 columns'>
@@ -416,7 +442,7 @@ require_once('auth.php');
 
 		//se tiver erro, não submita e avisa o usuário.
 		if(error){
-			alert('Campos obrigatorios');
+			alert('Atenção:\n\npreencha todos os campos obrigatórios');
 			$(submitter).val($(submitter).attr('default-value')).removeAttr('disabled').removeClass('disabled');
 			return false;
 		}

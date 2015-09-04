@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 31/03/2015 12:49:14 */
+/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 04/09/2015 14:26:09 */
 /* ================================================================================================================== */
 
 
@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Novo Tipo de Serviço';
 $module->preload_insert_form = true;
 $module->auto_view = true;
+$module->ignore_permissions = false;
 $module->order_by = '19';
 
 /* FIELDS =========================================================================================================== */
@@ -161,14 +162,57 @@ $module->campo[$field->coluna] = $field;
 /*==========================================*/
 
 $field = new Obj();
-$field->titulo = 'Relação com Tipo de Equipamento';
-$field->coluna = 'tipo_equipamento_tipo_servico';
+$field->titulo = 'Permitir anexo';
+$field->coluna = 'permitir_anexo';
 $field->pk = false;
-$field->isnull = true;
+$field->isnull = false;
 $field->add = true;
 $field->valida = false;
 $field->edit = true;
 $field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'não',
+	'1' => 'sim',
+);
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Extensões permitidas';
+$field->coluna = 'extensoes_permitidas';
+$field->dica = 'Separadas por vírgula, Ex: .pdf, ptt, .odt';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Relação com Tipo de Equipamento';
+$field->coluna = 'tipo_equipamento_tipo_servico';
+$field->pk = false;
+$field->isnull = true;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
 $field->lista = false;
 $field->filter = false;
 $field->order = false;
@@ -215,7 +259,7 @@ $grid = array();
 
 $grid[] = array('12');
 $grid[] = array('4','3','2','3');
-$grid[] = array('12');
+$grid[] = array('4','8');
 
 $module->grid = $grid;
 
