@@ -1,0 +1,10 @@
+// Setting the correct charset
+@charset "UTF-8";
+// This includes all of the foundation global elements that are needed to work with any of the other files.
+@import "foundation/variables";
+@import "project";
+
+table.historico { border-collapse: collapse; width: 100%;
+	tr, td, th { border-collapse: collapse; }
+	td, th { border-bottom: 1px solid #ccc; }
+}
