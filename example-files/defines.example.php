@@ -68,7 +68,10 @@
 //$_system['module_blacklist'] = array(
 	//'pagina',
 	//'menu',
+	//'meta',
 	//'categoria',
+	//'dbo_slider',
+	//'dbo_slider_slide',
 //);
 
 ?>
