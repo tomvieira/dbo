@@ -552,11 +552,90 @@ if(!class_exists('pagina'))
 			}
 		}
 
+		static function criarNova($titulo, $params = array())
+		{
+			/* Params
+				- tipo: tipo de página a ser inserida, default: pagina
+				- slug: slug da página, default: dboUniqueSlug() do $titulo
+				- texto: texto
+				- data: data de publicação, default dboNow()
+				- autor: id do autor da página, default loggedUser()
+				- status: status, default: publicado
+				- categorias: ids das categorias separadas por vírgula. Só para paginas customizadas
+			*/
+
+			global $_system;
+
+			extract($params);
+
+			$tipo = $tipo === null ? 'pagina' : $tipo;
+			$slug = $slug === null ? $titulo : $slug;
+			$data = $data === null ? dboNow() : $data;
+			$status = $status === null ? 'publicado' : $status;
+			$autor = $autor === null ? loggedUser() : $autor;
+			$categorias = explode(',', $categorias);
+			
+			$pag = new pagina();
+
+			//detectando o tipo de página
+			if($tipo != 'pagina')
+			{
+				$ext_mod = $_system['pagina_tipo'][$tipo]['extension_module'];
+
+				//se é extendido, seta o objeto host
+				if($ext_mod)
+				{
+					$ext_mod = new $ext_mod();
+					$pag->{$pag->client_object_key} = $ext_mod;
+					$pag->{$pag->client_object_key}->setHostObject($pag);
+				}
+			}
+
+			//setando todos os parametros no objeto
+			foreach($params as $key => $value)
+			{
+				$pag->{$key} = $value;
+				if($pag->mais())
+				{
+					$pag->mais()->{$key} = $value;
+				}
+			}
+
+			$pag->titulo = $titulo;
+			$pag->tipo = $tipo;
+			$pag->slug = dboUniqueSlug($slug, 'database', array(
+				'table' => $pag->getTable(),
+				'column' => 'slug',
+			));
+			$pag->data = $data;
+			$pag->status = $status;
+			$pag->autor = $autor;
+			$pag->created_by = loggedUser();
+			$pag->created_on = dboNow();
+
+			//salvando a página e o modulo extendido
+			$pag->saveOrUpdate();
+			if($pag->mais())
+			{
+				$pag->mais()->saveOrUpdate();
+			}
+
+			//tratando a inserção de categorias
+			if(sizeof($categorias))
+			{
+				foreach($categorias as $categoria_id)
+				{
+					$pag->addCategoriaRecursiva($categoria_id);
+				}
+			}
+
+		}
+
 		static function renderMenuAdminStructure($pagina_tipo)
 		{
 			global $_system;
 			ob_start();
-			$pagina = new pagina("WHERE status = 'Publicado' AND deleted_by = 0 AND tipo = '".$pagina_tipo."' ORDER BY titulo");
+			$pagina = new pagina("WHERE status = 'publicado' AND deleted_by = 0 AND tipo = '".$pagina_tipo."' ORDER BY titulo");
 			if($pagina->size())
 			{
 				?>
@@ -682,8 +761,29 @@ if(!class_exists('pagina'))
 		{
 			$join = $this->getDetails('categoria')->join;
 			$tabela = $join->tabela_ligacao;
-			$sql = "INSERT INTO ".$tabela." (pagina, categoria) VALUES ('".$this->id."', '".$cat->id."')";
+			$sql = "INSERT INTO ".$tabela." (pagina, categoria) VALUES ('".$this->id."', '".$cat_id."')";
 			dboQuery($sql);
+		}
+
+		function addCategoriaRecursiva($cat_id)
+		{
+			$join = $this->getDetails('categoria')->join;
+			$tabela = $join->tabela_ligacao;
+			$sql = "INSERT INTO ".$tabela." (pagina, categoria) VALUES ('".$this->id."', '".$cat_id."')";
+			dboQuery($sql);
+			
+			//verificando se tem mãe
+			$cat = new categoria($cat_id);
+			if($cat->size() && $cat->mae > 0)
+			{
+				//primeiro verifica se já não está lá.
+				$sql = "SELECT id FROM ".$tabela." WHERE pagina = '".$this->id."' AND categoria = '".$cat->mae."'";
+				dboQuery($sql);
+				if(!dboAffectedRows())
+				{
+					$this->addCategoriaRecursiva($cat->mae);
+				}
+			}
 		}
 
 		function removeCategoria($cat_id)

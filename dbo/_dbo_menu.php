@@ -26,6 +26,7 @@ $module->permissoes_custom = '
 $module->bibliotecas_js = '
 	nestable
 ';
+$module->dbo_maker_read_only = true;
 $module->order_by = '1';
 
 /* FIELDS =========================================================================================================== */

@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Nova Categoria';
 $module->preload_insert_form = true;
 $module->auto_view = true;
+$module->dbo_maker_read_only = true;
 $module->order_by = '6';
 
 /* FIELDS =========================================================================================================== */
@@ -158,6 +159,25 @@ $field->lista = false;
 $field->filter = false;
 $field->order = false;
 $field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Detail';
+$field->coluna = 'detail';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = true;
+$field->filter = true;
+$field->order = true;
+$field->type = 'TEXT';
 $field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;

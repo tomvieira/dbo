@@ -21,6 +21,7 @@ $module->insert = 'Novo Slide';
 $module->preload_insert_form = true;
 $module->auto_view = true;
 $module->ignore_permissions = true;
+$module->dbo_maker_read_only = true;
 $module->order_by = '13';
 
 /* FIELDS =========================================================================================================== */

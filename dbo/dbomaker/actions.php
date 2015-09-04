@@ -250,6 +250,9 @@ function showModules ()
 	//mostrando os links para os modulos
 	foreach($_SESSION['dbomaker_modulos'] as $nome_modulo => $modulo)
 	{
+
+		if($modulo->dbo_maker_read_only) continue;
+
 		$class = '';
 		$module_file = '../_dbo_'.$modulo->modulo.'.php';
 		if(file_exists($module_file))

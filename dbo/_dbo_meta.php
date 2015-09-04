@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Nova Meta';
 $module->preload_insert_form = true;
 $module->auto_view = true;
+$module->dbo_maker_read_only = true;
 $module->order_by = '5';
 
 /* FIELDS =========================================================================================================== */

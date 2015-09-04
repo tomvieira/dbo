@@ -24,6 +24,7 @@ $module->permissoes_custom = '
 	media-manager | Permissão de acesso ao gerenciador de mídia do site.
 	media-manager-all | Esta permissão permite que o usuário tenha acesso e controle sobre todas as mídias de todos os outros usuários, e não somente às criadas por ele.
 ';
+$module->dbo_maker_read_only = true;
 $module->order_by = '0';
 
 /* FIELDS =========================================================================================================== */

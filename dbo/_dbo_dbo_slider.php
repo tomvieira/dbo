@@ -24,6 +24,7 @@ $module->ignore_permissions = false;
 $module->permissoes_custom = '
 	slider-configuracoes | Permite que o usuário configure tamanho, tempo de exibição e outras informações do slider.
 ';
+$module->dbo_maker_read_only = true;
 $module->order_by = '12';
 
 /* FIELDS =========================================================================================================== */

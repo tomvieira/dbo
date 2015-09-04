@@ -277,6 +277,28 @@ if(!class_exists('categoria'))
 				return ob_get_clean();
 			}
 		}
+
+		//seta detalhes desta pagina no campo detail. Os detalhes são armazenados como um objeto JSON encodado
+		function setDetail($key, $value)
+		{
+			$detail = json_decode($this->detail, true);
+			$detail[$key] = $value;
+			$this->detail = json_encode($detail);
+		}
+
+		function getDetail($key)
+		{
+			$detail = json_decode($this->detail, true);
+			return $detail[$key];
+		}
+
+		function removeDetail($key)
+		{
+			$detail = json_decode($this->detail, true);
+			unset($detail[$key]);
+			$this->detail = json_encode($detail);
+		}
+	
 	} //class declaration
 } //if ! class exists
 
