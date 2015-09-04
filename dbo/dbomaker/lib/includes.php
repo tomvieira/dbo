@@ -13,7 +13,7 @@ It also works, but with some few limitations.
 */
 @include('../../lib/connection.php');
 @include('../../lib/defines.php');
-@include('../../local-defines.php');
+@include('../../local-defines.php');  
 
 $sql = "SHOW TABLES";
 if(@mysql_query($sql))

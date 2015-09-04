@@ -5,8 +5,8 @@ if($_GET['getDiskModules'])
 {
 	getDiskModules();
 	showModules();
-}
-
+} 
+ 
 elseif($_GET['showFields'])
 {
 	showFields($_GET['showFields']);
