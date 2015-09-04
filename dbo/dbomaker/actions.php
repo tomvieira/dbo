@@ -5,8 +5,8 @@ if($_GET['getDiskModules'])
 {
 	getDiskModules();
 	showModules();
-}
-
+} 
+ 
 elseif($_GET['showFields'])
 {
 	showFields($_GET['showFields']);
@@ -3557,10 +3557,15 @@ function deleteField($data)
 
 function syncDatabase()
 {
+	global $_system;
+
 	//try to create the tables.
 	foreach($_SESSION['dbomaker_modulos'] as $module)
 	{
-		syncTable($module);
+		if(!in_array($module->modulo, (array)$_system['module_blacklist']))
+		{
+			syncTable($module);
+		}
 	}
 }
 

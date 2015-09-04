@@ -1,5 +1,6 @@
 <?php
-//sets the site url
+
+//sets the site url 
 //define(SITE_URL, preg_replace('#/admin/dbo$#is', '', DBO_URL));
 
 /* sets the main word defining the admin cockpit */
@@ -68,7 +69,10 @@
 //$_system['module_blacklist'] = array(
 	//'pagina',
 	//'menu',
+	//'meta',
 	//'categoria',
+	//'dbo_slider',
+	//'dbo_slider_slide',
 //);
 
 ?>
