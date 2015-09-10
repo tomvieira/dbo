@@ -26,6 +26,8 @@
 /* consertando o maldito modulo de segurança do BB */
 html > object { display: none !important; }
 
+.hide-empty:empty { display: none; }
+
 /* boxsizing (box model alternative) */
 * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; *behavior: url(../js/boxsizing.htc); }
 

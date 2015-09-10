@@ -301,7 +301,7 @@
 							</div>
 						</div>
 			
-						<div style="<?= $pag->hideFormField('categorias') || $pag->hideFormField('atributos') ? 'display: none;' : '' ?>" class="wrapper-pagina-field-<?= $pag->tipo == 'pagina' ? 'atributos' : 'categorias' ?>">
+						<div style="<?= ($pag->hideFormField('categorias') && $tipo != 'pagina') || ($pag->hideFormField('atributos') && $tipo == 'pagina') ? 'display: none;' : '' ?>" class="wrapper-pagina-field-<?= $pag->tipo == 'pagina' ? 'atributos' : 'categorias' ?>">
 							<?php
 								//implementação de categorias, vai ter que ficar para depois. Fazer páginas como categorias está resolvendo por enquanto.
 								if($tipo != 'pagina' && class_exists('categoria'))

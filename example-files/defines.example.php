@@ -28,7 +28,7 @@
 	//'extension_module' => 'pagina_animal',
 	//'slug_prefix' => 'plantel', //incluido antes do slug no permalink
 	//'default_list_view' => 'gallery', //list | details | gallery
-	//'paginacao' => 20
+	//'paginacao' => 20,
 	//'hidden_fields' => array( //array contendo o campos que não devem ser exibidos por padrão no formulário.
 		//'slug',
 		//'subtitulo',
@@ -37,7 +37,6 @@
 		//'atributos',
 		//'categorias',
 		//'imagem_destaque',
-		//'categorias',
 	//), 
 //);
 
