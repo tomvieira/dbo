@@ -129,15 +129,39 @@ if(!class_exists('pagina'))
 						".($cat ? " AND pagina_categoria.categoria IN(".$cat.") " : "")."
 				";
 			}
-
+			
+			//fazendoa busca por termo
+			if(strlen(trim($term)))
+			{
+				$parts = array();
+				$terms = explode(" ", trim(preg_replace('/\s+/is', ' ', $term)));
+				foreach($terms as $key => $value)
+				{
+					$parts[] = "(
+						titulo LIKE '%".$value."%' OR
+						subtitulo LIKE '%".$value."%' OR
+						resumo LIKE '%".$value."%' OR
+						texto LIKE '%".$value."%'
+					)";
+				}
+				if(sizeof($parts))
+				{
+					$part_where[] = implode(" AND ", $parts);
+				}
+			}
 
 			//variaveis do banco de dados
 			$tabela = $this->getTable();
 
+			//verificando se deve listar um tipo ou todos os tipos de página
+			if($tipo !== false)
+			{
+				$part_where[] = "tipo = '".$tipo."'";
+			}
+
 			//query parts
 			$part_where[] = "status = 'publicado'";
 			$part_where[] = "data <= '".dboNow()."'";
-			$part_where[] = "tipo = '".$tipo."'";
 
 			$sql = "
 				SELECT 
