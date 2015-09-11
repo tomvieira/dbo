@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'categoria' =================================== AUTO-CREATED ON 15/08/2015 17:31:09 */
+/* DBO DEFINITION FILE FOR MODULE 'categoria' =================================== AUTO-CREATED ON 10/09/2015 12:53:19 */
 /* ================================================================================================================== */
 
 
@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Nova Categoria';
 $module->preload_insert_form = true;
 $module->auto_view = true;
+$module->ignore_permissions = false;
 $module->dbo_maker_read_only = true;
 $module->order_by = '6';
 
@@ -40,6 +41,26 @@ $field->order = false;
 $field->type = 'INT NOT NULL auto_increment';
 $field->interaction = '';
 $field->tipo = 'pk';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Imagem';
+$field->coluna = 'imagem';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'media';
+$field->formatos = imagem;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/

@@ -70,6 +70,17 @@ function renderCategoriaPaginaFormWidget($pag = null, $pagina_tipo, $params = ar
 			c.closest('li').find('input[type="checkbox"]').prop('checked', false);
 		}
 
+		function openModalCategorias(categoria_id) {
+			$('#modal-dbo-small').foundation('reveal', 'open', {
+				url: 'dbo/core/dbo-categoria-modal.php?categoria_id='+categoria_id,
+				success: function(){
+					setTimeout(function(){
+						console.log('success');
+					}, 250);
+				}
+			})
+		}
+
 		$(document).ready(function(){
 
 			$(document).on('change', '#wrapper-categorias-da-pagina input[type="checkbox"]', function(){
@@ -91,23 +102,40 @@ function renderCategoriaPaginaFormWidget($pag = null, $pagina_tipo, $params = ar
 				}, null, true);
 				return false;
 			});
+
+			$(document).on('click', '.trigger-modal-categoria', function(e){
+				e.preventDefault();
+				c = $(this);
+				openModalCategorias(c.data('categoria_id'));
+			});
+
 		}) //doc.ready
 	</script>
 	<?php
 	return ob_get_clean();
 }
 
-function renderCategoryOptions($array, $prefix = '')
+function renderCategoryOptions($array, $prefix = '', $params = array())
 {
+	/* Params:
+	   - selected: mostra o option selecionado
+	   - id: id da categoria sendo editada
+	   - skip_self: se TRUE, remove o elemento selecionado da listagem
+	*/
+	extract($params);
 	ob_start();
 	foreach($array as $data)
 	{
+		if($skip_self === true && $id == $data['id'])
+		{
+			continue;
+		}
 		?>
-		<option value="<?= $data['id'] ?>"><?= $prefix.$data['nome'] ?></option>
+		<option value="<?= $data['id'] ?>" <?= ($selected == $data['id'] ? 'selected' : '') ?>><?= $prefix.$data['nome'] ?></option>
 		<?php
 		if(is_array($data['children']))
 		{
-			echo renderCategoryOptions($data['children'], trim($prefix).'&#8212; ');
+			echo renderCategoryOptions($data['children'], trim($prefix).'&#8212; ', $params);
 		}
 	}
 	return ob_get_clean();
@@ -126,14 +154,17 @@ function renderCategoryCheckboxes($array, $checked = array(), $params = array())
 	foreach($array as $data)
 	{
 		?>
-		<li class="font-12"><input type="checkbox" <?= in_array($data['id'], $checked) ? 'checked' : '' ?> name="<?= $menu_structure ? 'item-' : '' ?>categoria[]" id="categoria-<?= $data['id'] ?>" value="<?= $data['id'] ?>" class="top-2" <?= $menu_structure ? getCategoryMenuDataAttrs($full_tree, $data, $params) : '' ?>/><label for="categoria-<?= $data['id'] ?>"><?= $data['nome'] ?></label>
-		<?php
-		if(is_array($data['children']))
-		{
-			$params['children'] = true;
-			echo renderCategoryCheckboxes($data['children'], $checked, $params);
-		}
-		?>
+		<li class="font-12">
+			<div class="hover-show">
+				<input type="checkbox" <?= in_array($data['id'], $checked) ? 'checked' : '' ?> name="<?= $menu_structure ? 'item-' : '' ?>categoria[]" id="categoria-<?= $data['id'] ?>" value="<?= $data['id'] ?>" class="top-2" <?= $menu_structure ? getCategoryMenuDataAttrs($full_tree, $data, $params) : '' ?>/><label for="categoria-<?= $data['id'] ?>"><?= $data['nome'] ?></label><a href="#" title="Editar categoria" class="relative trigger-modal-categoria hover-info" style="left: -5px;" data-categoria_id="<?= $data['id'] ?>"><i class="fa fa-pencil"></i></a>
+			</div>
+			<?php
+			if(is_array($data['children']))
+			{
+				$params['children'] = true;
+				echo renderCategoryCheckboxes($data['children'], $checked, $params);
+			}
+			?>
 		</li>
 		<?php
 	}

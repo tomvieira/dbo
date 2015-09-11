@@ -1156,6 +1156,7 @@
 						autofocus: false,
 						entity_encoding: 'named',
 						entities: '160,nbsp',
+						/*content_css: '../css/app.css',*/
 						save_onsavecallback: function(){ smartSave(); },
 						extended_valid_elements: 'div[media-manager-element|class|id],img[media-manager-element|src|alt|class|id|style]',
 
