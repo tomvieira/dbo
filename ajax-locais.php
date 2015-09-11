@@ -48,8 +48,8 @@ if(sizeof($sql_parts))
 			CONCAT(
 
 				IFNULL(
-					CASE lp.pai
-						WHEN -1 THEN ''
+					CASE 
+						WHEN lp.pai <= 0 THEN ''
 						ELSE CONCAT(
 							(SELECT 
 								CONCAT(
@@ -72,8 +72,8 @@ if(sizeof($sql_parts))
 					''
 				),
 
-				CASE l.pai
-					WHEN -1 THEN ''
+				CASE 
+					WHEN l.pai <= 0 THEN ''
 					ELSE CONCAT(
 						(SELECT 
 							CONCAT(
