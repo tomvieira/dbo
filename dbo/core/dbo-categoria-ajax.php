@@ -35,6 +35,48 @@
 			$json_result['eval'] = '$("#categoria_nome, #categoria_mae").val(""); $(".cancel-pub-categorias").trigger("click"); ';
 		}
 	}
+	elseif($_GET['action'] == 'alterar-categoria')
+	{
+
+		secureURLCheck();
+
+		//verificando se a categoria existe
+		$cat = new categoria($_GET['categoria_id']);
+		if($cat->size())
+		{
+			//verificando se a pessoa escreveu digitou pelo menos um nome
+			if(strlen(trim($_POST['nome'])))
+			{
+				$cat->mae_antiga = $cat->mae;
+				//se tudo ok, salva as alterações na categoria.
+				require_once(DBO_PATH.'/core/dbo-ui.php');
+				dboUI::smartSet($_POST, $cat);
+				$cat->folha = $cat->temFilhos() ? 0 : 1;
+				$cat->update();
+				$json_result['eval'] = singleLine(' $("#modal-dbo-small").foundation("reveal", "close"); ');
+				$json_result['reload'][] = '.wrapper-pagina-field-categorias';
+				$json_result['message'] = '<div class="success">Categoria <strong>alterada</strong> com sucesso.</div>';
+			}
+			else
+			{
+				$json_result['message'] = '<div class="error">Erro: Preencha um nome para a categoria</div>';
+			}
+		}
+		else
+		{
+			$json_result['message'] = '<div class="error">Erro: A categoria não existe.</div>';
+		}
+	}
+	elseif($_GET['action'] == 'excluir-categoria')
+	{
+		secureURLCheck();
+
+		$cat = new categoria($_GET['categoria_id']);
+		if($cat->size()) $cat->delete();
+		$json_result['eval'] = singleLine(' $("#modal-dbo-small").foundation("reveal", "close"); ');
+		$json_result['reload'][] = '.wrapper-pagina-field-categorias';
+		$json_result['message'] = '<div class="success">Categoria <strong>excluída</strong> com sucesso.</div>';
+	}
 
 	echo json_encode($json_result);
 

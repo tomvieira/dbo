@@ -301,7 +301,7 @@
 							</div>
 						</div>
 			
-						<div style="<?= $pag->hideFormField('categorias') || $pag->hideFormField('atributos') ? 'display: none;' : '' ?>" class="wrapper-pagina-field-<?= $pag->tipo == 'pagina' ? 'atributos' : 'categorias' ?>">
+						<div style="<?= ($pag->hideFormField('categorias') && $tipo != 'pagina') || ($pag->hideFormField('atributos') && $tipo == 'pagina') ? 'display: none;' : '' ?>" class="wrapper-pagina-field-<?= $pag->tipo == 'pagina' ? 'atributos' : 'categorias' ?>">
 							<?php
 								//implementação de categorias, vai ter que ficar para depois. Fazer páginas como categorias está resolvendo por enquanto.
 								if($tipo != 'pagina' && class_exists('categoria'))
@@ -1156,6 +1156,7 @@
 						autofocus: false,
 						entity_encoding: 'named',
 						entities: '160,nbsp',
+						/*content_css: '../css/app.css',*/
 						save_onsavecallback: function(){ smartSave(); },
 						extended_valid_elements: 'div[media-manager-element|class|id],img[media-manager-element|src|alt|class|id|style]',
 

@@ -259,10 +259,13 @@ i[class^=fa-].big-icon { font-size: 25px; }
 		}
 	}
 }
-.settings-toolbar { padding: 5px 7px; background: #fff; border-radius: 1000px; position: absolute; top: -28px; right: 15px; z-index: 100; font-size: 11px; text-transform: uppercase; @extend .no-select;
+.settings-toolbar { padding: 5px 7px; background: #fff; border-radius: 1000px; position: absolute; top: -28px; right: 15px; z-index: 95; font-size: 11px; text-transform: uppercase; @extend .no-select;
 	i { font-size: 14px; text-align: middle; }
 }
 
+.hover-show:hover {
+	.hover-info { display: inline-block; }
+}
 
 /* estilos para as tabelas */
 table { width: 100%; border-spacing: 0; 

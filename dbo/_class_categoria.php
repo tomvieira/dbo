@@ -45,6 +45,66 @@ if(!class_exists('categoria'))
 			return $id;
 		}
 
+		function update($rest = null)
+		{	
+			$id = parent::update();
+			if(is_numeric($this->mae_antiga))
+			{
+				$this->updateStatusMae($this->mae_antiga);
+			}
+			if(is_numeric($this->mae))
+			{
+				$this->updateStatusMae($this->mae);
+			}
+			return $id;
+		}
+
+		function delete()
+		{
+			//no delete, tem que remover antes todos os filhos e remover a relação de paginas com os filhos
+			$filhos = new categoria("WHERE mae = '".$this->id."'");
+			if($filhos->size())
+			{
+				do {
+					$filhos->delete();
+				}while($filhos->fetch());
+			}
+
+			//desassociando todas as paginas desta categoria
+			$sql = "DELETE FROM ".$this->getTabelaLigacaoPagina()." WHERE categoria = ".$this->id.";";
+			dboQuery($sql);
+
+			//deletando efetivamente.
+			$mae = $this->mae;
+			$id = parent::delete();
+			if($mae)
+			{
+				$this->updateStatusMae($mae);
+			}
+			return $id;
+		}
+
+		function updateStatusMae($mae_id)
+		{
+			$mae = new categoria($mae_id);
+			$mae->folha = $mae->temFilhos() ? 0 : 1;
+			$mae->update();
+		}
+
+		function getTabelaLigacaoPagina()
+		{
+			$pag = new pagina();
+			$det = $pag->getDetails('categoria');
+			return $det->join->tabela_ligacao;
+		}
+
+		function temFilhos()
+		{
+			$filhos = new categoria("WHERE mae = '".$this->id."'");
+			if($filhos->size()) return true;
+			return false;
+		}
+
 		static function getCategoryStructure($pagina_tipo = null, $params = array())
 		{
 			global $_system;
@@ -69,6 +129,8 @@ if(!class_exists('categoria'))
 						'slug' => $cat->slug,
 						'nome' => $cat->nome,
 						'full_slug' => $_system['pagina_tipo'][$pagina_tipo]['slug_prefix'].'/categorias/'.$cat->slug,
+						'descricao' => $cat->descricao,
+						'imagem' => $cat->imagem,
 					);
 					if($cat->folha == 0)
 					{
@@ -199,10 +261,15 @@ if(!class_exists('categoria'))
 								include($_pagina_tipo.'-categorias.php');
 								exit();
 							}
-							elseif(file_exists($_pagina_tipo.'-categoria.php'))
+							/*elseif(file_exists($_pagina_tipo.'-categoria.php'))
 							{
 								include($_pagina_tipo.'-categoria.php');
 								exit();
+							}*/
+							else
+							{
+								include('categorias.php');
+								exit();								
 							}
 						}
 					}
@@ -278,6 +345,30 @@ if(!class_exists('categoria'))
 			}
 		}
 
+		function imagemURL($params)
+		{
+			$params['size'] = $params['size'] ? $params['size'] : 'medium';
+			extract($params);
+
+			return $this->_imagem->url(array(
+				'size' => $size,
+			));
+		}
+
+		function imagemAjustada($params = array())
+		{
+			return imagemAjustada($this->imagemURL($params), $params);
+		}
+
+		function imagem($params = array())
+		{
+			/* Params:
+			   - classes
+			   - styles
+			*/
+			return '<img src="'.$this->imagemURL($params).'" alt="" class="'.$classes.'" style="'.$styles.'">';
+		}
+
 		//seta detalhes desta pagina no campo detail. Os detalhes são armazenados como um objeto JSON encodado
 		function setDetail($key, $value)
 		{
@@ -314,7 +405,9 @@ $hooks->add_action('dbo_includes_after', 'categoria::startCategoriaEngine');
 function carregaArvoreDeCategorias($pagina_tipo = null, $params = array())
 {
 	global $_category_tree;
+	global $_pagina_tipo;
 	$_category_tree[$pagina_tipo] = categoria::getCategoryStructure($pagina_tipo, $params);
+	$_pagina_tipo = $pagina_tipo;
 }
 
 function arvoreDeCategorias($pagina_tipo = null)
@@ -331,6 +424,69 @@ function categoriaNome()
 {
 	global $_categoria;
 	return $_categoria->nome;
+}
+
+function categoriaDescricao()
+{
+	global $_categoria;
+	return dboContent($_categoria->descricao);
+}
+
+function categoriaImagem($params = array())
+{
+	global $_categoria;
+	return $_categoria->imagem($params);
+}
+
+function categoriaImagemAjustada($params)
+{
+	global $_categoria;
+	return $_categoria->imagemAjustada($params);
+}
+
+function categoriaImagemURL($params)
+{
+	global $_categoria;
+	return $_categoria->imagemURL($params);
+}
+
+function categoriaPermalink($params = array())
+{
+	global $_categoria;
+	return $_categoria->full_slug ? $_categoria->full_slug : $_categoria->slug;
+}
+
+function haCategorias()
+{
+	global $_category_tree;
+	global $_pagina_tipo;
+	if(sizeof($_category_tree[$_pagina_tipo]))
+		return true;
+	return false;
+}
+
+function listaCategorias()
+{
+	global $_categoria;
+	global $_category_tree;
+	global $_pagina_tipo;
+
+	if(!$_categoria)
+	{
+		$_categoria = new categoria();
+	}
+
+	if(sizeof($_category_tree[$_pagina_tipo]))
+	{
+		$cat = array_shift($_category_tree[$_pagina_tipo]);
+
+		foreach($cat as $key => $value)
+		{
+			$_categoria->{$key} = $value;
+		}
+		return true;
+	}
+	return false;
 }
 
 function haSubcategorias()

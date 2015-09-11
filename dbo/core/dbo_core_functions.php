@@ -498,7 +498,10 @@
 
 	function filterMediaManagerUrl($content)
 	{
-		return str_replace("dbo/upload/dbo-media-manager/", DBO_URL."/upload/dbo-media-manager/", $content);
+		//remove o fullpath que tenha sido por acaso criado por algum shortcode ou função.
+		$content = str_replace(DBO_URL."/upload/dbo-media-manager/", "dbo/upload/dbo-media-manager/", $content);
+		$content = str_replace("dbo/upload/dbo-media-manager/", DBO_URL."/upload/dbo-media-manager/", $content);
+		return $content;
 	}
 	$hooks->add_filter('dbo_content', 'filterMediaManagerUrl');
 
