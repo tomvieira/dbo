@@ -357,7 +357,7 @@ if(!class_exists('categoria'))
 
 		function imagemAjustada($params = array())
 		{
-			return imagemAjustada($this->imagemURL($params));
+			return imagemAjustada($this->imagemURL($params), $params);
 		}
 
 		function imagem($params = array())
