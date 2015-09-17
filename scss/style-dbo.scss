@@ -730,6 +730,30 @@ ul.accordion { list-style: none; border: 1px solid #ddd; border-bottom: none;
 	a { background: #eee; color: $primary-color; }
 }
 
+//classes especiais do medium editor
+#medium-editor-module-catalog { position: absolute; display: none; }
+
+.editable { cursor: text;
+	&:focus { outline: none; }
+	[contenteditable="false"] { cursor: default; 
+		[contenteditable="true"] { cursor: text; min-height: 1.5em; min-width: 1.5em;
+			&:focus { outline: 0; }
+		}
+	}
+}
+
+.dbo-medium-editor-static-element { position: relative;
+	&:hover { outline: 3px solid rgba($primary-color, .5); }
+	.element-toolbar { list-style: none; position: absolute; top: -15px; right: 20px; border-radius: 3px; overflow: hidden; border: 1px solid #111;
+		li { float: left;
+			&:last-child {
+				span { border-right: 0; }
+			}
+			span { display: block; cursor: pointer; background: #333; padding: 0 .5em; color: #fff; border-left: 1px solid #555; border-right: 1px solid #000; }
+		}
+	}
+}
+
 /* ----------------------------------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------------- */
 /* - PARA TELAS MAIORES QUE 768 ------------------------------------------------------------------------------ */

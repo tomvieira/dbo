@@ -80,17 +80,13 @@ class DboFieldType {
 		//checa qual o tipo de midia
 		if($this->data->tipo == 'media')
 		{
-			//se o usuário escolheu um tamanho
-			if($size)
-			{
-				$url = DBO_URL."/upload/dbo-media-manager/thumbs/".$size.'-'.$this->value;
-				$path = DBO_PATH."/upload/dbo-media-manager/thumbs/".$size.'-'.$this->value;
-			}
-			else
-			{
-				$url = DBO_URL."/upload/dbo-media-manager/".$this->value;
-				$path = DBO_PATH."/upload/dbo-media-manager/".$this->value;
-			}
+			$url = DBO_URL."/upload/dbo-media-manager/".($size ? 'thumbs/'.$size.'-' : '').$this->value;
+			$path = DBO_PATH."/upload/dbo-media-manager/".($size ? 'thumbs/'.$size.'-' : '').$this->value;
+		}
+		elseif($this->data->tipo == 'image')
+		{
+			$url = DBO_URL."/upload/images/".($size ? $size.'-' : '').$this->value;
+			$path = DBO_PATH."/upload/images/".($size ? $size.'-' : '').$this->value;
 		}
 		//se o usuário pediu placeholder, verifica se o arquivo existe antes de mais nada.
 		if($placeholder !== false)

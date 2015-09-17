@@ -57,9 +57,9 @@
 		}
 		if(!in_array("jquery-ui", $_system['dbo_imported_js']) && (in_array("jquery-ui", $libs) || $import_all))
 		{
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery-ui/jquery-ui.css\">\n";
 			$return .= "<script src=\"".$js_url."/jquery-ui/jquery-ui.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/jquery-ui/ui.datepicker-pt-BR.js\"></script>\n";
-			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery-ui/jquery-ui.css\">\n";
 			$_system['dbo_imported_js'][] = "jquery-ui";
 		}
 		if(!in_array("easing", $_system['dbo_imported_js']) && (in_array("easing", $libs) || $import_all))
@@ -135,8 +135,8 @@
 		}
 		if(!in_array("perfectscrollbar", $_system['dbo_imported_js']) && (in_array("perfectscrollbar", $libs) || $import_all))
 		{
-			$return .= "<script src=\"".$js_url."/jquery.perfectscrollbar.min.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/jquery.perfectscrollbar.min.css\">\n";
+			$return .= "<script src=\"".$js_url."/jquery.perfectscrollbar.min.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "perfectscrollbar";
 		}
 		if(!in_array("placeholder", $_system['dbo_imported_js']) && (in_array("placeholder", $libs) || $import_all))
@@ -181,21 +181,21 @@
 		}
 		if(!in_array("colorbox", $_system['dbo_imported_js']) && (in_array("colorbox", $libs) || $import_all))
 		{
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/colorbox/colorbox.css\">\n";
 			$return .= "<script src=\"".$js_url."/colorbox/jquery.colorbox.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/colorbox/jquery.colorbox.scrollfix.js\"></script>\n";
-			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/colorbox/colorbox.css\">\n";
 			$_system['dbo_imported_js'][] = "colorbox";
 		}
 		if(!in_array("multiselect", $_system['dbo_imported_js']) && (in_array("multiselect", $libs) || $import_all))
 		{
-			$return .= "<script src=\"".$js_url."/multiselect/js/ui.multiselect.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/multiselect/css/ui.multiselect.css\">\n";
+			$return .= "<script src=\"".$js_url."/multiselect/js/ui.multiselect.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "multiselect";
 		}
 		if(!in_array("nestable", $_system['dbo_imported_js']) && (in_array("nestable", $libs) || $import_all))
 		{
-			$return .= "<script src=\"".$js_url."/nestable/jquery.nestable.js\"></script>\n";
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/nestable/jquery.nestable.css\">\n";
+			$return .= "<script src=\"".$js_url."/nestable/jquery.nestable.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "nestable";
 		}
 		if(!in_array("tablesorter", $_system['dbo_imported_js']) && (in_array("tablesorter", $libs) || $import_all))
@@ -219,11 +219,18 @@
 			$return .= "<script src=\"".$js_url."/tinymce/jquery.tinymce.min.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "tinymce";
 		}
+		if(!in_array("medium-editor", $_system['dbo_imported_js']) && (in_array("medium-editor", $libs) || $import_all))
+		{
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/medium-editor/css/medium-editor.min.css\">\n";
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/medium-editor/css/themes/default.min.css\">\n";
+			$return .= "<script src=\"".$js_url."/medium-editor/js/medium-editor.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "medium-editor";
+		}
 		if(!in_array("select2", $_system['dbo_imported_js']) && (in_array("select2", $libs) || $import_all))
 		{
+			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/select2/select2.css\">\n";
 			$return .= "<script src=\"".$js_url."/select2/jquery.select2.min.js\"></script>\n";
 			$return .= "<script src=\"".$js_url."/select2/jquery.select2.pt-BR.js\"></script>\n";
-			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/select2/select2.css\">\n";
 			$_system['dbo_imported_js'][] = "select2";
 		}
 		if(!in_array("waypoints", $_system['dbo_imported_js']) && (in_array("waypoints", $libs) || $import_all))

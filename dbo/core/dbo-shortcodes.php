@@ -148,7 +148,8 @@ function dboDoShortcode($content) {
 		return $content;
 
 	$pattern = get_shortcode_regex();
-	return preg_replace_callback('/'.$pattern.'/s', 'do_shortcode_tag', $content);
+
+	return preg_replace_callback('/'.$pattern.'/s', 'do_shortcode_tag', dboShortcodeUnautop($content));
 }
 
 /**
@@ -403,9 +404,6 @@ function scYoutube($atts, $content = null) {
 }
 dboAddShortcode('youtube','scYoutube');
 
-global $hooks;
-$hooks->add_filter('dbo_content', 'dboDoShortcode');
-
 //função para criação de botoes
 function scBotao($atts, $content = null) {
 	extract(dboShortcodeAtts(array(
@@ -438,5 +436,8 @@ function scHelper($atts, $content = null) {
 	return ob_get_clean();
 }
 dboAddShortcode('helper','scHelper');
+
+global $hooks;
+$hooks->add_filter('dbo_content', 'dboDoShortcode', 11);
 
 //end of shortcodes.php
