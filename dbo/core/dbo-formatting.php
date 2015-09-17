@@ -141,14 +141,11 @@
 	
 	function dboShortcodeUnautop( $pee ) {
 		global $shortcode_tags;
-
 		if ( empty( $shortcode_tags ) || !is_array( $shortcode_tags ) ) {
 			return $pee;
 		}
-
 		$tagregexp = join( '|', array_map( 'preg_quote', array_keys( $shortcode_tags ) ) );
 		$spaces = wp_spaces_regexp();
-
 		$pattern =
 			  '/'
 			. '<p>'                              // Opening paragraph
@@ -180,7 +177,6 @@
 			. '(?:' . $spaces . ')*+'            // optional trailing whitespace
 			. '<\\/p>'                           // closing paragraph
 			. '/s';
-
 		return preg_replace( $pattern, '$1', $pee );
 	}
 

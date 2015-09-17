@@ -28,6 +28,8 @@ html > object { display: none !important; }
 
 .hide-empty:empty { display: none; }
 
+p:empty { display: none; }
+
 /* boxsizing (box model alternative) */
 * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; *behavior: url(../js/boxsizing.htc); }
 
@@ -73,6 +75,8 @@ html > object { display: none !important; }
 .inline-block { display: inline-block !important; }
 .w-auto { width: auto !important; }
 .h-auto { height: auto !important; }
+
+.no-click > a { cursor: default; }
 
 /* estilos peixe laranja */
 
