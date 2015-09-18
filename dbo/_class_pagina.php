@@ -162,6 +162,7 @@ if(!class_exists('pagina'))
 			//query parts
 			$part_where[] = "status = 'publicado'";
 			$part_where[] = "data <= '".dboNow()."'";
+			$part_where[] = "inativo = 0";
 
 			$sql = "
 				SELECT 
@@ -860,6 +861,16 @@ if(!class_exists('pagina'))
 			if($pref === null) //não foi setado pelo usuário
 				$pref = in_array($field, (array)$_system['pagina_tipo'][$this->tipo]['hidden_fields']);
 			return $pref;
+		}
+
+		function destaque()
+		{
+			return $this->destaque;
+		}
+
+		function inativo()
+		{
+			return $this->inativo;
 		}
 
 	} //class declaration

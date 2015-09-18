@@ -653,6 +653,7 @@
 						.list-pagina td { vertical-align: top; }
 						tfoot th { border-bottom: 1px solid #ddd; }
 						thead th { border-top: 1px solid #ddd; }
+						i.fa.fa-star.destaque { color: #F1CE00 !important; }
 					</style>
 					<div class="settings-box closed" id="settings-list-pagina">
 						<div class="row">
@@ -856,6 +857,10 @@
 																}
 															?>
 															<span class="info">
+																<?= $pag->destaque() ? '<a href="'.secureUrl('dbo/core/dbo-pagina-ajax.php?action=remover-destaque&pagina_id='.$pag->id.'&'.CSRFVar()).'" title="Remover destaque" class="peixe-json peixe-reload" data-keep-url="'.keepUrl().'" peixe-reload="#list-item-'.$pag->id.'"><i class="fa fa-star destaque"></i></a>' : '' ?> 
+
+																<?= $pag->inativo() ? '<a href="'.secureUrl('dbo/core/dbo-pagina-ajax.php?action=ativar&pagina_id='.$pag->id.'&'.CSRFVar()).'" title="Ativar" class="peixe-json peixe-reload" data-keep-url="'.keepUrl().'" peixe-reload="#list-item-'.$pag->id.'"><i class="fa fa-lock color alert"></i></a>' : '' ?>
+
 																<strong><a href="<?= $dbo->keepUrl('dbo_update='.$pag->id); ?>" style="padding-bottom: 4px; display: inline-block;"><?= $pag->titulo ?></a></strong><?= $pag->status != 'publicado' ? '<span class="color medium"> &#8212; '.ucfirst($pag->status).'</span>' : '' ?><br />
 																<?php
 																	if($list_view == 'details')
@@ -882,6 +887,21 @@
 																			<a href="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=lixeira&pagina_id='.$pag->id.'&'.CSRFVar()) ?>" class="color alert peixe-json" data-confirm='Tem certeza que deseja enviar <?= $genero ?> <?= $titulo ?> "<?= $pag->titulo ?>" para a lixeira?'>Lixeira</a> 
 																			<span class="color light">&nbsp;|&nbsp;</span>
 																			<a href="<?= SITE_URL ?>/<?= $pag->slug ?>" target="_blank">Visualizar</a> 
+																			
+																			<?php
+																				$keep_url = keepUrl();
+																				if(!$pag->destaque())
+																				{
+																					?> <span class="color light">&nbsp;|&nbsp;</span> <a href="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=destacar&pagina_id='.$pag->id.'&'.CSRFVar()) ?>" title="Destacar" class="peixe-json peixe-reload" data-keep-url="<?= $keep_url ?>" peixe-reload="#list-item-<?= $pag->id ?>"><i class="fa fa-star"></i></a><?php
+																				}
+																			?>
+																			
+																			<?php
+																				if(!$pag->inativo())
+																				{
+																					?> <span class="color light">&nbsp;|&nbsp;</span> <a href="<?= secureUrl('dbo/core/dbo-pagina-ajax.php?action=desativar&pagina_id='.$pag->id.'&'.CSRFVar()) ?>" title="Desativar" class="peixe-json peixe-reload" data-keep-url="<?= $keep_url ?>" peixe-reload="#list-item-<?= $pag->id ?>"><i class="fa fa-unlock-alt"></i></a><?php
+																				}
+																			?>
 																			<?php
 																		}
 																	?>

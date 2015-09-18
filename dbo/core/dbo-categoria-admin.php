@@ -8,6 +8,8 @@ function renderCategoriaPaginaFormWidget($pag = null, $pagina_tipo, $params = ar
 	//tenta localizar as categorias da página atual
 	$checked = $pag->id ? $pag->getCategoryIds() : array();
 
+	global $_sys;
+
 	ob_start();
 	?>
 	<div class="panel font-13 radius" id="wrapper-categorias">
@@ -23,37 +25,46 @@ function renderCategoriaPaginaFormWidget($pag = null, $pagina_tipo, $params = ar
 						}
 						else
 						{
-							echo renderCategoryCheckboxes($tree, $checked);
+							echo renderCategoryCheckboxes($tree, $checked, array(
+								'admin' => (hasPermission('admin', 'pagina-'.$pag->tipo) ? true : false),
+							));
 						}
 					?>
 				</div>
-				<p class="text-right no-margin">
-					&nbsp;<a href="#" class="trigger-pub-option"><i class="fa fa-plus-circle font-14"></i> <span class="underline">Cadastrar nova</span></a>
-				</p>
-				<div class="row wrapper-pub-option" id="form-nova-categoria" style="display: none;">
-					<div class="large-12 columns">
-						<label for="">Categoria mãe</label>
-						<select name="categoria_mae" id="categoria_mae">
-							<option value="">- nenhuma -</option>
-							<?php
-								if(sizeof($tree))
-								{
-									echo renderCategoryOptions($tree, '');
-								}
-							?>
-						</select>
-					</div>
-					<div class="large-12 columns">
-						<label for="">Nome</label>
-						<input type="text" name="categoria_nome" id="categoria_nome" value="" class="margin-bottom"/>
-					</div>
-					<div class="large-6 columns">
-						<span class="form-height-fix"><a href="#" class="trigger-cancel-pub-option underline cancel-pub-categorias">cancelar</a></span>
-					</div>
-					<div class="large-6 columns text-right">
-						<span class="button radius no-margin trigger-quick-cadastrar-nova">Cadastrar</span>
-					</div>
-				</div>
+				<?php
+					if(hasPermission('admin', 'pagina-'.$pag->tipo))
+					{
+						?>
+						<p class="text-right no-margin">
+							&nbsp;<a href="#" class="trigger-pub-option"><i class="fa fa-plus-circle font-14"></i> <span class="underline">Cadastrar nova</span></a>
+						</p>
+						<div class="row wrapper-pub-option" id="form-nova-categoria" style="display: none;">
+							<div class="large-12 columns">
+								<label for="">Categoria mãe</label>
+								<select name="categoria_mae" id="categoria_mae">
+									<option value="">- nenhuma -</option>
+									<?php
+										if(sizeof($tree))
+										{
+											echo renderCategoryOptions($tree, '');
+										}
+									?>
+								</select>
+							</div>
+							<div class="large-12 columns">
+								<label for="">Nome</label>
+								<input type="text" name="categoria_nome" id="categoria_nome" value="" class="margin-bottom"/>
+							</div>
+							<div class="large-6 columns">
+								<span class="form-height-fix"><a href="#" class="trigger-cancel-pub-option underline cancel-pub-categorias">cancelar</a></span>
+							</div>
+							<div class="large-6 columns text-right">
+								<span class="button radius no-margin trigger-quick-cadastrar-nova">Cadastrar</span>
+							</div>
+						</div>
+						<?php
+					}
+				?>
 			</div>
 		</div>
 	</div>
@@ -147,6 +158,7 @@ function renderCategoryCheckboxes($array, $checked = array(), $params = array())
 	* @params
 	*  menu_structure: se setado como true, faz uma listagem de checkboxes para o menu maker
 	*  full_tree: a arvore completa para pegar a slug por recursão
+	*  admin (false): permissão de administrar ou não a categoria
 	*/
 	extract($params);
 	ob_start();
@@ -156,7 +168,13 @@ function renderCategoryCheckboxes($array, $checked = array(), $params = array())
 		?>
 		<li class="font-12">
 			<div class="hover-show">
-				<input type="checkbox" <?= in_array($data['id'], $checked) ? 'checked' : '' ?> name="<?= $menu_structure ? 'item-' : '' ?>categoria[]" id="categoria-<?= $data['id'] ?>" value="<?= $data['id'] ?>" class="top-2" <?= $menu_structure ? getCategoryMenuDataAttrs($full_tree, $data, $params) : '' ?>/><label for="categoria-<?= $data['id'] ?>"><?= $data['nome'] ?></label><a href="#" title="Editar categoria" class="relative trigger-modal-categoria hover-info" style="left: -5px;" data-categoria_id="<?= $data['id'] ?>"><i class="fa fa-pencil"></i></a>
+				<input type="checkbox" <?= in_array($data['id'], $checked) ? 'checked' : '' ?> name="<?= $menu_structure ? 'item-' : '' ?>categoria[]" id="categoria-<?= $data['id'] ?>" value="<?= $data['id'] ?>" class="top-2" <?= $menu_structure ? getCategoryMenuDataAttrs($full_tree, $data, $params) : '' ?>/><label for="categoria-<?= $data['id'] ?>"><?= $data['nome'] ?></label>
+				<?php
+					if($admin === true)
+					{
+						?><a href="#" title="Editar categoria" class="relative trigger-modal-categoria hover-info" style="left: -5px;" data-categoria_id="<?= $data['id'] ?>"><i class="fa fa-pencil"></i></a><?php
+					}
+				?>
 			</div>
 			<?php
 			if(is_array($data['children']))
