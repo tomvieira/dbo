@@ -30,6 +30,16 @@ if(!class_exists('pessoa'))
 
 		//your methods here
 		//encriptando o password
+		function save()
+		{
+			if(strlen(trim($this->pass)) != '128' && strlen(trim($this->pass)) > 0)
+			{
+				$this->pass = dbo::cryptPassword($this->pass);
+			}
+			return parent::save();
+		}
+
+		//encriptando o password
 		function update($rest = '')
 		{
 			if(strlen(trim($this->pass)) != '128' && strlen(trim($this->pass)) > 0)

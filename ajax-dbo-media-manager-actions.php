@@ -204,6 +204,7 @@
 		{
 			$pag->titulo = $_POST['titulo'];
 			$pag->texto = $_POST['texto'];
+			$pag->setDetail('legenda', $_POST['legenda']);
 			//comentado porque preciso pensar em uma forma de implementar isso
 			//considerando o esquema de inserção com link para a página de anexo.
 			/*$pag->slug = dboUniqueSlug($_POST['titulo'], 'database', array(

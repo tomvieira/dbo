@@ -70,7 +70,7 @@ if(!class_exists('menu'))
 			}
 			elseif($item['tipo'] == 'link')
 			{
-				?><li class="<?= ((is_array($item['children']))?('has-dropdown'):('')) ?>"><a href="<?= $item['url'] ?>" target="_blank"><?= $item['prepend'] ?><span><?= $item['titulo'] ?></span><?= $item['append'] ?></a><?
+				?><li class="<?= ((is_array($item['children']))?('has-dropdown'):(''))." ".$item['classes'] ?>"><a href="<?= $item['url'] ?>" target="_blank"><?= $item['prepend'] ?><span><?= $item['titulo'] ?></span><?= $item['append'] ?></a><?
 				if(is_array($item['children']))
 				{
 					echo '<ul class="dropdown">';

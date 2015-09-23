@@ -194,37 +194,44 @@
 														<tr>
 															<td>Legenda</td>
 															<td>
-																<input type="text" name="legenda" id="legenda" value="" placeholder="Digite a legenda para a imagem" class="no-margin font-12"/>
+																<input type="text" name="legenda" id="legenda" value="<?= $pag->getDetail('legenda') ?>" placeholder="Digite a legenda para a imagem" class="no-margin font-12"/>
 															</td>
 														</tr>
-														<tr>
-															<td>Tamanho</td>
-															<td>
-																<select id="size-selector" class="font-12 no-margin">
-																	<?
-																		foreach($_system['media_manager']['image_sizes'] as $slug => $data)
-																		{
-																			list($w, $h) = getimagesize($media_folder_path.'thumbs/'.$slug.'-'.$selected_file);
-																			?>
-																			<option data-slug="<?= $slug ?>" data-value="thumbs/<?= $slug ?>-" <?= (($slug == 'medium')?('selected'):('')) ?> value="thumbs/<?= $slug ?>-"><?= $data['name'] ?> - <?= $w ?> &times; <?= $h ?></option>
+														<?php
+															if($_GET['destiny'] != 'field')
+															{
+																?>
+																<tr>
+																	<td>Tamanho</td>
+																	<td>
+																		<select id="size-selector" class="font-12 no-margin">
 																			<?
-																		}
-																	?>
-																	<option data-slug="original" data-value="" value="">Original - <?= $width ?> &times <?= $height ?></option>
-																</select>
-															</td>
-														</tr>
-														<tr>
-															<td>Linkar para</td>
-															<td>
-																<select class="font-12 no-margin">
-																	<option value="nenhum">Nenhum</option>
-																	<option value="arquivo">Arquivo original</option>
-																	<option value="pagina-anexo">Página de anexo</option>
-																	<option value="url">URL Personalizada</option>
-																</select>
-															</td>
-														</tr>
+																				foreach($_system['media_manager']['image_sizes'] as $slug => $data)
+																				{
+																					list($w, $h) = getimagesize($media_folder_path.'thumbs/'.$slug.'-'.$selected_file);
+																					?>
+																					<option data-slug="<?= $slug ?>" data-value="thumbs/<?= $slug ?>-" <?= (($slug == 'medium')?('selected'):('')) ?> value="thumbs/<?= $slug ?>-"><?= $data['name'] ?> - <?= $w ?> &times; <?= $h ?></option>
+																					<?
+																				}
+																			?>
+																			<option data-slug="original" data-value="" value="">Original - <?= $width ?> &times <?= $height ?></option>
+																		</select>
+																	</td>
+																</tr>
+																<tr>
+																	<td>Linkar para</td>
+																	<td>
+																		<select class="font-12 no-margin">
+																			<option value="nenhum">Nenhum</option>
+																			<option value="arquivo">Arquivo original</option>
+																			<option value="pagina-anexo">Página de anexo</option>
+																			<option value="url">URL Personalizada</option>
+																		</select>
+																	</td>
+																</tr>
+																<?php
+															}
+														?>
 														<tr>
 															<td style="vertical-align: top; padding-top: 10px;">Descrição</td>
 															<td>
@@ -514,7 +521,7 @@
 		});
 
 		//atualizando os dados da media
-		$(document).on('input', '#titulo, #texto', function(){
+		$(document).on('input', '#titulo, #texto, #legenda', function(){
 			clearTimeout(timer_update_media);
 			timer_update_media = setTimeout(function(){
 				updateMediaData();

@@ -313,6 +313,34 @@
 		));
 		$json_result['eval'] = '$("#pagina-slug").val("'.$slug.'"); $("#slug-label").text("'.$slug.'"); $("#wrapper-pagina-slug").animate({ opacity: 1 }, "fast", function(){ $("#wrapper-slug-edit").hide(); $("#wrapper-slug-view").show(); });';
 	}
+	elseif($_GET['action'] == 'destacar')
+	{
+		secureURLCheck();
+		$pag = new pagina($_GET['pagina_id']);
+		$pag->destaque = 1;
+		$pag->update();
+	}
+	elseif($_GET['action'] == 'remover-destaque')
+	{
+		secureURLCheck();
+		$pag = new pagina($_GET['pagina_id']);
+		$pag->destaque = 0;
+		$pag->update();
+	}
+	elseif($_GET['action'] == 'ativar')
+	{
+		secureURLCheck();
+		$pag = new pagina($_GET['pagina_id']);
+		$pag->inativo = 0;
+		$pag->update();
+	}
+	elseif($_GET['action'] == 'desativar')
+	{
+		secureURLCheck();
+		$pag = new pagina($_GET['pagina_id']);
+		$pag->inativo = 1;
+		$pag->update();
+	}
 
 	echo json_encode($json_result);
 

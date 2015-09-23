@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 15/08/2015 17:31:09 */
+/* DBO DEFINITION FILE FOR MODULE 'pagina' ====================================== AUTO-CREATED ON 18/09/2015 12:14:51 */
 /* ================================================================================================================== */
 
 
@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Nova Página';
 $module->preload_insert_form = false;
 $module->auto_view = false;
+$module->ignore_permissions = false;
 $module->permissoes_custom = '
 	media-manager | Permissão de acesso ao gerenciador de mídia do site.
 	media-manager-all | Esta permissão permite que o usuário tenha acesso e controle sobre todas as mídias de todos os outros usuários, e não somente às criadas por ele.
@@ -529,6 +530,48 @@ $field->lista = true;
 $field->filter = true;
 $field->order = true;
 $field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Destaque';
+$field->coluna = 'destaque';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = true;
+$field->filter = true;
+$field->order = true;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'nao',
+	'1' => 'sim',
+);
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Inativo';
+$field->coluna = 'inativo';
+$field->pk = false;
+$field->isnull = false;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT(11)';
 $field->interaction = '';
 $field->tipo = 'text';
 $module->campo[$field->coluna] = $field;
