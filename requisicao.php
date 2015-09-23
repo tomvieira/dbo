@@ -103,7 +103,11 @@ require_once('auth.php');
 										$obj = new tipo_servico('WHERE inativo = 0 ORDER BY nome');
 										do {
 											?>
-											<option value="<?= $obj->id ?>" <?= (($obj->solicitar_patrimonio)?("data-solicitar_patrimonio='true'"):('')) ?>><?= $obj->nome ?></option>
+											<option value="<?= $obj->id ?>" 
+												<?= (($obj->solicitar_patrimonio)?('data-solicitar_patrimonio="true"'):('')) ?>
+												<?= (($obj->permitir_anexo)?('data-permitir_anexo="true"'):("")) ?>
+												<?= (($obj->helper)?('data-helper="'.htmlSpecialChars($obj->helper).'"'):('')) ?>
+											><?= $obj->nome ?></option>
 											<?
 										}while($obj->fetch());
 									?>
@@ -114,7 +118,12 @@ require_once('auth.php');
 								<label>Descrição do serviço</label>
 								<textarea name='descricao[1][1]' rows='1' class="required helped"></textarea>
 								<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>
-								<div class="helper arrow-top hide-for-small" id='helper-descricao'>Descreva detalhadamente sua requisição para o tipo de serviço selecionado. <strong><u>Importante:</u></strong> descreva somente 1 serviço por vez. Você deve incluir diferentes tipo de serviço separadamente.</div>
+								<div id="wrapper-anexo-1-1" class="wrapper-anexo" style="display: none;">
+									<label for="anexo-1-1">Anexo</label>
+									<input type="file" name="anexo[1][1]" id="anexo-1-1" value="" peixe-ajax-file-upload/>
+								</div>
+								<div id="helper-1-1" class="helper helper-aux arrow-top margin-bottom" style="display: none;"></div>
+								<div class="helper arrow-top hide-for-small margin-bottom" id='helper-descricao'>Descreva detalhadamente sua requisição para o tipo de serviço selecionado. <strong><u>Importante:</u></strong> descreva somente 1 serviço por vez. Você deve incluir diferentes tipo de serviço separadamente.</div>
 							</div><!-- col -->
 						</div><!-- row -->
 					</div><!-- item-servico (1)(1) -->
@@ -169,101 +178,124 @@ require_once('auth.php');
 		var index_local = parseInt(clicado.closest('.item-local').attr('number'));
 		var new_index_servico = parseInt(clicado.closest('.item-local').find('.wrapper-servicos').find('.item-servico').last().attr('number'))+1;
 
-		string_retorno  = "";
-		string_retorno += "<div class='item-servico' number='"+new_index_servico+"'>";
-		string_retorno += "	<div class='row' style='position: relative;'>";
-		string_retorno += "		<a href='#' class='button-delete trigger-delete-servico' title='Remover este serviço'>Remover</a>";
-		string_retorno += "		<div class='large-4 columns'>";
-		string_retorno += "				<select name='tipo_servico["+index_local+"]["+new_index_servico+"]' class='required'>";
-		string_retorno += "					<option value='-1'>Selecione...</option>";
+		string_retorno  = '';
+		string_retorno += '<div class="item-servico" number="'+new_index_servico+'">';
+		string_retorno += '	<div class="row" style="position: relative;">';
+		string_retorno += '		<a href="#" class="button-delete trigger-delete-servico" title="Remover este serviço">Remover</a>';
+		string_retorno += '		<div class="large-4 columns">';
+		string_retorno += '				<select name="tipo_servico['+index_local+']['+new_index_servico+']" class="required">';
+		string_retorno += '					<option value="-1">Selecione...</option>';
 
 		<?                                                                                                                   
 			$obj = new tipo_servico('ORDER BY nome');                                                                            
 			do {                                                                                                                 
 			?>                                                                                                                   
-				string_retorno += "<option value='<?= $obj->id ?>' <?= (($obj->solicitar_patrimonio)?("data-solicitar_patrimonio='true'"):('')) ?>><?= $obj->nome ?></option>";      
+				string_retorno += '<option value="<?= $obj->id ?>"';      
+				string_retorno += '	<?= (($obj->solicitar_patrimonio)?('data-solicitar_patrimonio="true"'):('')) ?>';      
+				string_retorno += '	<?= (($obj->permitir_anexo)?('data-permitir_anexo="true"'):("")) ?>';      
+				string_retorno += '	<?= (($obj->helper)?('data-helper="'.htmlSpecialChars($obj->helper).'"'):('')) ?>';      
+				string_retorno += '><?= $obj->nome ?></option>';      
 			<?                                                                                                                   
 			}while($obj->fetch());                                                                                               
 		?>                                                                                                                   
 
-		string_retorno += "				</select>";
-		string_retorno += "		</div><!-- col -->";
-		string_retorno += "		<div class='large-8 columns'>";
-		string_retorno += "			<div class='input'>";
-		string_retorno += "					<textarea name='descricao["+index_local+"]["+new_index_servico+"]' rows='1' class='required helped'></textarea>";
-		string_retorno += '					<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>';
-		string_retorno += "			</div>";
-		string_retorno += "			</div>";
-		string_retorno += "		</div><!-- col -->";
-		string_retorno += "	</div><!-- row -->";
-		string_retorno += "</div><!-- item-servico ("+index_local+")("+new_index_servico+") -->";
+		string_retorno += '				</select>';
+		string_retorno += '		</div><!-- col -->';
+		string_retorno += '		<div class="large-8 columns">';
+		string_retorno += '			<div class="input">';
+		string_retorno += '				<textarea name="descricao['+index_local+']['+new_index_servico+']" rows="1" class="required helped"></textarea>';
+		string_retorno += '				<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>';
+		string_retorno += '				<div id="wrapper-anexo-'+index_local+'-'+new_index_servico+'" class="wrapper-anexo" style="display: none;">';
+		string_retorno += '					<label for="anexo-'+index_local+'-'+new_index_servico+'">Anexo</label>';
+		string_retorno += '					<input type="file" name="anexo['+index_local+']['+new_index_servico+']" id="anexo-'+index_local+'-'+new_index_servico+'" value="" peixe-ajax-file-upload/>';
+		string_retorno += '				</div>';
+		string_retorno += '				<div id="helper-'+index_local+'-'+new_index_servico+'" class="helper helper-aux arrow-top margin-bottom" style="display: none;"></div>';
+		string_retorno += '			</div>';
+		string_retorno += '			</div>';
+		string_retorno += '		</div><!-- col -->';
+		string_retorno += '	</div><!-- row -->';
+		string_retorno += '</div><!-- item-servico ('+index_local+')('+new_index_servico+') -->';
 
 
 		clicado.closest('.item-local').find('.wrapper-servicos').append(string_retorno);
+
+		peixeAjaxFileUploadInit();
+	
 	}
 
 	function addNovoLocal() {
 
 		var new_index_local = parseInt($('#wrapper-locais').find('.item-local').last().attr('number'))+1;
 
-		string_retorno  = "<div class='item-local' number='"+new_index_local+"'>";
-		string_retorno += "	<div class='tag-local'><span>"+new_index_local+"</span></div>";
-		string_retorno += "	<div class='row' style='position: relative;'>";
-		string_retorno += "		<a href='#' class='button-delete trigger-delete-local' title='Remover este serviço'>Remover</a>";
-		string_retorno += "		<div class='large-12 columns'>";
-		string_retorno += "			<label>Local do serviço a ser executado</label>";
-		string_retorno += "			<div class='row collapse'>";
-		string_retorno += "				<div class='small-9 large-10 columns'>";
-		string_retorno += "					<input type='text' name='aux_local["+new_index_local+"]' value='' class='required aux-local' placeholder='Digite algumas letras para procurar...'/>";
-		string_retorno += "				</div>";
-		string_retorno += "				<div class='small-3 large-2 columns'>";
-		string_retorno += "					<input type='button' name='' tabindex='-1' value='Alterar' class='local-clearer button disabled postfix radius'/>";
-		string_retorno += "				</div>";
-		string_retorno += "			</div>";
-		string_retorno += "			<input type='hidden' name='local["+new_index_local+"]' value=''/>";
-		string_retorno += "		</div><!-- item -->";
-		string_retorno += "	</div><!-- row -->";
-		string_retorno += "	<div class='wrapper-servicos'>";
-		string_retorno += "		<div class='item-servico' number='1'>";
-		string_retorno += "			<div class='row'>";
-		string_retorno += "				<div class='large-4 columns'>";
-		string_retorno += "					<label>Tipo de serviço a ser executado</label>";
-		string_retorno += "						<select name='tipo_servico["+new_index_local+"][1]' class='required'>";
-		string_retorno += "							<option value='-1'>Selecione...</option>";
+		string_retorno  = '<div class="item-local" number="'+new_index_local+'">';
+		string_retorno += '	<div class="tag-local"><span>'+new_index_local+'</span></div>';
+		string_retorno += '	<div class="row" style="position: relative;">';
+		string_retorno += '		<a href="#" class="button-delete trigger-delete-local" title="Remover este serviço">Remover</a>';
+		string_retorno += '		<div class="large-12 columns">';
+		string_retorno += '			<label>Local do serviço a ser executado</label>';
+		string_retorno += '			<div class="row collapse">';
+		string_retorno += '				<div class="small-9 large-10 columns">';
+		string_retorno += '					<input type="text" name="aux_local['+new_index_local+']" value="" class="required aux-local" placeholder="Digite algumas letras para procurar..."/>';
+		string_retorno += '				</div>';
+		string_retorno += '				<div class="small-3 large-2 columns">';
+		string_retorno += '					<input type="button" name="" tabindex="-1" value="Alterar" class="local-clearer button disabled postfix radius"/>';
+		string_retorno += '				</div>';
+		string_retorno += '			</div>';
+		string_retorno += '			<input type="hidden" name="local['+new_index_local+']" value=""/>';
+		string_retorno += '		</div><!-- item -->';
+		string_retorno += '	</div><!-- row -->';
+		string_retorno += '	<div class="wrapper-servicos">';
+		string_retorno += '		<div class="item-servico" number="1">';
+		string_retorno += '			<div class="row">';
+		string_retorno += '				<div class="large-4 columns">';
+		string_retorno += '					<label>Tipo de serviço a ser executado</label>';
+		string_retorno += '						<select name="tipo_servico['+new_index_local+'][1]" class="required">';
+		string_retorno += '							<option value="-1">Selecione...</option>';
 
 		<?
 			$obj = new tipo_servico('ORDER BY nome');
 			do {
 				?>
-				string_retorno += "<option value='<?= $obj->id ?>' <?= (($obj->solicitar_patrimonio)?("data-solicitar_patrimonio='true'"):('')) ?>><?= $obj->nome ?></option>";
+				string_retorno += '<option value="<?= $obj->id ?>"';      
+				string_retorno += '	<?= (($obj->solicitar_patrimonio)?('data-solicitar_patrimonio="true"'):('')) ?>';      
+				string_retorno += '	<?= (($obj->permitir_anexo)?('data-permitir_anexo="true"'):("")) ?>';      
+				string_retorno += '	<?= (($obj->helper)?('data-helper="'.htmlSpecialChars($obj->helper).'"'):('')) ?>';      
+				string_retorno += '><?= $obj->nome ?></option>';      
 				<?
 			}while($obj->fetch());
 		?>
 
-		string_retorno += "						</select>";
-		string_retorno += "				</div><!-- col -->";
-		string_retorno += "				<div class='large-8 columns'>";
-		string_retorno += "						<label>Descrição do serviço</label>";
-		string_retorno += "						<div class='input'>";
-		string_retorno += "							<textarea name='descricao["+new_index_local+"][1]' rows='1' class='required helped'></textarea>";
+		string_retorno += '						</select>';
+		string_retorno += '				</div><!-- col -->';
+		string_retorno += '				<div class="large-8 columns">';
+		string_retorno += '						<label>Descrição do serviço</label>';
+		string_retorno += '						<div class="input">';
+		string_retorno += '							<textarea name="descricao['+new_index_local+'][1]" rows="1" class="required helped"></textarea>';
 		string_retorno += '							<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>';
-		string_retorno += "						</div>";
-		string_retorno += "				</div><!-- col -->";
-		string_retorno += "			</div><!-- row -->";
-		string_retorno += "		</div><!-- item-servico -->";
-		string_retorno += "	</div><!-- wrapper-servicos -->";
-		string_retorno += "	<div class='row wrapper-novo-servico'>";
-		string_retorno += "		<div class='large-12 columns text-right'>";
-		string_retorno += "			<a href='#' class='trigger-novo-servico add'>Adicionar mais um serviço neste local <i class=\"fa fa-plus-circle\"></i></a>";
-		string_retorno += "		</div><!-- col -->";
-		string_retorno += "	</div>";
-		string_retorno += "</div><!-- item-local -->";
+		string_retorno += '							<div id="wrapper-anexo-'+new_index_local+'-1" class="wrapper-anexo" style="display: none;">';
+		string_retorno += '								<label for="anexo-'+new_index_local+'-1">Anexo</label>';
+		string_retorno += '								<input type="file" name="anexo['+new_index_local+'][1]" id="anexo-'+new_index_local+'-1" value="" peixe-ajax-file-upload/>';
+		string_retorno += '							</div>';
+		string_retorno += '							<div id="helper-'+new_index_local+'-1" class="helper helper-aux arrow-top margin-bottom" style="display: none;"></div>';
+		string_retorno += '						</div>';
+		string_retorno += '				</div><!-- col -->';
+		string_retorno += '			</div><!-- row -->';
+		string_retorno += '		</div><!-- item-servico -->';
+		string_retorno += '	</div><!-- wrapper-servicos -->';
+		string_retorno += '	<div class="row wrapper-novo-servico">';
+		string_retorno += '		<div class="large-12 columns text-right">';
+		string_retorno += '			<a href="#" class="trigger-novo-servico add">Adicionar mais um serviço neste local <i class=\'fa fa-plus-circle\'></i></a>';
+		string_retorno += '		</div><!-- col -->';
+		string_retorno += '	</div>';
+		string_retorno += '</div><!-- item-local -->';
 
 		$('#wrapper-locais').append(string_retorno);
 
 		$('input[name="aux_local\\['+new_index_local+'\\]"]').focus();
 
 		$(window).scrollTo('#fim-da-pagina', 1000);
+
+		peixeAjaxFileUploadInit();
 
 	}
 
@@ -281,6 +313,27 @@ require_once('auth.php');
 			}
 			else {
 				wrapper.find('.helper-patrimonio').slideDown();
+			}
+		}
+	}
+
+	function checkAnexo(focado) {
+		if($('#helper-descricao:visible').length == 0){
+			wrapper = focado.closest('.item-servico');
+			option = wrapper.find('select option:selected');
+			if(option.data('permitir_anexo') == true){
+				wrapper.find('.wrapper-anexo').fadeIn();
+			}
+			else {
+				wrapper.find('.wrapper-anexo').fadeOut('fast', function(){
+					$(this).find('input').val('');
+				});
+			}
+			if(option.data('helper') && option.data('helper') != 'undefined'){
+				wrapper.find('.helper-aux').html(option.data('helper')).fadeIn();
+			}
+			else {
+				wrapper.find('.helper-aux').fadeOut();
 			}
 		}
 	}
@@ -450,7 +503,9 @@ require_once('auth.php');
 		else {
 			var ans = confirm("Tem certeza que deseja enviar sua requisição?");
 			if (ans==true) {
-				peixePost(
+				peixeJSON($(this).attr('action'), $(this).serialize(), null, true);
+				return false;
+				/*peixePost(
 					$(this).attr('action'),
 					$(this).serialize(),
 					function(data) {
@@ -470,7 +525,7 @@ require_once('auth.php');
 						}
 					}
 				)
-				return false;			
+				return false;*/
 			} else {
 				$(submitter).val($(submitter).attr('default-value')).removeAttr('disabled').removeClass('disabled');
 				return false;
@@ -478,12 +533,13 @@ require_once('auth.php');
 		}
 	}) //form requisicao submit
 
-	$(document).on('change, keyup', '#requisicao textarea[name^="descricao"]', function(){
+	$(document).on('change keyup', '#requisicao textarea[name^="descricao"]', function(){
 		mudado = $(this);
 		checkDescricao();
 		clearTimeout(timer_regex);
 		timer_regex = setTimeout(function(){
 			checkPatrimonio(mudado);
+			checkAnexo(mudado);
 		}, 500);
 	})
 
@@ -511,6 +567,14 @@ require_once('auth.php');
 		addNovoLocal();
 		makeMulti();
 	})
+
+	//tratando o evento de upload done
+	$(document).on('uploadDone', 'input[type="file"]', function(e){
+		c = $(this);
+		setTimeout(function(){
+			c.closest('.item-servico').find('.helper-aux').fadeOut();
+		}, 750);
+	});
 
 	activeMainNav('nova-requisicao');
 

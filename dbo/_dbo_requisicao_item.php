@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'requisicao_item' ============================= AUTO-CREATED ON 29/05/2015 09:58:41 */
+/* DBO DEFINITION FILE FOR MODULE 'requisicao_item' ============================= AUTO-CREATED ON 23/09/2015 15:40:22 */
 /* ================================================================================================================== */
 
 
@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Novo Item de Requisicão';
 $module->preload_insert_form = true;
 $module->auto_view = true;
+$module->ignore_permissions = false;
 $module->order_by = '5';
 
 /* FIELDS =========================================================================================================== */
@@ -493,6 +494,27 @@ $field->order = false;
 $field->type = 'TEXT';
 $field->interaction = '';
 $field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Anexo';
+$field->coluna = 'anexo';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'TEXT';
+$field->interaction = '';
+$field->tipo = 'file';
+	$file = new Obj();
+$field->file = $file;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/

@@ -29,6 +29,18 @@ if(!class_exists('tipo_servico'))
 		}
 
 		//your methods here
+		function checkFileExtension($file_name)
+		{
+			if(!strlen(trim($this->extensoes_permitidas))) 
+				return true;
+			$ext = dboGetExtension($file_name);
+			$perms = explode(",", $this->extensoes_permitidas);
+			$perms = array_map(trim, $perms);
+			$perms = array_map(strtolower, $perms);
+			if(in_array(strtolower($ext), $perms)) 
+				return true;
+			return false;
+		}
 
 	} //class declaration
 } //if ! class exists

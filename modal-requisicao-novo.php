@@ -48,7 +48,15 @@
 				<div class="row">
 					<div class="large-12 columns">
 						<hr>
-						<p><strong><?= $serv->_tipo_servico->nome ?></strong> - <?= $serv->descricao ?></p>
+						<p>
+							<strong><?= $serv->_tipo_servico->nome ?></strong> - <?= $serv->descricao ?>
+							<?php
+								if(strlen(trim($serv->anexo)))
+								{
+									?><br /><a href="<?= getDownloadUrl($serv->anexo) ?>" class="radius no-margin"><i class="fa fa-cloud-download"></i> <span class="underline">Baixar anexo</span></a><?php
+								}
+							?>	
+						</p>
 						<hr>
 						<?
 							if($serv->finalizado_servidor == 1)

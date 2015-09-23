@@ -29,6 +29,7 @@ include('lib/includes.php');
 include('auth.php');
 
 $error = array();
+$json_result = array();
 
 //implementar validação server-side..
 
@@ -44,9 +45,49 @@ if(
 	$error[] = "Dados do requisitante inconsistentes";
 }
 
+$ids_anexos_obrigatorios = array();
+$ids_anexos_extensao_errada = array();
+
+//vamos checar as peculiaridades de cada tipo de serviço.
+foreach($_POST['local'] as $key_local => $id_local)
+{
+	//para cada local, iterar todos os servicos.
+	foreach($_POST['tipo_servico'][$key_local] as $key_servico => $id_tipo_servico)
+	{
+		$serv = new tipo_servico($id_tipo_servico);
+		//checando primeiramente se o anexo é obrigatório
+		if($serv->anexo_obrigatorio && !strlen(trim($_POST['anexo'][$key_local][$key_servico])))
+		{
+			$ids_anexos_obrigatorios[] = $key_local.'-'.$key_servico;
+		}
+		if(strlen(trim($_POST['anexo'][$key_local][$key_servico])) && !$serv->checkFileExtension($_POST['anexo'][$key_local][$key_servico]))
+		{
+			$ids_anexos_extensao_errada[] = $key_local.'-'.$key_servico;
+		}
+		//checando agora se as extensões dos arquivos estão ok
+	}
+}
+
+if(sizeof($ids_anexos_obrigatorios))
+{
+	$error[] = 'Anexos obrigatórios';
+	$tense = sizeof($ids_anexos_obrigatorios) > 1 ? 's' : '';
+	$message[] = 'Erro: há <strong>'.sizeof($ids_anexos_obrigatorios).' arquivo'.$tense.' obrigatório'.$tense.'</strong> a anexar no sistema.';
+}
+if(sizeof($ids_anexos_extensao_errada))
+{
+	$error[] = 'Anexos com extensão errada';
+	$tense = sizeof($ids_anexos_extensao_errada) > 1 ? 's' : '';
+	$message[] = 'Erro: há <strong>'.sizeof($ids_anexos_extensao_errada).' arquivo'.$tense.'</strong> anexo'.$tense.' com a <strong>extensão inválida</strong>.';
+}
+if(sizeof($message))
+{
+	$json_result['message'] = '<div class="error">'.implode('<br />', $message).'</div>';
+}
+
 if(sizeof($error) == 0 && checkSubmitToken())
 {
-	//deu tudo certo... primeiro passo: criar a requisicao
+	//deu tudo certo... primeiro passo: veriricar peculiridades para todos os servicos submetidos
 
 	//criando a requisicao
 	$req = new requisicao();
@@ -91,6 +132,12 @@ if(sizeof($error) == 0 && checkSubmitToken())
 				$item->prioridade = $serv->prioridade;
 				$item->status = 0;
 				$item->token = generatePassword();
+				//verificando se o tipo de servico permite upload e o upload existe
+				$file_on_server = trim($_POST['anexo'][$key_local][$key_servico]);
+				if($serv->permitir_anexo && strlen($file_on_server))
+				{
+					$item->anexo = fileSQL('Anexo requisição '.$item->requisicao."-".$item->numero, $file_on_server);
+				}
 				$item->save();
 
 				//verificando se existem patrimonios no texto, para vinculo com o item de requisicao.
@@ -124,7 +171,7 @@ if(sizeof($error) == 0 && checkSubmitToken())
 		disparaEmail('administrador-nova-requisicao', array('id_requisicao' => $req->id));
 		//tudo cadastrado!
 		setMessage("<div class='success'>Requisição criada com sucesso!</div>");
-		$json_result['redirect'] = implode('-', $servicos_criados); //implodindo todos os ids dos itens criados
+		$json_result['eval'] = singleLine('window.location = \'acompanhamento.php?sucesso=1&servicos='.implode('-', $servicos_criados).'\';');
 	}
 	else
 	{

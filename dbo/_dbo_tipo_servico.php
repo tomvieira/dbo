@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 04/09/2015 14:26:09 */
+/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 23/09/2015 12:09:04 */
 /* ================================================================================================================== */
 
 
@@ -185,9 +185,51 @@ $module->campo[$field->coluna] = $field;
 /*==========================================*/
 
 $field = new Obj();
+$field->titulo = 'Anexo obrigatório?';
+$field->coluna = 'anexo_obrigatorio';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'não',
+	'1' => 'sim',
+);
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
 $field->titulo = 'Extensões permitidas';
 $field->coluna = 'extensoes_permitidas';
 $field->dica = 'Separadas por vírgula, Ex: .pdf, ptt, .odt';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Texto de ajuda';
+$field->coluna = 'helper';
 $field->pk = false;
 $field->isnull = false;
 $field->add = true;
@@ -259,7 +301,8 @@ $grid = array();
 
 $grid[] = array('12');
 $grid[] = array('4','3','2','3');
-$grid[] = array('4','8');
+$grid[] = array('4','4','4');
+$grid[] = array('12');
 
 $module->grid = $grid;
 
@@ -387,5 +430,5 @@ if(!function_exists('tipo_servico_overview'))
 	}
 }
 
- 
+
 ?>
