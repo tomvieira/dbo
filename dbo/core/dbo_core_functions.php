@@ -880,9 +880,7 @@
 	function dboFileUploaded($file_name)
 	{
 		if(file_exists(DBO_PATH."/upload/files/".$file_name))
-		{
 			return true;
-		}
 		return false;
 	}
 	
@@ -898,9 +896,10 @@
 			list($file_name, $server_file_name) = explode("\n", $db_data);
 			ob_start();
 			?>
-			<input type="file" class="peixe-ajax-file-upload-ready" name="<?= $name ?>_aux" value="" style="display: none;" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?> class="<?= $classes ?>"/>
-			<div class="peixe-ajax-upload-status" style="<?= $styles ?>">
-				<input type="text" name="<?= $name ?>" value="<?= $server_file_name ?>" style="display: none;" <?= $tipo ?> <?= dboParseDataAttributes($data_attributes) ?>/>
+			<input type="file" class="peixe-ajax-file-upload-ready" name="<?= $name ?>_aux" value="" style="display: none;" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo == 'required' ? 'data-ex-required="true"' : '' ?> class="<?= $classes ?>"/>
+			<label for="<?= $id ?>" style="<?= $styles ?>" data-icon="<?= $icon ?>" title="<?= htmlSpecialChars($file_name) ?> - Pressione CTRL+CLICK para remover o arquivo." data-text="<?= $text ?>" class="button small radius" <?= $tipo == 'required' ? 'data-ex-required="true"' : '' ?>><i class="fa fa-fw fa-check"></i><?= $text ? ' <span class="text">'.$file_name.'</span>' : '' ?></label>
+			<div class="peixe-ajax-upload-status" style="display: none;">
+				<input type="text" name="<?= $name ?>" value="<?= $server_file_name ?>" style="display: none;" <?= dboParseDataAttributes($data_attributes) ?>/>
 				<div class="upload-progress progress radius" style="display: none;"><span class="meter" style="width: 0%;"></span></div>
 				<div class="upload-sending font-14 margin-bottom" style="display: none;"><i class="fa-spinner fa-spin"></i> <span>Enviando...</span></div>
 				<div class="upload-success font-14 margin-bottom" style="display: none;"><i class="fa-check"></i> <span>Sucesso!</span></div>
@@ -913,7 +912,7 @@
 		{
 			ob_start();
 			?>
-			<input type="file" name="<?= $name ?>" value="" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?>/>
+			<input type="file" name="<?= $name ?>" value="" id="<?= $id ?>" peixe-ajax-file-upload <?= $tipo ?>/><label for="<?= $id ?>" style="<?= $styles ?>" data-icon="<?= $icon ?>" data-text="<?= $text ?>" class="button small radius secondary"><i class="<?= ($icon ? $icon : 'fa fa-fw fa-check') ?>"></i><?= $text ? ' <span class="text">'.$text.'</span>' : '' ?></label>
 			<?
 			return ob_get_clean();
 		}
