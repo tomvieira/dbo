@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 23/09/2015 12:09:04 */
+/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 24/09/2015 13:51:14 */
 /* ================================================================================================================== */
 
 
@@ -162,29 +162,6 @@ $module->campo[$field->coluna] = $field;
 /*==========================================*/
 
 $field = new Obj();
-$field->titulo = 'Permitir anexo';
-$field->coluna = 'permitir_anexo';
-$field->pk = false;
-$field->isnull = false;
-$field->add = true;
-$field->valida = false;
-$field->edit = true;
-$field->view = true;
-$field->lista = false;
-$field->filter = false;
-$field->order = false;
-$field->type = 'VARCHAR(255)';
-$field->interaction = '';
-$field->tipo = 'radio';
-$field->valores = array(
-	'0' => 'não',
-	'1' => 'sim',
-);
-$module->campo[$field->coluna] = $field;
-
-/*==========================================*/
-
-$field = new Obj();
 $field->titulo = 'Anexo obrigatório?';
 $field->coluna = 'anexo_obrigatorio';
 $field->pk = false;
@@ -228,7 +205,7 @@ $module->campo[$field->coluna] = $field;
 /*==========================================*/
 
 $field = new Obj();
-$field->titulo = 'Texto de ajuda';
+$field->titulo = 'Texto de ajuda ao anexo';
 $field->coluna = 'helper';
 $field->pk = false;
 $field->isnull = false;
@@ -239,9 +216,32 @@ $field->view = true;
 $field->lista = false;
 $field->filter = false;
 $field->order = false;
-$field->type = 'VARCHAR(255)';
+$field->type = 'TEXT';
 $field->interaction = '';
 $field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Permitir anexo';
+$field->coluna = 'permitir_anexo';
+$field->pk = false;
+$field->isnull = false;
+$field->add = false;
+$field->valida = false;
+$field->edit = false;
+$field->view = false;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'VARCHAR(255)';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'não',
+	'1' => 'sim',
+);
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
@@ -301,7 +301,7 @@ $grid = array();
 
 $grid[] = array('12');
 $grid[] = array('4','3','2','3');
-$grid[] = array('4','4','4');
+$grid[] = array('4','8');
 $grid[] = array('12');
 
 $module->grid = $grid;

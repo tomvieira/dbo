@@ -134,7 +134,7 @@ if(sizeof($error) == 0 && checkSubmitToken())
 				$item->token = generatePassword();
 				//verificando se o tipo de servico permite upload e o upload existe
 				$file_on_server = trim($_POST['anexo'][$key_local][$key_servico]);
-				if($serv->permitir_anexo && strlen($file_on_server))
+				if(strlen($file_on_server))
 				{
 					$item->anexo = fileSQL('Anexo requisição '.$item->requisicao."-".$item->numero, $file_on_server);
 				}

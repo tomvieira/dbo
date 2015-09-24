@@ -82,7 +82,7 @@ require_once('auth.php');
 				<div class='tag-local'><span>1</span></div>
 				<div class='row'>
 					<div class='large-12 columns'>
-						<span id='helper-local' class="helper arrow-bottom hide-for-small">Selecione o local onde os serviços devem ser executados, ou o local de trabalho do requisitante. Em seguida, inclua os serviços, separadamente.</span>
+						<div id='helper-local' class="helper arrow-bottom hide-for-small"><p class="no-margin">Selecione o local onde os serviços devem ser executados, ou o local de trabalho do requisitante. Em seguida, inclua os serviços, separadamente.</p></div>
 						<label>Local</label>
 						<div class='row collapse'>
 							<div class='small-9 large-10 columns'><input type='text' name='aux_local[1]' <?= ((strlen(trim($_pes->telefone)))?('autofocus'):('')) ?> value="" class="required aux-local" id='first-focus' placeholder='Digite algumas letras para procurar...'/></div>
@@ -112,18 +112,25 @@ require_once('auth.php');
 										}while($obj->fetch());
 									?>
 								</select>
-								<div class="helper arrow-top hide-for-small" id='helper-servico'>Selecione um tipo de serviço na lista acima.</div>
+								<div class="helper arrow-top hide-for-small" id='helper-servico'><p class="no-margin">Selecione um tipo de serviço na lista acima.</p></div>
 							</div><!-- col -->
 							<div class='large-8 columns' id='descricao-servico-helped' style="display: none;">
 								<label>Descrição do serviço</label>
-								<textarea name='descricao[1][1]' rows='1' class="required helped"></textarea>
-								<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>
-								<div id="wrapper-anexo-1-1" class="wrapper-anexo" style="display: none;">
-									<label for="anexo-1-1">Anexo</label>
-									<input type="file" name="anexo[1][1]" id="anexo-1-1" value="" peixe-ajax-file-upload/>
+								<div class="row">
+									<div class="small-10 columns"><textarea name='descricao[1][1]' rows='1' class="required helped"></textarea></div>
+									<div class="small-2 columns">
+										<div id="wrapper-anexo-1-1" class="wrapper-anexo">
+											<input type="file" name="anexo[1][1]" id="anexo-1-1" value="" peixe-ajax-file-upload/>
+											<label for="anexo-1-1" class="button radius expand round secondary" title="Clique para anexar um arquivo" data-icon="fa fa-fw fa-paperclip"><i class="fa fa-fw fa-paperclip"></i></label>
+										</div>
+									</div>
 								</div>
+								<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>
 								<div id="helper-1-1" class="helper helper-aux arrow-top margin-bottom" style="display: none;"></div>
-								<div class="helper arrow-top hide-for-small margin-bottom" id='helper-descricao'>Descreva detalhadamente sua requisição para o tipo de serviço selecionado. <strong><u>Importante:</u></strong> descreva somente 1 serviço por vez. Você deve incluir diferentes tipo de serviço separadamente.</div>
+								<div class="helper arrow-top hide-for-small margin-bottom" id='helper-descricao'>
+									<p>Descreva detalhadamente sua requisição para o tipo de serviço selecionado. Você pode anexar um arquivo utilizando o botão <i class="fa fa-paperclip"></i> do lado direito.</p>
+									<p class="no-margin"><strong class="color alert"><u>Importante:</u></strong> descreva somente 1 serviço por vez. Você deve incluir diferentes tipos de serviço separadamente.</p>
+								</div>
 							</div><!-- col -->
 						</div><!-- row -->
 					</div><!-- item-servico (1)(1) -->
@@ -133,7 +140,7 @@ require_once('auth.php');
 
 				<div class='row wrapper-novo-servico' style="display: none;">
 					<div class='large-7 columns hide-for-small'>
-						<div class="helper arrow-right" id='helper-novo-servico'>Caso precise de <em>outro serviço</em> no mesmo local, ou queira requisitar serviços em <em>outro local</em>, utilize uma das opções ao lado...</div>
+						<div class="helper arrow-right" id='helper-novo-servico'><p class="no-margin">Caso precise de <em>outro serviço</em> no mesmo local, ou queira requisitar serviços em <em>outro local</em>, utilize uma das opções ao lado...</p></div>
 					</div>
 					<div class='large-5 columns text-right margin-bottom'>
 						<a href='#' class="trigger-novo-servico add">Adicionar mais um serviço neste local <i class="fa fa-plus-circle"></i></a>
@@ -153,7 +160,7 @@ require_once('auth.php');
 
 		<div class='row wrapper-enviar-requisicao' style="display: none;">
 			<div class='large-6 large-offset-1 columns hide-for-small'>
-				<div class="helper arrow-right tar" id='helper-enviar'>...caso contrário, pressione o botão "<em>Enviar Requisição</em>"</div>
+				<div class="helper arrow-right tar" id='helper-enviar'><p class="no-margin">...caso contrário, pressione o botão "<em>Enviar Requisição</em>"</p></div>
 			</div>
 			<div class='large-5 columns text-right'>
 				<input type='button' name='' default-value="Enviar Requisição" value="Enviar Requisição" default-value='Enviar Requisição' class="submitter button radius"/>
@@ -203,12 +210,18 @@ require_once('auth.php');
 		string_retorno += '		</div><!-- col -->';
 		string_retorno += '		<div class="large-8 columns">';
 		string_retorno += '			<div class="input">';
-		string_retorno += '				<textarea name="descricao['+index_local+']['+new_index_servico+']" rows="1" class="required helped"></textarea>';
-		string_retorno += '				<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>';
-		string_retorno += '				<div id="wrapper-anexo-'+index_local+'-'+new_index_servico+'" class="wrapper-anexo" style="display: none;">';
-		string_retorno += '					<label for="anexo-'+index_local+'-'+new_index_servico+'">Anexo</label>';
-		string_retorno += '					<input type="file" name="anexo['+index_local+']['+new_index_servico+']" id="anexo-'+index_local+'-'+new_index_servico+'" value="" peixe-ajax-file-upload/>';
+
+		string_retorno += '				<div class="row">';
+		string_retorno += '					<div class="small-10 columns"><textarea name="descricao['+index_local+']['+new_index_servico+']" rows="1" class="required helped"></textarea></div>';
+		string_retorno += '					<div class="small-2 columns">';
+		string_retorno += '						<div id="wrapper-anexo-'+index_local+'-'+new_index_servico+'" class="wrapper-anexo">';
+		string_retorno += '							<input type="file" name="anexo['+index_local+']['+new_index_servico+']" id="anexo-'+index_local+'-'+new_index_servico+'" value="" peixe-ajax-file-upload/>';
+		string_retorno += '							<label for="anexo-'+index_local+'-'+new_index_servico+'" class="button radius expand round secondary" title="Clique para anexar um arquivo" data-icon="fa fa-fw fa-paperclip"><i class="fa fa-fw fa-paperclip"></i></label>';
+		string_retorno += '						</div>';
+		string_retorno += '					</div>';
 		string_retorno += '				</div>';
+
+		string_retorno += '				<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>';
 		string_retorno += '				<div id="helper-'+index_local+'-'+new_index_servico+'" class="helper helper-aux arrow-top margin-bottom" style="display: none;"></div>';
 		string_retorno += '			</div>';
 		string_retorno += '			</div>';
@@ -270,13 +283,17 @@ require_once('auth.php');
 		string_retorno += '				<div class="large-8 columns">';
 		string_retorno += '						<label>Descrição do serviço</label>';
 		string_retorno += '						<div class="input">';
-		string_retorno += '							<textarea name="descricao['+new_index_local+'][1]" rows="1" class="required helped"></textarea>';
-		string_retorno += '							<div class="helper-patrimonio" style="display: none; padding-bottom: 1em;"><div class="helper arrow-top">Não se esqueça de digitar o <span class="color alert"><strong><u>número do patrimônio</u></strong></span>. Ex: "Patrimônio: 12345"</div></div>';
-		string_retorno += '							<div id="wrapper-anexo-'+new_index_local+'-1" class="wrapper-anexo" style="display: none;">';
-		string_retorno += '								<label for="anexo-'+new_index_local+'-1">Anexo</label>';
-		string_retorno += '								<input type="file" name="anexo['+new_index_local+'][1]" id="anexo-'+new_index_local+'-1" value="" peixe-ajax-file-upload/>';
+
+		string_retorno += '							<div class="row">';
+		string_retorno += '								<div class="small-10 columns"><textarea name="descricao['+new_index_local+'][1]" rows="1" class="required helped"></textarea></div>';
+		string_retorno += '								<div class="small-2 columns">';
+		string_retorno += '									<div id="wrapper-anexo-'+new_index_local+'-1" class="wrapper-anexo">';
+		string_retorno += '										<input type="file" name="anexo['+new_index_local+'][1]" id="anexo-'+new_index_local+'-1" value="" peixe-ajax-file-upload/>';
+		string_retorno += '										<label for="anexo-'+new_index_local+'-1" class="button radius expand round secondary" title="Clique para anexar um arquivo" data-icon="fa fa-fw fa-paperclip"><i class="fa fa-fw fa-paperclip"></i></label>';
+		string_retorno += '									</div>';
+		string_retorno += '								</div>';
 		string_retorno += '							</div>';
-		string_retorno += '							<div id="helper-'+new_index_local+'-1" class="helper helper-aux arrow-top margin-bottom" style="display: none;"></div>';
+		
 		string_retorno += '						</div>';
 		string_retorno += '				</div><!-- col -->';
 		string_retorno += '			</div><!-- row -->';
@@ -319,18 +336,19 @@ require_once('auth.php');
 
 	function checkAnexo(focado) {
 		if($('#helper-descricao:visible').length == 0){
+			input = wrapper.find('.peixe-ajax-upload-status input[type="hidden"]');
 			wrapper = focado.closest('.item-servico');
 			option = wrapper.find('select option:selected');
-			if(option.data('permitir_anexo') == true){
+			/*if(option.data('permitir_anexo') == true){
 				wrapper.find('.wrapper-anexo').fadeIn();
 			}
 			else {
 				wrapper.find('.wrapper-anexo').fadeOut('fast', function(){
 					$(this).find('input').val('');
 				});
-			}
-			if(option.data('helper') && option.data('helper') != 'undefined'){
-				wrapper.find('.helper-aux').html(option.data('helper')).fadeIn();
+			}*/
+			if(input.val() == '' && option.data('helper') && option.data('helper') != 'undefined'){
+				wrapper.find('.helper-aux').html('<p class="no-margin">'+option.data('helper')+'</p>').fadeIn();
 			}
 			else {
 				wrapper.find('.helper-aux').fadeOut();

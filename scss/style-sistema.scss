@@ -33,9 +33,9 @@ i.icon.help { background: url(../images/help.png); }
 
 #form-requisicao {
 	.detalhes { display: none; }
-	#helper-local { width: emCalc(630); position: absolute; top: -45px; right: 15px; }
+	#helper-local { width: emCalc(630); position: absolute; top: -58px; right: 15px; line-height: 1.5; }
 	#helper-enviar { position: absolute; right: 0; top: 2px }
-	#helper-novo-servico { position: absolute; width: 100%; left: 0; top: 0px; }
+	#helper-novo-servico { position: absolute; width: 100%; left: 0; top: -6px; }
 	a.button-delete { position: absolute; width: 16px; height: 16px; display: block; padding: 0 !important; margin: 0 !important; text-indent: -10000px; background: url(../images/delete.png) 0 0 no-repeat; opacity: .5; @include desature-on; -webkit-transition: all .15s ease; -moz-transition: all .15s ease; transition: all .15s ease;
 		&:hover { opacity: 1; @include desature-off; }
 	}
