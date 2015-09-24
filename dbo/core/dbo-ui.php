@@ -498,6 +498,8 @@ class dboUI
 					<?
 						echo peixeAjaxFileUploadInput($name, 'input-imagem-'.$name, (($required && !$file_exists)?('required'):('')), $value."\n".$value, array(
 							'classes' => (($required)?('required'):(''))." ".$classes,
+							'icon' => 'fa fa-fw fa-cloud-upload',
+							'text' => 'clique para fazer o upload',
 							'data_attributes' => array(
 								'titulo' => $titulo,
 							)
@@ -520,6 +522,8 @@ class dboUI
 					<?
 						echo peixeAjaxFileUploadInput($name, 'input-file-'.$name, (($required && !$file_exists)?('required'):('')), $value."\n".$value, array(
 							'classes' => (($required)?('required'):(''))." ".$classes,
+							'icon' => 'fa fa-fw fa-cloud-upload',
+							'text' => 'clique para fazer o upload',
 							'data_attributes' => array(
 								'titulo' => $titulo,
 							)

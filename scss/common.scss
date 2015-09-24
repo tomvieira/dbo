@@ -124,6 +124,8 @@ div[media-manager-element="image-container"] { max-width: 100%;
 	}
 }
 
+input[type="file"][peixe-ajax-file-upload] { position: absolute; width: 1px; height: 1px; opacity: 0; margin-top: 30px; margin-left: 15px; }
+
 input, a, select {
 	&:focus { outline: 0; }
 	&.auto { width: auto !important; display: inline-block !important; }

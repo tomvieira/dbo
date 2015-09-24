@@ -367,33 +367,35 @@ function peixeAjaxFileUploadSendXHRequest(formData, uri, input_id) {
 
 // Handle the start of the transmission
 function peixeAjaxFileUploadonloadstartHandler(evt) {
-	var container = $("#"+evt.target.input_id).next('.peixe-ajax-upload-status');
+	//var container = $("#"+evt.target.input_id).nextAll('.peixe-ajax-upload-status').first();
+	var container = $("#"+evt.target.input_id).next('label');
 	//upload started
 	container.prev('input[type="file"]').hide();
-	container.find('.upload-progress').show();
-	container.find('.upload-sending').show();
+	container.find('i').removeClass().addClass('fa fa-fw fa-spinner fa-spin');
 }
 
 // Handle the end of the transmission
 function peixeAjaxFileUploadonloadHandler(evt) {
-	var container = $("#"+evt.target.input_id).next('.peixe-ajax-upload-status');
+	//var container = $("#"+evt.target.input_id).nextAll('.peixe-ajax-upload-status').first();
 	//upload ended
 }
 
 // Handle the progress
 function peixeAjaxFileUploadonprogressHandler(evt) {
-	var container = $("#"+evt.target.input_id).next('.peixe-ajax-upload-status');
+	/*var container = $("#"+evt.target.input_id).nextAll('.peixe-ajax-upload-status').first();
 	var progress_bar = container.find('.progress .meter');
 	var percent = evt.loaded/evt.total*100;
-	progress_bar.css('width', percent+'%');
+	progress_bar.css('width', percent+'%');*/
 }
 
 // Handle the response from the server
 function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 	var status, text, readyState;
-	var container = $("#"+evt.target.input_id).next('.peixe-ajax-upload-status');
+	var input = $("#"+evt.target.input_id);
+	var container = input.nextAll('.peixe-ajax-upload-status').first();
+	var label = input.next('label');
 
-	$("#"+evt.target.input_id).trigger('uploadStart', {});
+	input.trigger('uploadStart', {});
 
 	try {
 		readyState = evt.target.readyState;
@@ -409,52 +411,70 @@ function peixeAjaxFileUploadonreadystatechangeHandler(evt) {
 		var data = $.parseJSON(evt.target.responseText);
 		if(data.error){
 			//erro de qualquer natureza na hora do upload
-			container.find('.upload-progress').fadeOut('fast');
-			container.find('.upload-sending').fadeOut('fast', function(){
-				container.find('.upload-error').fadeIn('fast').find('span').text(data.error);
-			});
-			$("#"+evt.target.input_id).trigger('uploadCanceled', {});
+			label.removeClass('secondary').addClass('alert').find('i').removeClass().addClass('fa fa-fw fa-times');
+			label.find('.text').html('Erro: '+data.error);
+			/*container.find('.upload-sending').fadeOut('fast', function(){
+				container.find('.upload-error').fadeIn('fast').find('span').text();
+			});*/
+			input.trigger('uploadCanceled', {});
 		}
 		else {
 			//tudo ok, disparar evento
 			//var event = new CustomEvent('upload-done', { 'detail': { 'old_file_name': data.old_name, 'new_file_name': data.name } });
-			//$("#"+evt.target.input_id)[0].dispatchEvent(event);
-			$("#"+evt.target.input_id).val('').trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name, data: data });
+			//input[0].dispatchEvent(event);
+			input.val('').trigger('uploadDone', { 'old_file_name': data.old_name, 'new_file_name': data.name, data: data });
+			if(input.prop('required')){
+				input.attr('data-ex-required', true);
+				input.prop('required', false);
+			}
 
-			container.find('input[type="text"]').val(data.name);
-			container.find('.upload-sending').hide();
+			container.find('input[type="hidden"]').val(data.name);
+			label.removeClass('alert secondary').find('.text').text(data.old_name);
+			label.removeClass('alert secondary').find('i').removeClass().addClass('fa fa-fw fa-check');
+			label.attr('title', data.old_name+' - Pressione CTRL+CLICK para remover o arquivo.');
+			/*container.find('.upload-sending').hide();
 			container.find('.upload-success').show();
 			container.find('.upload-success').fadeOut('fast', function(){
 				container.find('.upload-progress').fadeOut('fast', function(){
 					container.find('.upload-file-placeholder').fadeIn('fast').find('.uploaded-file').text(data.old_name);
 				})
-			})
+			})*/
 		}
 	}
 }
 
 //reset the ajax file upload
 function peixeAjaxFileUploadRetry(input_id) {
+	console.log('retry upload');
 	var input = $('#'+input_id);
-	var container = input.next('.peixe-ajax-upload-status');
+	var container = input.nextAll('.peixe-ajax-upload-status').first();
+	var label = input.next('label');
 
 	//reseta todo o campo de upload
-	container.find('.upload-progress:visible').hide();
-	container.find('.upload-sending:visible').hide();
-	container.find('.upload-success:visible').hide();
-	container.find('.upload-error:visible').hide();
-	container.find('.upload-file-placeholder:visible').hide();
-	container.find('input[type="text"]').val('');
+	//container.find('.upload-progress:visible').hide();
+	//container.find('.upload-sending:visible').hide();
+	//container.find('.upload-success:visible').hide();
+	//container.find('.upload-error:visible').hide();
+	//container.find('.upload-file-placeholder:visible').hide();
+	container.find('input[type="hidden"]').val('');
 	input.val('').fadeIn('fast');
+	label.addClass('secondary').find('i').removeClass().addClass(label.data('icon'));
+	label.find('.text').text(label.data('text'));
+	label.attr('title', '');
+	if(input.data('ex-required') == true){
+		console.log('ex_required');
+		input.prop('required', true);
+		input.attr('data-ex-required', false);
+	}
 }
 
 function peixeAjaxFileUploadInit() {
-	$('[peixe-ajax-file-upload]').each(function(){
+	$('input[type="file"][peixe-ajax-file-upload]').each(function(){
 		var foo = $(this);
 		//verifica se a função já não rodou para este elemento...
 		if(!foo.hasClass('peixe-ajax-file-upload-ready')){
 			foo.addClass('peixe-ajax-file-upload-ready');
-			var required = ((foo.prop('required'))?('required'):(''));
+			//var required = ((foo.prop('required'))?('required'):(''));
 			var name = foo.attr('name');
 			var aux_name = name+"_aux";
 
@@ -462,7 +482,7 @@ function peixeAjaxFileUploadInit() {
 			foo.attr('name', aux_name);
 
 			//inserindo toda o container do upload
-			$('<div class="peixe-ajax-upload-status"><input type="text" name="'+name+'" value="" style="display: none;" '+required+'/><div class="upload-progress progress radius" style="display: none;"><span class="meter" style="width: 0%;"></span></div><div class="upload-sending font-14 margin-bottom" style="display: none;"><i class="fa-spinner fa-spin"></i> <span>Enviando...</span></div><div class="upload-success font-14 margin-bottom" style="display: none;"><i class="fa-check"></i> <span>Sucesso!</span></div><div class="upload-error font-14 alert-box radius alert" style="display: none;"><i class="fa-refresh pointer trigger-peixe-ajax-upload-retry right" title="Tentar novamente..."></i> <span>Erro ao enviar o arquivo</span></div><div class="upload-file-placeholder font-14 alert-box radius" style="display: none;"><i class="fa-file-text-o"></i> <span class="uploaded-file">nome-do-arquivo.php</span> <a href="#" style="color: #fff;" class="margin-bottom trigger-peixe-ajax-upload-remove" title="Remover este arquivo"><i class="fa-close right"></i></a></div></div>').insertAfter(foo);
+			$('<div class="peixe-ajax-upload-status"><input type="hidden" name="'+name+'" value="" style="display: none;"/><div class="upload-progress progress radius" style="display: none;"><span class="meter" style="width: 0%;"></span></div><div class="upload-sending font-14 margin-bottom" style="display: none;"><i class="fa-spinner fa-spin"></i> <span>Enviando...</span></div><div class="upload-success font-14 margin-bottom" style="display: none;"><i class="fa-check"></i> <span>Sucesso!</span></div><div class="upload-error font-14 alert-box radius alert" style="display: none;"><i class="fa-refresh pointer trigger-peixe-ajax-upload-retry right" title="Tentar novamente..."></i> <span>Erro ao enviar o arquivo</span></div><div class="upload-file-placeholder font-14 alert-box radius" style="display: none;"><i class="fa-file-text-o"></i> <span class="uploaded-file">nome-do-arquivo.php</span> <a href="#" style="color: #fff;" class="margin-bottom trigger-peixe-ajax-upload-remove" title="Remover este arquivo"><i class="fa-close right"></i></a></div></div>').insertAfter(foo.next('label'));
 
 		}
 	})
@@ -537,14 +557,17 @@ $(document).ready(function(){
 	});
 
 	//resetando o formulário quando o usuário remover o arquivo uploadedado
-	$(document).on('click', '.trigger-peixe-ajax-upload-remove', function(e){
-		e.preventDefault();
-		var ans = confirm("Tem certeza que deseja remover este arquivo?");
-		if (ans==true) {
-			input = $(this).closest('.peixe-ajax-upload-status').prev('input[type="file"]');
-			peixeAjaxFileUploadRetry(input.attr('id'));
-			input.trigger('fileRemoved', {})
-		} 
+	$(document).on('click', 'input[type="file"][peixe-ajax-file-upload]', function(e){
+		//e.preventDefault();
+		if(e.ctrlKey){
+			e.preventDefault();
+			var ans = confirm("Tem certeza que deseja remover este arquivo?");
+			if (ans==true) {
+				input = $(this);
+				peixeAjaxFileUploadRetry(input.attr('id'));
+				input.trigger('fileRemoved', {})
+			} 
+		}
 	});
 
 	//confirmando uma ação, em um click em um link por exemplo.
