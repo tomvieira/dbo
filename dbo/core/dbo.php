@@ -1198,6 +1198,27 @@ class Dbo extends Obj
 
 	//salva no banco caso não eixta um registro carregado no objeto ----------------------------------------------------------------------
 
+	function getOperationType()
+	{
+		//se a chave for auto increment trata de uma forma
+		if($this->getPKType() == 'AUTO_INCREMENT')
+		{
+			if($this->id) 
+				return 'update';
+			return 'save';
+		}
+		else
+		{
+			$sql = "SELECT ".$this->getPK()." FROM ".$this->getTable()." WHERE ".$this->getPK()." = '".$this->id."'";
+			dboQuery($sql);
+			if(dboAffectedRows()) 
+				return 'update';
+			return 'save';
+		}
+	}
+
+	//identifica se a operação vai ser insert ou updae para o auto-insert ----------------------------------------------------------------
+
 	function saveOrUpdate()
 	{
 		//se a chave for auto increment trata de uma forma
@@ -4590,16 +4611,11 @@ class Dbo extends Obj
 				}
 			}
 
-			if($this->id)
-			{
-				$new = $this->update();
-				$operation = 'update';
-			}
-			else
-			{
+			$operation = $this->getOperationType();
+
+			if($operation == 'save')
 				$new = $this->save();
-				$operation = 'save';
-			}
+			$new = $this->update();
 
 			//executando pos_update e pos_insert
 			if($operation == 'update') { //update

@@ -97,6 +97,11 @@
 			$return .= "<script src=\"".$js_url."/jquery.autosize.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "autosize";
 		}
+		if(!in_array("masonry", $_system['dbo_imported_js']) && (in_array("masonry", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/masonry.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "masonry";
+		}
 		if(!in_array("slick-carousel", $_system['dbo_imported_js']) && (in_array("slick-carousel", $libs) || $import_all))
 		{
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/slick/slick.css\">\n";
