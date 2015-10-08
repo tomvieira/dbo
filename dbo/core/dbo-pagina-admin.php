@@ -84,6 +84,10 @@
 						</div>
 					</div>
 
+					<? $hooks->do_action('dbo_'.$tipo.'_form_titulo_after', $pag, $params); ?>
+					
+					<? $hooks->do_action('dbo_'.$tipo.'_form_subtitulo_before', $pag, $params); ?>
+
 					<div class="row wrapper-pagina-field-subtitulo" id="wrapper-subtitulo" style="<?= $pag->hideFormField('subtitulo') ? 'display: none;' : '' ?>">
 						<div class="large-12 columns">
 							<?= $pag->getFormElement($operation, 'subtitulo', array(
@@ -92,8 +96,28 @@
 							)); ?>
 						</div>
 					</div>
+
+					<? $hooks->do_action('dbo_'.$tipo.'_form_subtitulo_after', $pag, $params); ?>
+					
+					<? $hooks->do_action('dbo_'.$tipo.'_form_resumo_before', $pag, $params); ?>
+
+					<?php
+						if($tipo != 'pagina')
+						{
+							?>
+							<div class="row wrapper-pagina-field-resumo" id="wrapper-resumo" style="<?= $pag->hideFormField('resumo') ? 'display: none;' : '' ?>">
+								<div class="large-12 columns">
+									<?= $pag->getFormElement($operation, 'resumo', array(
+										'placeholder' => 'Digite aqui o resumo',
+										'styles' => 'margin-top: 5px; margin-bottom: 1em',
+									)); ?>
+								</div>
+							</div>
+							<?php
+						}
+					?>
 			
-					<? $hooks->do_action('dbo_'.$tipo.'_form_titulo_after', $pag, $params); ?>
+					<? $hooks->do_action('dbo_'.$tipo.'_form_resumo_after', $pag, $params); ?>
 					
 					<? $hooks->do_action('dbo_'.$tipo.'_form_conteudo_before', $pag, $params); ?>
 			
@@ -1110,6 +1134,10 @@
 												'label' => 'Subtítulo',
 											),
 											array(
+												'name' => 'resumo',
+												'label' => 'Resumo',
+											),
+											array(
 												'name' => 'texto',
 												'label' => 'Texto',
 											),
@@ -1126,6 +1154,12 @@
 												'label' => 'Imagem destacada',
 											),
 										);
+
+										if($tipo == 'pagina')
+										{
+											//removendo o campo "resumo" das paginas
+											unset($campos[2]);
+										}
 
 										foreach($campos as $campo)
 										{

@@ -32,6 +32,7 @@
 	//'hidden_fields' => array( //array contendo o campos que não devem ser exibidos por padrão no formulário.
 		//'slug',
 		//'subtitulo',
+		//'resumo',
 		//'texto',
 		//'autor',
 		//'atributos',

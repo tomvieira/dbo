@@ -164,8 +164,7 @@ $field->filter = false;
 $field->order = false;
 $field->type = 'TEXT';
 $field->interaction = '';
-$field->classes = 'tinymce';
-$field->tipo = 'textarea-rich';
+$field->tipo = 'textarea';
 $field->rows = 5;
 $module->campo[$field->coluna] = $field;
 
