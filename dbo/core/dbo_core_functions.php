@@ -877,7 +877,6 @@
 				return makeSlug($file).$ext;
 			}
 		}
-		
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1334,7 +1333,6 @@
 			}
 			$count++;
 		}
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1403,7 +1401,6 @@
 			}
 			$count++;
 		}
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1552,7 +1549,6 @@
 		}
 		return false;
 		*/
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1667,7 +1663,7 @@
 
 		return false;
 
-/*		$obj = new dbo('perfil');
+		/*$obj = new dbo('perfil');
 		$obj->id = $perfil;
 		$obj->load();
 
@@ -2296,6 +2292,7 @@
 					<div class="large-12 columns" style="height: 0;">
 						<ul id="dbo-top-dock">
 							<?= isSuperAdmin() ? '<li><a href="'.DBO_URL.'/dbomaker/?reffered=1" target="dbomaker" class="color light pointer" title="Gerador de módulos do DBO" data-tooltip><i class="fa fa-fw fa-cube"></i></a></li>' : '' ?>
+							<?= logadoNoPerfil('Desenv') ? '<li><a href="'.DBO_URL.'/core/site-sync.php" class="color light pointer peixe-json" title="Sincronizar informações da base de dados" data-tooltip><i class="fa fa-fw fa-database"></i></a></li>' : '' ?>
 							<?php $hooks->do_action('dbo_top_dock'); ?>
 						</ul>
 					</div>

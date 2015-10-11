@@ -1,6 +1,8 @@
 <?
-require('lib/includes.php');
+
+require_once('lib/includes.php');
 auth();
+
 if($_GET['getDiskModules'])
 {
 	getDiskModules();
@@ -134,13 +136,16 @@ elseif($_GET['syncDatabase'])
 
 /* FUNCTIONS ===================================================================================================== */
 
-function safeArrayKey($key, $array)
+if(!function_exists('safeArrayKey'))
 {
-	if(@array_key_exists($key, $array))
+	function safeArrayKey($key, $array)
 	{
-		return safeArrayKey($key+100, $array);
+		if(@array_key_exists($key, $array))
+		{
+			return safeArrayKey($key+100, $array);
+		}
+		return $key;
 	}
-	return $key;
 }
 
 function getDiskModules ()
@@ -271,7 +276,6 @@ function showModules ()
 
 function showModule ($mod)
 {
-	global $_SESSION;
 	$module = $_SESSION['dbomaker_modulos'][$mod];
 	?>
 		<div class='wrapper-module module-<?= $mod ?>'>

@@ -1,4 +1,8 @@
 <?
+if(!class_exists('Obj'))
+{
+	class Obj {}
+}
 
 ob_start();
 session_start();
@@ -31,7 +35,18 @@ if(@mysql_query($sql))
 	define(HAS_PROFILES, FALSE);
 }
 
-class Obj {}
+if(!function_exists('safeArrayKey'))
+{
+	function safeArrayKey($key, $array)
+	{
+		if(@array_key_exists($key, $array))
+		{
+			return safeArrayKey($key+100, $array);
+		}
+		return $key;
+	}
+}
+
 
 /* ---------------------------------------------------------------------------------------------------------- */
 
