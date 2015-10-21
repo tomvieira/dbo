@@ -97,6 +97,11 @@
 			$return .= "<script src=\"".$js_url."/jquery.autosize.js\"></script>\n";
 			$_system['dbo_imported_js'][] = "autosize";
 		}
+		if(!in_array("masonry", $_system['dbo_imported_js']) && (in_array("masonry", $libs) || $import_all))
+		{
+			$return .= "<script src=\"".$js_url."/masonry.min.js\"></script>\n";
+			$_system['dbo_imported_js'][] = "masonry";
+		}
 		if(!in_array("slick-carousel", $_system['dbo_imported_js']) && (in_array("slick-carousel", $libs) || $import_all))
 		{
 			$return .= "<link rel=\"stylesheet\" href=\"".$js_url."/slick/slick.css\">\n";
@@ -872,7 +877,6 @@
 				return makeSlug($file).$ext;
 			}
 		}
-		
 	}
 	
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1329,7 +1333,6 @@
 			}
 			$count++;
 		}
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1398,7 +1401,6 @@
 			}
 			$count++;
 		}
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1547,7 +1549,6 @@
 		}
 		return false;
 		*/
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -1662,7 +1663,7 @@
 
 		return false;
 
-/*		$obj = new dbo('perfil');
+		/*$obj = new dbo('perfil');
 		$obj->id = $perfil;
 		$obj->load();
 
@@ -2291,6 +2292,7 @@
 					<div class="large-12 columns" style="height: 0;">
 						<ul id="dbo-top-dock">
 							<?= isSuperAdmin() ? '<li><a href="'.DBO_URL.'/dbomaker/?reffered=1" target="dbomaker" class="color light pointer" title="Gerador de módulos do DBO" data-tooltip><i class="fa fa-fw fa-cube"></i></a></li>' : '' ?>
+							<?= logadoNoPerfil('Desenv') ? '<li><a href="'.DBO_URL.'/core/site-sync.php" class="color light pointer peixe-json" title="Sincronizar informações da base de dados" data-tooltip><i class="fa fa-fw fa-database"></i></a></li>' : '' ?>
 							<?php $hooks->do_action('dbo_top_dock'); ?>
 						</ul>
 					</div>

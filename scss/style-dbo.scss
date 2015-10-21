@@ -912,6 +912,20 @@ ul.accordion { list-style: none; border: 1px solid #ddd; border-bottom: none;
 	.top-bar ul.right li i { display: inline-block; width: 16px; height: 16px; background-repeat: no-repeat; background-position: center center; opacity: .8; position: relative; top: 3px; } 
 	.top-bar ul.right li a i { top: 0; }
 
+	.medium-fake-table { display: table;
+		&.full { width: 100%; }
+		&.align-top {
+			> .row {
+				> .columns { vertical-align: top; }
+			}
+		}
+		> .row { display: table-row; float: none; width: auto; vertical-align: middle;
+			> .columns { display: table-cell; float: none; width: auto; vertical-align: middle; padding: .4em $column-gutter/2;
+				input, select, textarea { margin-bottom: 0; width: auto; }
+			}
+		}
+	}
+
 }
 
 // media query custom

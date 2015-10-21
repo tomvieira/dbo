@@ -196,6 +196,10 @@ if(!class_exists('categoria'))
 				global $_category_tree;
 				global $_pagina_tipo;
 				global $_categoria;
+				global $_slug;
+
+				$_slug = $_slug !== null ? $_slug : $_GET['slug'];
+
 				//situação para categorias especificas
 				if($_GET['slug'])
 				{
