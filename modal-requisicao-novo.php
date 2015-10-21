@@ -102,7 +102,15 @@
 							<div class="large-4 columns">
 								<label for=""><i class="fa fa-asterisk font-14"></i> Status</label>
 								<select name="status" data-last-value="<?= $serv->status ?>" id="modal-requisicao-status">
-									<?= $serv->getMulti('status', 'select', $serv->status) ?>
+									<?php
+										foreach($_serv->__module_scheme->campo[status]->valores as $key => $value)
+										{
+											if(!in_array($key, (array)$_system['status_ocultos']))
+											{
+												?><option value="<?= $key ?>" <?= $serv->status == $key ? 'selected' : '' ?>><?= $value ?></option><?php
+											}
+										}
+									?>
 								</select>
 							</div>
 							<div class="large-4 columns">
