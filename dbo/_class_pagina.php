@@ -1142,12 +1142,15 @@ $hooks->add_action('dbo_includes_after', 'pagina::startPaginaEngine');
 
 //definindo os tipos de páginas deste sistema.
 global $_system;
-$_system['pagina_tipo']['pagina'] = array(
-	'tipo' => 'pagina',
-	'titulo' => 'página',
-	'titulo_plural' => 'páginas',
-	'genero' => 'a'
-);
+if(!$_system['pagina_tipo']['pagina'])
+{
+	$_system['pagina_tipo']['pagina'] = array(
+		'tipo' => 'pagina',
+		'titulo' => 'página',
+		'titulo_plural' => 'páginas',
+		'genero' => 'a'
+	);
+}
 
 function siteTitulo($titulo = false, $params = array())
 {
@@ -1184,6 +1187,7 @@ function siteTitulo($titulo = false, $params = array())
 function siteConfig()
 {
 	global $_conf;
+	config::init();
 	return $_conf;
 }
 
