@@ -26,6 +26,12 @@
 			'max_width' => '1200',
 			'max_height' => '1200',
 			'quality' => '80'
+		),
+		'hd' => array(
+			'name' => 'HD',
+			'max_width' => '1920',
+			'max_height' => '1600',
+			'quality' => '75'
 		)
 	);
 
