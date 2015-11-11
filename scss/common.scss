@@ -326,6 +326,27 @@ hr.tiny { margin: 0.50em 0; }
 		.large-din-right { float: right; }
 	}
 
+	/* meta tabela */
+
+	.medium-meta-table { display: table;
+		&.full { width: 100%; }
+		&.align-top {
+			> .row { vertical-align: top;
+				> .columns { vertical-align: top; }
+			}
+		}
+		&.less-padding {
+			> .row { 
+				> .columns { padding: .4em $column-gutter/4; }
+			}
+		}
+		> .row { display: table-row; float: none; width: auto; vertical-align: middle;
+			> .columns { display: table-cell; float: none !important; width: auto; vertical-align: middle; padding: .4em $column-gutter/2;
+				input, select, textarea { margin-bottom: 0; width: auto; }
+			}
+		}
+	}
+
 	/* alteração de fonte sob demanda */
 	.font-9-for-medium-up { font-size: 9px; }
 	.font-10-for-medium-up { font-size: 10px; }
