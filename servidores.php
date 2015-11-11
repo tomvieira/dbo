@@ -337,7 +337,6 @@
 
 </div><!-- painel-servidores -->
 
-
 <script>
 
 	/* recarrega a lista de servicos de todo mundo */

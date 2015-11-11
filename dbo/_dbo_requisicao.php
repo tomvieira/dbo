@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'requisicao' ================================== AUTO-CREATED ON 31/03/2015 12:49:14 */
+/* DBO DEFINITION FILE FOR MODULE 'requisicao' ================================== AUTO-CREATED ON 23/10/2015 11:22:56 */
 /* ================================================================================================================== */
 
 
@@ -20,6 +20,7 @@ $module->delete = true;
 $module->insert = 'Novo Requisição';
 $module->preload_insert_form = true;
 $module->auto_view = true;
+$module->ignore_permissions = false;
 $module->order_by = '16';
 
 /* FIELDS =========================================================================================================== */
@@ -233,6 +234,32 @@ $field->order = true;
 $field->type = 'VARCHAR(255)';
 $field->interaction = '';
 $field->tipo = 'text';
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Unidade';
+$field->coluna = 'unidade';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = true;
+$field->edit = true;
+$field->view = true;
+$field->lista = true;
+$field->filter = true;
+$field->order = true;
+$field->type = 'INT(11)';
+$field->interaction = '';
+$field->tipo = 'join';
+	$join = new Obj();
+	$join->modulo = 'unidade';
+	$join->chave = 'id';
+	$join->valor = 'sigla';
+	$join->tipo = 'select';
+	$join->order_by = 'sigla';
+$field->join = $join;
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/

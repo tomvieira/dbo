@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 24/09/2015 13:51:14 */
+/* DBO DEFINITION FILE FOR MODULE 'tipo_servico' ================================ AUTO-CREATED ON 23/10/2015 14:39:35 */
 /* ================================================================================================================== */
 
 
@@ -295,6 +295,93 @@ $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
 
+$field = new Obj();
+$field->titulo = 'Habilitar níveis técnicos?';
+$field->coluna = 'habilitar_niveis_tecnicos';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = true;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'radio';
+$field->valores = array(
+	'0' => 'não',
+	'1' => 'sim',
+);
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Acesso técnico nível 2';
+$field->coluna = 'tipo_servico_pessoa_nivel_2';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT(11)';
+$field->interaction = '';
+$field->tipo = 'joinNN';
+	$join = new Obj();
+	$join->modulo = 'pessoa';
+	$join->chave = 'id';
+	$join->valor = 'nome';
+	$join->ajax = true;
+	$join->select2 = true;
+	$join->tabela_ligacao = 'tipo_servico_pessoa_nivel_2';
+	$join->chave1 = 'tipo_servico';
+	$join->chave2 = 'pessoa';
+	$join->tamanho_minimo = '4';
+	$join->tipo = 'select';
+	$join->order_by = 'nome';
+$field->join = $join;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Acesso técnico nivel 3';
+$field->coluna = 'tipo_servico_pessoa_nivel_3';
+$field->pk = false;
+$field->isnull = true;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT(11)';
+$field->interaction = '';
+$field->tipo = 'joinNN';
+	$join = new Obj();
+	$join->modulo = 'pessoa';
+	$join->chave = 'id';
+	$join->valor = 'nome';
+	$join->ajax = true;
+	$join->select2 = true;
+	$join->tabela_ligacao = 'tipo_servico_pessoa_nivel_3';
+	$join->chave1 = 'tipo_servico';
+	$join->chave2 = 'pessoa';
+	$join->tamanho_minimo = '4';
+	$join->tipo = 'select';
+	$join->order_by = 'nome';
+$field->join = $join;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
 /* GRID FOR THE FORM LAYOUT ========================================================================================= */
 
 $grid = array();
@@ -302,6 +389,10 @@ $grid = array();
 $grid[] = array('12');
 $grid[] = array('4','3','2','3');
 $grid[] = array('4','8');
+$grid[] = array('12');
+$grid[] = array('Dados de acesso técnico');
+$grid[] = array('12');
+$grid[] = array('12');
 $grid[] = array('12');
 
 $module->grid = $grid;

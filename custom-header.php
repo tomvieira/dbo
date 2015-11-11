@@ -72,7 +72,7 @@
 					<h2><i></i> <?= HEADER_NAME ?></h2>
 				</div>
 				<div class='large-5 columns hide-for-small tar'>
-					<span><?= UNIDADE_NAME ?></span>
+					<span><?= sistema::getUnidadeSelector(); ?></span>
 				</div>
 			</div><!-- row -->
 		</div>

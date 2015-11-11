@@ -36,6 +36,14 @@ $json_result = array();
 /* setando na seção um token para impedir a resubmissão dos arquivos */
 
 /* checando se todos os dados do requisitante estão ok */
+
+/* antes de mais nada checando se há uma unidade ativa */
+if(!sistema::getUnidadeAtiva())
+{
+	$error[] = "Nenhuma unidade ativa";
+	$message[] = "Erro: não existe uma unidade ativa.<br />Entre em contato com o responsável, tel: <strong>".TELEFONE_ASSISTENCIA_DTI."</strong>. ";
+}
+
 if(
 	!strlen(trim($_POST['nome_requisitante'])) ||
 	!strlen(trim($_POST['email_requisitante'])) ||
@@ -101,6 +109,7 @@ if(sizeof($error) == 0 && checkSubmitToken())
 	updateTelefone(dboescape($_POST['email_requisitante']), dboescape($_POST['telefone_requisitante']));
 	$req->data = $req->now();
 	$req->navegador = $_SERVER['HTTP_USER_AGENT'];
+	$req->unidade = sistema::getUnidadeAtiva();
 	if($req->save())
 	{
 		//se criou a requisicao certinho, criar os itens.
@@ -131,6 +140,7 @@ if(sizeof($error) == 0 && checkSubmitToken())
 				$item->descricao = $_POST['descricao'][$key_local][$key_servico];
 				$item->prioridade = $serv->prioridade;
 				$item->status = 0;
+				$item->nivel_tecnico = 1;
 				$item->token = generatePassword();
 				//verificando se o tipo de servico permite upload e o upload existe
 				$file_on_server = trim($_POST['anexo'][$key_local][$key_servico]);

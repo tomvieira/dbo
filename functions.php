@@ -61,6 +61,51 @@
 		return (($cifrao)?('R$ '):('')).number_format($num, 2, ',', '.');
 	}
 
+	function getPessoaNiveisTecnicos($pessoa_id)
+	{
+		global $_system;
+		if(!$_system['pessoa'][$pessoa_id]['niveis_tecnicos'])
+		{
+			$niveis = array();
+			$ts = new tipo_servico();
+			//pegando todos os de nivel 2
+			$sql = "SELECT tipo_servico FROM tipo_servico_pessoa_nivel_2 WHERE pessoa = '".$pessoa_id."';";
+			$res = dboQuery($sql);
+			if(dboAffectedRows())
+			{
+				while($lin = dboFetchObject($res))
+				{
+					$niveis[2][$lin->tipo_servico] = $lin->tipo_servico;
+				}
+			}
+			//pegando todos os de nivel 3
+			$sql = "SELECT tipo_servico FROM tipo_servico_pessoa_nivel_3 WHERE pessoa = '".$pessoa_id."';";
+			$res = dboQuery($sql);
+			if(dboAffectedRows())
+			{
+				while($lin = dboFetchObject($res))
+				{
+					$niveis[3][$lin->tipo_servico] = $lin->tipo_servico;
+				}
+			}
+			$_system['pessoa'][$pessoa_id]['niveis_tecnicos'] = $niveis;
+		}
+		return $_system['pessoa'][$pessoa_id]['niveis_tecnicos'];
+	}
+
+	function pessoaHasNivelTecnico($pessoa_id, $nivel = null)
+	{
+		$niveis = getPessoaNiveisTecnicos($pessoa_id);
+		if($nivel === null)
+		{
+			return sizeof($niveis);
+		}
+		else
+		{
+			return sizeof($niveis[$nivel]);
+		}
+	}
+
 	function dashBoard()
 	{
 		global $_pes;

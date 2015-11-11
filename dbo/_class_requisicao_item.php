@@ -73,9 +73,12 @@ if(!class_exists('requisicao_item'))
 		function getPainelList($params = array())
 		{
 			global $_STATUS_NAMES;
+			global $_pes;
 			global $_pessoa;
 			global $_local;
 			global $_system;
+
+			$uni = new unidade();
 
 			$params = (array)$params;
 
@@ -152,6 +155,11 @@ if(!class_exists('requisicao_item'))
 				);
 			}
 
+			if(pessoaHasNivelTecnico($_pes->id))
+			{
+				$columns[] = 'unidade';
+			}
+
 			/* termos especificos da busca */
 			if(strlen($params['term']))
 			{
@@ -202,18 +210,25 @@ if(!class_exists('requisicao_item'))
 
 			$sql = "
 				SELECT 
-					ri.*
+					ri.*,
+					uni.sigla AS sigla_unidade
 				FROM
 					requisicao r,
 					requisicao_item ri,
 					tipo_servico ts,
 					categoria_servico cs,
-					".$_pessoa->__module_scheme->tabela." p,
-					".$_local->__module_scheme->tabela." l
-				LEFT JOIN 
-					".$_local->__module_scheme->tabela." l2 
-					ON l.pai = l2.id
+					".$uni->getTable()." uni,
+					".$_pessoa->getTable()." p,
+					".$_local->getTable()." l
+				LEFT JOIN ".$_local->getTable()." l2 ON 
+					l.pai = l2.id
 				WHERE
+					(
+						r.unidade = '".sistema::getUnidadeAtiva()."'
+						".(pessoaHasNivelTecnico($_pes->id, 2) ? " OR (ri.nivel_tecnico = 2 AND ri.tipo_servico IN (".implode(',', getPessoaNiveisTecnicos($_pes->id)[2])."))" : '')."
+						".(pessoaHasNivelTecnico($_pes->id, 3) ? " OR (ri.nivel_tecnico = 3 AND ri.tipo_servico IN (".implode(',', getPessoaNiveisTecnicos($_pes->id)[3])."))" : '')."
+					) AND
+					r.unidade = uni.id AND
 					ri.requisicao = r.id AND
 					ri.tipo_servico = ts.id AND
 					ts.categoria_servico = cs.id AND
@@ -279,6 +294,7 @@ if(!class_exists('requisicao_item'))
 								<?= ((in_array('historico', $columns))?("<th>Histórico</th>"):('')) ?>
 								<?= ((in_array('ultimo-historico', $columns))?("<th>Histórico</th>"):('')) ?>
 								<?= ((in_array('servidores', $columns))?("<th>Responsáveis</th>"):('')) ?>
+								<?= ((in_array('unidade', $columns))?("<th>Unidade</th>"):('')) ?>
 							</tr>
 						</thead>
 						<tbody>
@@ -405,6 +421,12 @@ if(!class_exists('requisicao_item'))
 												?>
 											</td>
 											<?
+										}
+										if(in_array('unidade', $columns))
+										{
+											?>
+											<td><span class="label secondary alt radius color medium"><?= $item->sigla_unidade ?></span></td>
+											<?php
 										}
 									?>
 								</tr>

@@ -1,7 +1,7 @@
 <?
 
 /* ================================================================================================================== */
-/* DBO DEFINITION FILE FOR MODULE 'requisicao_item' ============================= AUTO-CREATED ON 23/09/2015 15:40:22 */
+/* DBO DEFINITION FILE FOR MODULE 'requisicao_item' ============================= AUTO-CREATED ON 23/10/2015 14:33:31 */
 /* ================================================================================================================== */
 
 
@@ -515,6 +515,30 @@ $field->interaction = '';
 $field->tipo = 'file';
 	$file = new Obj();
 $field->file = $file;
+$module->campo[$field->coluna] = $field;
+
+/*==========================================*/
+
+$field = new Obj();
+$field->titulo = 'Nível técnico';
+$field->coluna = 'nivel_tecnico';
+$field->pk = false;
+$field->isnull = false;
+$field->add = true;
+$field->valida = false;
+$field->edit = true;
+$field->view = true;
+$field->lista = false;
+$field->filter = false;
+$field->order = false;
+$field->type = 'INT';
+$field->interaction = '';
+$field->tipo = 'select';
+$field->valores = array(
+	'1' => '1',
+	'2' => '2',
+	'3' => '3',
+);
 $module->campo[$field->coluna] = $field;
 
 /*==========================================*/
