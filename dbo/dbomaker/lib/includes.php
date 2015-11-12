@@ -236,7 +236,8 @@ function syncTable($module)
 				$sql_join .= "\t".$field->join->chave2." int(11) NOT NULL,\n";
 				$sql_join .= "UNIQUE (".$field->join->chave1.", ".$field->join->chave2."),\n";
 				$sql_join .= "PRIMARY KEY (id)\n";
-				$sql_join .= ") ENGINE = MYISAM DEFAULT CHARSET=utf8";
+				$sql_join .= ") ENGINE = MYISAM DEFAULT CHARSET=utf8; ";
+				mysql_query($sql_join);
 			}
 			elseif($field->coluna == 'inativo')
 			{
@@ -260,10 +261,10 @@ function syncTable($module)
 	$sql .= ") ENGINE = MYISAM DEFAULT CHARSET=utf8; ";
 
 	mysql_query($sql);
-	if($sql_join)
+	/*if($sql_join)
 	{
-		mysql_query($sql_join);
-	}
+		echo $module->tabela." ##### ".$sql_join;
+	}*/
 
 	//and now checking for the fields in the table. alter tables to create extra-fields.
 
